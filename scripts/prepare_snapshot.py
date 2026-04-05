@@ -14,6 +14,8 @@ if str(ROOT) not in sys.path:
 from src.pipeline.snapshot import prepare_daily_snapshot
 from src.utils.cli import write_json
 from src.utils.config import load_project_configs, resolve_path
+from src.utils.exceptions import DataSourceError
+from src.utils.storage import read_dataset_flex
 
 
 def parse_args() -> argparse.Namespace:
@@ -99,11 +101,13 @@ def main() -> int:
     universe_rules_cfg = configs["universe_rules"]
     account_cfg = configs["account"]
 
-    features = pd.read_parquet(resolve_path(args.features_file))
+    features = read_dataset_flex(args.features_file)
     benchmark = pd.read_parquet(resolve_path(args.benchmark_file))
     financials = pd.read_parquet(resolve_path(args.financials_file))
     as_of_date = args.as_of_date or str(features["date"].max())
     snapshot_features = features[features["date"] == as_of_date].copy()
+    if snapshot_features.empty:
+        raise DataSourceError(f"No feature rows available for strict snapshot date {as_of_date}.")
     positions_frame = load_positions_frame(positions_cfg, account_cfg)
     report = prepare_daily_snapshot(
         as_of_date=as_of_date,
@@ -117,12 +121,12 @@ def main() -> int:
         universe_rules_cfg=universe_rules_cfg,
         account_cfg=account_cfg,
         data_errors=[],
-        data_notes=[
-            "开源模式下行业历史归属可能使用当前申万成分近似映射。",
-            "若财报公告日缺失，按报告期 + 30 天生效。",
-            "历史市值在开源模式下可能使用最近快照近似。",
-        ],
+        data_notes=["若财报公告日缺失，按报告期 + 30 天生效。"],
     )
+    if report["data_status"]["safe_mode"]:
+        raise DataSourceError(f"Strict snapshot failed because safe_mode would be triggered on {as_of_date}.")
+    if report["data_status"]["degraded"]:
+        raise DataSourceError(f"Strict snapshot failed because degraded data status was detected on {as_of_date}.")
     output_json = args.output_json or f"data/snapshots/{as_of_date}.json"
     write_json(output_json, report)
     write_json("data/snapshots/latest.json", report)

@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import pytest
 
+from src.adapters.adata_adapter import ADataAdapter
 from src.adapters.akshare_adapter import AkshareAdapter
 from src.adapters.baostock_adapter import BaoStockAdapter
 from src.adapters.common import (
@@ -216,3 +217,80 @@ def test_efinance_base_info_supports_market_caps_and_st_flags(configs: dict, mon
         {"code": "600519.sh", "date": "2024-12-31", "is_st": False},
         {"code": "000752.sz", "date": "2024-12-31", "is_st": True},
     ]
+
+
+def test_adata_symbol_industries_normalizes_levels(configs: dict, monkeypatch) -> None:
+    adapter = ADataAdapter(configs["data_sources"])
+
+    def fake_call(func, namespace: str, *cache_parts, **kwargs):
+        assert namespace == "industry_symbol_map"
+        assert kwargs["stock_code"] == "600000"
+        return pd.DataFrame(
+            [
+                {"stock_code": "600000", "sw_code": "480000", "industry_name": "银行", "industry_type": "申万一级"},
+                {"stock_code": "600000", "sw_code": "480300", "industry_name": "股份制银行Ⅱ", "industry_type": "申万二级"},
+            ]
+        )
+
+    monkeypatch.setattr(adapter, "_call", fake_call)
+
+    frame = adapter.get_symbol_industries("600000.sh", "2026-04-03")
+
+    assert frame.to_dict(orient="records") == [
+        {
+            "code": "600000.sh",
+            "industry_code": "480000",
+            "industry_name": "银行",
+            "industry_level": "first",
+            "as_of_date": "2026-04-03",
+        },
+        {
+            "code": "600000.sh",
+            "industry_code": "480300",
+            "industry_name": "股份制银行Ⅱ",
+            "industry_level": "second",
+            "as_of_date": "2026-04-03",
+        },
+    ]
+
+
+def test_adata_financials_uses_share_history_to_compute_cfo(configs: dict, monkeypatch) -> None:
+    adapter = ADataAdapter(configs["data_sources"])
+
+    def fake_call(func, namespace: str, *cache_parts, **kwargs):
+        if namespace == "financial_core_index":
+            return pd.DataFrame(
+                [
+                    {
+                        "stock_code": "600000",
+                        "report_date": "2025-12-31",
+                        "notice_date": "2026-03-31",
+                        "roe_wtd": "6.76",
+                        "net_profit_attr_sh": "50017000000",
+                        "asset_liab_ratio": "91.82",
+                        "oper_cf_ps": "11.284333",
+                    }
+                ]
+            )
+        raise AssertionError(f"Unexpected namespace: {namespace}")
+
+    monkeypatch.setattr(adapter, "_call", fake_call)
+    monkeypatch.setattr(
+        adapter,
+        "_share_history",
+        lambda symbol: pd.DataFrame(
+            [{"code": "600000.sh", "effective_date": pd.Timestamp("2025-09-30"), "total_shares": 31354686988.0}]
+        ),
+    )
+
+    frame = adapter.get_financials("600000.sh", start_date="2025-01-01", end_date="2026-04-03")
+
+    row = frame.to_dict(orient="records")[0]
+    assert row["code"] == "600000.sh"
+    assert row["report_date"] == "2025-12-31"
+    assert row["announcement_date"] == "2026-03-31"
+    assert row["roe"] == pytest.approx(6.76)
+    assert row["net_profit"] == pytest.approx(50017000000.0)
+    assert row["debt_to_assets"] == pytest.approx(91.82)
+    assert row["cfo"] == pytest.approx(11.284333 * 31354686988.0)
+    assert row["is_st"] is False

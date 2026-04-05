@@ -24,6 +24,7 @@ from src.strategy.universe import (
     write_universe_outputs,
 )
 from src.utils.config import load_project_configs, resolve_path
+from src.utils.storage import read_dataset_flex
 
 
 def parse_args() -> argparse.Namespace:
@@ -50,7 +51,7 @@ def main() -> int:
     universe_cfg = configs["universe"]
     universe_rules_cfg = configs["universe_rules"].copy()
     positions_cfg = configs["positions"]
-    features = pd.read_parquet(resolve_path(args.features_file))
+    features = read_dataset_flex(args.features_file)
     as_of_date = args.as_of_date or str(features["date"].max())
     frequency = args.frequency or universe_rules_cfg.get("rebalance_frequency", "monthly")
     universe_rules_cfg["rebalance_frequency"] = frequency

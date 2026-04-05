@@ -1,40 +1,85 @@
 {
-  "as_of_date": "2026-04-30",
+  "as_of_date": "2026-04-03",
   "tables": [
     {
-      "path": "/Users/meseg/shu/stocks/quantile/data/demo_case/daily_features.parquet",
+      "path": "data/raw/stock_list.parquet",
       "exists": true,
-      "rows": 4,
+      "rows": 5194,
       "missing_rate": 0.0,
-      "date_min": "2026-04-30",
-      "date_max": "2026-04-30",
+      "date_min": null,
+      "date_max": null,
       "stale": false
     },
     {
-      "path": "/Users/meseg/shu/stocks/quantile/data/demo_case/benchmark_daily.parquet",
+      "path": "data/raw/price_daily.parquet",
       "exists": true,
-      "rows": 3,
-      "missing_rate": 0.0,
-      "date_min": "2026-04-28",
-      "date_max": "2026-04-30",
+      "rows": 5907189,
+      "missing_rate": 0.219932,
+      "date_min": "2018-01-02",
+      "date_max": "2026-04-03",
       "stale": false
     },
     {
-      "path": "/Users/meseg/shu/stocks/quantile/data/demo_case/financials_effective.parquet",
+      "path": "data/raw/benchmark_daily.parquet",
       "exists": true,
-      "rows": 4,
+      "rows": 1353,
+      "missing_rate": 0.007555,
+      "date_min": "2021-01-04",
+      "date_max": "2026-04-03",
+      "stale": false
+    },
+    {
+      "path": "data/raw/stock_valuation.parquet",
+      "exists": true,
+      "rows": 2478,
       "missing_rate": 0.0,
-      "date_min": "2025-12-31",
+      "date_min": "1999-11-18",
+      "date_max": "2026-01-28",
+      "stale": true
+    },
+    {
+      "path": "data/raw/industry_daily.parquet",
+      "exists": true,
+      "rows": 14490,
+      "missing_rate": 0.0035,
+      "date_min": "2025-12-01",
+      "date_max": "2026-01-30",
+      "stale": true
+    },
+    {
+      "path": "data/raw/industry_members.parquet",
+      "exists": true,
+      "rows": 15684,
+      "missing_rate": 0.162342,
+      "date_min": null,
+      "date_max": null,
+      "stale": false
+    },
+    {
+      "path": "data/raw/financials.parquet",
+      "exists": true,
+      "rows": 117280,
+      "missing_rate": 0.018851,
+      "date_min": "2020-03-31",
       "date_max": "2025-12-31",
       "stale": true
     },
     {
-      "path": "reports/daily/orders_latest.json",
+      "path": "data/raw/st_flags.parquet",
       "exists": true,
-      "rows": 3,
-      "missing_rate": 0.037037,
-      "date_min": "2026-04-30",
-      "date_max": "2026-04-30",
+      "rows": 5613,
+      "missing_rate": 0.0,
+      "date_min": "2026-01-31",
+      "date_max": "2026-04-04",
+      "stale": false
+    },
+    {
+      "path": "data/raw/market_caps.parquet",
+      "exists": true,
+      "rows": 223,
+      "missing_rate": 0.0,
+      "date_min": "2026-01-31",
+      "date_max": "2026-04-04",
       "stale": false
     }
   ]

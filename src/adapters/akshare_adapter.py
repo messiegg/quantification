@@ -1,8 +1,13 @@
 from __future__ import annotations
 
+import base64
 import inspect
+import time
 
 import pandas as pd
+import requests
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives.padding import PKCS7
 
 from src.adapters.base import DataAdapter
 from src.adapters.common import cache_file, normalize_frame, normalize_symbol, retry_call
@@ -43,6 +48,42 @@ class AkshareAdapter(DataAdapter):
         signature = inspect.signature(fn)
         filtered_kwargs = {key: value for key, value in kwargs.items() if key in signature.parameters}
         return fn(**filtered_kwargs)
+
+    @staticmethod
+    def _cninfo_accept_enckey() -> str:
+        key = b"1234567887654321"
+        iv = b"1234567887654321"
+        payload = str(int(time.time())).encode("utf-8")
+        padder = PKCS7(128).padder()
+        padded = padder.update(payload) + padder.finalize()
+        cipher = Cipher(algorithms.AES(key), modes.CBC(iv))
+        encryptor = cipher.encryptor()
+        ciphertext = encryptor.update(padded) + encryptor.finalize()
+        return base64.b64encode(ciphertext).decode("utf-8")
+
+    def _cninfo_headers(self) -> dict[str, str]:
+        return {
+            "Accept": "*/*",
+            "Accept-Enckey": self._cninfo_accept_enckey(),
+            "Accept-Encoding": "gzip, deflate",
+            "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
+            "Cache-Control": "no-cache",
+            "Host": "webapi.cninfo.com.cn",
+            "Origin": "https://webapi.cninfo.com.cn",
+            "Pragma": "no-cache",
+            "Referer": "https://webapi.cninfo.com.cn/",
+            "User-Agent": "Mozilla/5.0",
+            "X-Requested-With": "XMLHttpRequest",
+        }
+
+    def _cninfo_json(self, method: str, url: str, params: dict[str, object]) -> dict:
+        request = requests.get if method.upper() == "GET" else requests.post
+        response = request(url, params=params, headers=self._cninfo_headers(), timeout=30)
+        response.raise_for_status()
+        payload = response.json()
+        if not isinstance(payload, dict):
+            raise DataSourceError("CNInfo returned a non-dict payload.")
+        return payload
 
     def get_stock_list(self, as_of_date: str) -> pd.DataFrame:
         detail_frames: list[pd.DataFrame] = []
@@ -88,6 +129,174 @@ class AkshareAdapter(DataAdapter):
         renamed["as_of_date"] = as_of_date
         renamed = renamed.drop_duplicates(subset=["code"]).sort_values("code").reset_index(drop=True)
         return renamed[["code", "name", "listed_date", "as_of_date"]]
+
+    def get_sw_industry_hist(self) -> pd.DataFrame:
+        frame = self._call_with_cache(
+            "sw_industry_hist",
+            lambda: self._invoke("stock_industry_clf_hist_sw"),
+            "all",
+        )
+        if frame.empty:
+            raise DataSourceError("AkShare SW industry history is empty.")
+        frame["symbol"] = frame["symbol"].astype(str).map(normalize_symbol)
+        frame["industry_code"] = frame["industry_code"].astype(str).str.removeprefix("S")
+        frame["start_date"] = pd.to_datetime(frame["start_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        frame["update_time"] = pd.to_datetime(frame["update_time"], errors="coerce").dt.strftime("%Y-%m-%d")
+        frame["source"] = "sw_hist_akshare"
+        return frame[["symbol", "start_date", "industry_code", "update_time", "source"]]
+
+    def get_sw_industry_category_cninfo(self) -> pd.DataFrame:
+        def _loader() -> pd.DataFrame:
+            payload = self._cninfo_json(
+                "GET",
+                "https://webapi.cninfo.com.cn/api/stock/p_public0002",
+                {"indcode": "", "indtype": "008003", "format": "json"},
+            )
+            return pd.DataFrame(payload.get("records", []))
+
+        frame = self._call_with_cache("cninfo_sw_category", _loader, "008003")
+        if frame.empty:
+            raise DataSourceError("CNInfo SW category table is empty.")
+        frame = frame.rename(
+            columns={
+                "SORTCODE": "sort_code",
+                "PARENTCODE": "parent_code",
+                "SORTNAME": "industry_name",
+                "F001V": "industry_name_en",
+                "F002D": "end_date",
+                "F003V": "industry_standard_code",
+                "F004V": "industry_standard_name",
+            }
+        ).copy()
+        frame["sort_code"] = frame["sort_code"].astype(str)
+        frame["code"] = frame["sort_code"].str.removeprefix("S")
+        frame["level"] = frame["code"].map(
+            lambda value: 0
+            if value == ""
+            else 1
+            if len(value) == 2
+            else 2
+            if len(value) == 4
+            else 3
+            if len(value) == 6
+            else pd.NA
+        )
+        frame["end_date"] = pd.to_datetime(frame["end_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        frame["source"] = "cninfo_sw_category"
+        return frame[
+            [
+                "sort_code",
+                "code",
+                "parent_code",
+                "industry_name",
+                "industry_name_en",
+                "industry_standard_code",
+                "industry_standard_name",
+                "end_date",
+                "level",
+                "source",
+            ]
+        ]
+
+    def get_share_change_cninfo(self, symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
+        code = normalize_symbol(symbol).split(".")[0]
+
+        def _loader() -> pd.DataFrame:
+            payload = self._cninfo_json(
+                "POST",
+                "https://webapi.cninfo.com.cn/api/stock/p_stock2215",
+                {
+                    "scode": code,
+                    "sdate": pd.Timestamp(start_date).strftime("%Y-%m-%d"),
+                    "edate": pd.Timestamp(end_date).strftime("%Y-%m-%d"),
+                },
+            )
+            return pd.DataFrame(payload.get("records", []))
+
+        frame = self._call_with_cache("cninfo_share_change", _loader, code, start_date, end_date)
+        if frame.empty:
+            raise DataSourceError(f"CNInfo share change empty for {symbol}.")
+        frame = frame.rename(
+            columns={
+                "SECCODE": "symbol",
+                "SECNAME": "security_name",
+                "DECLAREDATE": "announce_date",
+                "VARYDATE": "change_date",
+                "F001V": "reason_code",
+                "F002V": "reason",
+                "F003N": "total_shares",
+                "F021N": "float_shares",
+            }
+        ).copy()
+        frame["symbol"] = frame["symbol"].astype(str).map(normalize_symbol)
+        frame["announce_date"] = pd.to_datetime(frame["announce_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        frame["change_date"] = pd.to_datetime(frame["change_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        for column in ("total_shares", "float_shares"):
+            frame[column] = pd.to_numeric(frame[column], errors="coerce") * 10000.0
+        frame["source"] = "cninfo_share_change"
+        return frame[
+            [
+                "symbol",
+                "security_name",
+                "announce_date",
+                "change_date",
+                "total_shares",
+                "float_shares",
+                "reason",
+                "reason_code",
+                "source",
+            ]
+        ]
+
+    def get_industry_change_cninfo(self, symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
+        code = normalize_symbol(symbol).split(".")[0]
+
+        def _loader() -> pd.DataFrame:
+            payload = self._cninfo_json(
+                "POST",
+                "https://webapi.cninfo.com.cn/api/stock/p_stock2110",
+                {
+                    "scode": code,
+                    "sdate": pd.Timestamp(start_date).strftime("%Y-%m-%d"),
+                    "edate": pd.Timestamp(end_date).strftime("%Y-%m-%d"),
+                },
+            )
+            return pd.DataFrame(payload.get("records", []))
+
+        frame = self._call_with_cache("cninfo_industry_change", _loader, code, start_date, end_date)
+        if frame.empty:
+            raise DataSourceError(f"CNInfo industry change empty for {symbol}.")
+        frame = frame.rename(
+            columns={
+                "SECCODE": "symbol",
+                "SECNAME": "security_name",
+                "VARYDATE": "change_date",
+                "F002V": "standard_name",
+                "F003V": "industry_code",
+                "F004V": "industry_l1",
+                "F005V": "industry_l2",
+                "F006V": "industry_l3",
+                "F007V": "industry_l4",
+            }
+        ).copy()
+        frame["symbol"] = frame["symbol"].astype(str).map(normalize_symbol)
+        frame["change_date"] = pd.to_datetime(frame["change_date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        frame["industry_code"] = frame["industry_code"].astype(str).str.removeprefix("S")
+        frame["source"] = "cninfo_industry_change"
+        return frame[
+            [
+                "symbol",
+                "security_name",
+                "change_date",
+                "standard_name",
+                "industry_code",
+                "industry_l1",
+                "industry_l2",
+                "industry_l3",
+                "industry_l4",
+                "source",
+            ]
+        ]
 
     def get_price_daily(
         self, symbols: list[str], start_date: str, end_date: str, adjust: str

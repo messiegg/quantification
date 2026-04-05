@@ -28,6 +28,38 @@ def test_clear_directories_removes_cache_contents_but_not_sibling_main_tables(tm
     assert main_table.read_text(encoding="utf-8") == "main"
 
 
+def test_clear_directories_ignores_race_when_cache_path_disappears(tmp_path: Path, monkeypatch) -> None:
+    cache_dir = tmp_path / "raw" / "akshare"
+    cache_dir.mkdir(parents=True)
+
+    def fake_rmtree(path: Path) -> None:
+        raise FileNotFoundError(path)
+
+    monkeypatch.setattr("src.utils.storage.shutil.rmtree", fake_rmtree)
+
+    cleared = clear_directories([cache_dir])
+
+    assert cleared == [cache_dir]
+    assert cache_dir.exists()
+
+
+def test_clear_directories_falls_back_to_ignore_errors_on_oserror(tmp_path: Path, monkeypatch) -> None:
+    cache_dir = tmp_path / "raw" / "akshare"
+    cache_dir.mkdir(parents=True)
+    calls: list[tuple[Path, bool]] = []
+
+    def fake_rmtree(path: Path, ignore_errors: bool = False) -> None:
+        calls.append((path, ignore_errors))
+        if not ignore_errors:
+            raise OSError("Directory not empty")
+
+    monkeypatch.setattr("src.utils.storage.shutil.rmtree", fake_rmtree)
+
+    clear_directories([cache_dir])
+
+    assert calls == [(cache_dir, False), (cache_dir, True)]
+
+
 def test_write_feature_dataset_writes_yearly_partitioned_directory(tmp_path: Path) -> None:
     frame = pd.DataFrame(
         {

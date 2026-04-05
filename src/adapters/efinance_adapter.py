@@ -22,12 +22,18 @@ class EfinanceAdapter(DataAdapter):
 
     def _get_base_info(self, symbols: list[str]) -> pd.DataFrame:
         requested_codes = [normalize_symbol(item).split(".")[0] for item in symbols]
-        frame = self._ef().stock.get_base_info(requested_codes)
-        if isinstance(frame, pd.Series):
-            frame = frame.to_frame().T
-        if not isinstance(frame, pd.DataFrame) or frame.empty:
+        batch_size = int(self.config.get("efinance", {}).get("base_info_batch_size", 30))
+        frames: list[pd.DataFrame] = []
+        for start in range(0, len(requested_codes), max(1, batch_size)):
+            batch = requested_codes[start : start + max(1, batch_size)]
+            frame = self._ef().stock.get_base_info(batch)
+            if isinstance(frame, pd.Series):
+                frame = frame.to_frame().T
+            if isinstance(frame, pd.DataFrame) and not frame.empty:
+                frames.append(frame)
+        if not frames:
             raise DataSourceError("efinance base info returned no rows.")
-        return frame
+        return pd.concat(frames, ignore_index=True)
 
     def get_stock_list(self, as_of_date: str) -> pd.DataFrame:
         raise DataSourceError("efinance is only used as a price fallback in this project.")

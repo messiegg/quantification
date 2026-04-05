@@ -13,6 +13,7 @@ cache:
   clear_on_run: true
   directories:
     - data/raw/akshare
+    - data/raw/adata
 
 retry:
   attempts: 3
@@ -25,13 +26,14 @@ defaults:
     - akshare
     - baostock
   price_source_order:
-    - akshare
     - baostock
+    - akshare
     - efinance
   valuation_source_order:
     - baostock
     - akshare
   financial_source_order:
+    - adata
     - akshare
     - baostock
   st_flag_source_order:
@@ -45,10 +47,29 @@ defaults:
   industry_source_order:
     - akshare
 
+strict_run:
+  price_history_start_date: 2021-01-01
+  financial_history_start_date: 2020-01-01
+  blocker_dir: reports/strict
+  benchmark_index_market_hints:
+    - sh
+    - sz
+
+tdx:
+  local_dirs: []
+  pytdx_hosts:
+    - [招商证券深圳行情, 119.147.212.81, 7709]
+    - [华泰证券上海行情, 101.227.73.20, 7709]
+    - [中信证券深圳行情, 59.173.18.140, 7709]
+    - [广发证券广州行情, 59.42.241.68, 7709]
+
 jqdata:
   enabled_if_env: true
   username_env: JQDATA_USERNAME
   password_env: JQDATA_PASSWORD
+
+adata:
+  enabled: true
 
 akshare:
   enabled: true
@@ -83,3 +104,4 @@ baostock:
 efinance:
   enabled: true
   price_fallback_only: true
+  base_info_batch_size: 30

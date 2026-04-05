@@ -3,7 +3,6 @@ from __future__ import annotations
 import math
 
 import numpy as np
-
 import pandas as pd
 
 from src.strategy.metric_map import bucket_for_industry_optional, metric_for_industry_optional
@@ -119,8 +118,24 @@ def compute_stock_quantiles(valuation_frame: pd.DataFrame, strategy_cfg: dict) -
 
 
 def compute_stock_quantile_panel(valuation_frame: pd.DataFrame, strategy_cfg: dict) -> pd.DataFrame:
+    if valuation_frame.empty:
+        return valuation_frame.copy()
+    selected = valuation_frame.copy()
+    if "metric" not in selected.columns:
+        metric_columns = [column for column in ("pb", "pe_ttm") if column in selected.columns]
+        stacked_frames: list[pd.DataFrame] = []
+        entity_col = "code" if "code" in selected.columns else "symbol"
+        for metric in metric_columns:
+            frame = selected[[entity_col, "date", metric]].rename(columns={entity_col: "code", metric: "metric_value"}).copy()
+            frame["metric"] = metric
+            stacked_frames.append(frame)
+        if not stacked_frames:
+            return pd.DataFrame(columns=["code", "date"])
+        selected = pd.concat(stacked_frames, ignore_index=True)
+    else:
+        selected = selected.rename(columns={"value": "metric_value"})
     panel = _compute_metric_quantile_panel(
-        valuation_frame.rename(columns={"value": "metric_value"}),
+        selected,
         entity_col="code",
         metric_col="metric",
         value_col="metric_value",
@@ -181,6 +196,39 @@ def _annual_profit_positive_years(group: pd.DataFrame) -> pd.Series:
     return pd.Series(counts, index=group.index, dtype=float)
 
 
+def _quarter_index(report_date: pd.Series) -> pd.Series:
+    months = pd.to_datetime(report_date, errors="coerce").dt.month
+    return months.map({3: 1, 6: 2, 9: 3, 12: 4})
+
+
+def _single_quarter_series(group: pd.DataFrame, value_column: str) -> pd.Series:
+    numeric = pd.to_numeric(group[value_column], errors="coerce")
+    quarter_index = _quarter_index(group["report_date"])
+    years = pd.to_datetime(group["report_date"], errors="coerce").dt.year
+    result = pd.Series(pd.NA, index=group.index, dtype="Float64")
+    for year in sorted(years.dropna().unique()):
+        mask = years == year
+        year_idx = group.index[mask]
+        if year_idx.empty:
+            continue
+        year_values = numeric.loc[year_idx]
+        year_quarters = quarter_index.loc[year_idx]
+        previous_cumulative = None
+        previous_quarter = None
+        for idx, quarter, value in zip(year_idx, year_quarters, year_values, strict=False):
+            if pd.isna(value):
+                result.loc[idx] = pd.NA
+                continue
+            if quarter == 1 or previous_cumulative is None or previous_quarter is None or quarter <= previous_quarter:
+                single_value = float(value)
+            else:
+                single_value = float(value) - float(previous_cumulative)
+            result.loc[idx] = single_value
+            previous_cumulative = float(value)
+            previous_quarter = int(quarter) if pd.notna(quarter) else previous_quarter
+    return result
+
+
 def prepare_financial_effective_frame(financials: pd.DataFrame, strategy_cfg: dict) -> pd.DataFrame:
     if financials.empty:
         return financials.copy()
@@ -191,8 +239,18 @@ def prepare_financial_effective_frame(financials: pd.DataFrame, strategy_cfg: di
     ordered["effective_date"] = ordered["announcement_date"].fillna(ordered["report_date"] + pd.Timedelta(days=fallback_days))
     ordered["date"] = ordered["effective_date"].dt.strftime("%Y-%m-%d")
     ordered["latest_net_profit"] = pd.to_numeric(ordered["net_profit"], errors="coerce")
-    ordered["cfo_ttm"] = (
-        ordered.groupby("code")["cfo"].transform(lambda series: pd.to_numeric(series, errors="coerce").rolling(4, min_periods=1).sum())
+    ordered["equity_effective"] = pd.to_numeric(ordered.get("equity"), errors="coerce")
+    ordered["net_profit_quarter"] = ordered.groupby("code", group_keys=False).apply(
+        lambda frame: _single_quarter_series(frame, "net_profit")
+    ).reset_index(level=0, drop=True)
+    ordered["cfo_quarter"] = ordered.groupby("code", group_keys=False).apply(
+        lambda frame: _single_quarter_series(frame, "cfo")
+    ).reset_index(level=0, drop=True)
+    ordered["net_profit_ttm_effective"] = ordered.groupby("code")["net_profit_quarter"].transform(
+        lambda series: pd.to_numeric(series, errors="coerce").rolling(4, min_periods=4).sum()
+    )
+    ordered["cfo_ttm"] = ordered.groupby("code")["cfo_quarter"].transform(
+        lambda series: pd.to_numeric(series, errors="coerce").rolling(4, min_periods=4).sum()
     )
     ordered["roe"] = pd.to_numeric(ordered["roe"], errors="coerce")
     ordered["debt_to_assets"] = pd.to_numeric(ordered["debt_to_assets"], errors="coerce")
@@ -322,8 +380,36 @@ def build_daily_feature_panel(
     metric_map_cfg: dict,
 ) -> pd.DataFrame:
     panel = price_features.rename(columns={"code": "symbol"}).copy()
-    members = _normalize_industry_members(industry_members)
-    panel = panel.merge(members, how="left", on="symbol")
+    if "date" in industry_members.columns:
+        members = industry_members.copy()
+        if "code" in members.columns and "symbol" not in members.columns:
+            members = members.rename(columns={"code": "symbol"})
+        if "industry_name" in members.columns and "industry" not in members.columns:
+            members = members.rename(columns={"industry_name": "industry"})
+        members["symbol"] = members["symbol"].astype(str)
+        members["date"] = pd.to_datetime(members["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        panel["date"] = pd.to_datetime(panel["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        keep_columns = [
+            column
+            for column in (
+                "symbol",
+                "date",
+                "name",
+                "industry_l1_code",
+                "industry_l1",
+                "industry_l2_code",
+                "industry_l2",
+                "industry_l3_code",
+                "industry_l3",
+                "industry_code",
+                "industry",
+            )
+            if column in members.columns
+        ]
+        panel = panel.merge(members[keep_columns].drop_duplicates(subset=["symbol", "date"]), how="left", on=["symbol", "date"])
+    else:
+        members = _normalize_industry_members(industry_members)
+        panel = panel.merge(members, how="left", on="symbol")
 
     financial_pti = financials_effective.rename(columns={"code": "symbol"})[
         [
@@ -334,6 +420,8 @@ def build_daily_feature_panel(
             "effective_date",
             "roe",
             "latest_net_profit",
+            "equity_effective",
+            "net_profit_ttm_effective",
             "cfo_ttm",
             "debt_to_assets",
             "is_st",

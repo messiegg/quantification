@@ -25,6 +25,7 @@ from src.utils.storage import write_feature_dataset
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Build point-in-time daily features from cached raw data.")
+    parser.add_argument("--as-of-date", default="", help="Optional as-of date for strict coverage validation.")
     parser.add_argument("--output-file", default="data/features/daily_features", help="Daily feature parquet file or yearly-partitioned directory output path.")
     parser.add_argument("--latest-output-file", default="data/features/latest_feature_snapshot.parquet", help="Latest feature snapshot output path.")
     return parser.parse_args()
@@ -46,15 +47,20 @@ def main() -> int:
     prices = read_required("data/raw/price_daily.parquet")
     benchmark_daily = read_required("data/raw/benchmark_daily.parquet")
     stock_list = read_required("data/raw/stock_list.parquet")
-    stock_valuation = read_required("data/raw/stock_valuation.parquet")
-    industry_daily = read_required("data/raw/industry_daily.parquet")
-    industry_members = read_required("data/raw/industry_members.parquet")
+    stock_valuation = read_required("data/curated/stock_valuation_daily.parquet")
+    industry_daily = read_required("data/curated/industry_daily.parquet")
+    industry_members = read_required("data/curated/industry_members_effective.parquet")
     financials = read_required("data/raw/financials.parquet")
     st_flags = read_required("data/raw/st_flags.parquet")
-    market_caps = read_required("data/raw/market_caps.parquet")
+    market_caps = read_required("data/curated/market_cap_daily.parquet")
 
     price_features = compute_price_features(prices, stock_list=stock_list, benchmark_daily=benchmark_daily)
-    financials_effective = prepare_financial_effective_frame(financials, strategy_cfg)
+    curated_financials_path = resolve_path("data/curated/financials_effective.parquet")
+    financials_effective = (
+        pd.read_parquet(curated_financials_path)
+        if curated_financials_path.exists()
+        else prepare_financial_effective_frame(financials, strategy_cfg)
+    )
     stock_quantile_panel = compute_stock_quantile_panel(stock_valuation, strategy_cfg)
     industry_quantile_panel = compute_industry_quantile_panel(industry_daily, strategy_cfg, metric_map_cfg)
     daily_features = build_daily_feature_panel(
@@ -68,6 +74,8 @@ def main() -> int:
         strategy_cfg,
         metric_map_cfg,
     )
+    if args.as_of_date and str(args.as_of_date) not in set(daily_features["date"].astype(str)):
+        raise DataSourceError(f"Feature panel does not cover strict as-of date {args.as_of_date}.")
     write_feature_dataset(daily_features, args.output_file)
 
     latest = daily_features.sort_values(["symbol", "date"]).groupby("symbol", as_index=False).tail(1).copy()

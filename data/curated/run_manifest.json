@@ -1,6 +1,6 @@
 {
   "as_of_date": "2026-04-30",
-  "git_commit": "a6a120972fecc987deb89cde96c0216bf282696f",
+  "git_commit": "435f104eb38588acb531da356755e27747892785",
   "data_source": {
     "type": "fixture",
     "name": "demo_case",

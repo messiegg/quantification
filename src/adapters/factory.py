@@ -4,6 +4,7 @@ from dataclasses import dataclass
 
 import pandas as pd
 
+from src.adapters.adata_adapter import ADataAdapter
 from src.adapters.akshare_adapter import AkshareAdapter
 from src.adapters.baostock_adapter import BaoStockAdapter
 from src.adapters.base import DataAdapter
@@ -138,6 +139,7 @@ def create_default_adapter(config: dict) -> CompositeAdapter:
     adapters: list[DataAdapter] = [
         JQDataAdapter(config),
         AkshareAdapter(config),
+        ADataAdapter(config),
         BaoStockAdapter(config),
         EfinanceAdapter(config),
     ]

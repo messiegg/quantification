@@ -1,14 +1,53 @@
 {
-  "as_of_date": "2026-04-30",
-  "source": "demo_fixture",
+  "as_of_date": "2026-04-03",
+  "source": "update_market_data",
   "providers": [
     {
-      "method": "demo_fixture",
-      "adapter": "local_demo_fixture",
+      "method": "get_stock_list",
+      "adapter": "pytdx",
+      "success": false,
+      "error": "pytdx stock list failed: timed out",
+      "attempt_index": 1
+    },
+    {
+      "method": "get_stock_list",
+      "adapter": "akshare",
       "success": true,
       "error": null,
       "attempt_index": 1,
-      "rows": 4
+      "rows": 5194
+    },
+    {
+      "method": "get_price_daily",
+      "adapter": "existing_raw",
+      "success": true,
+      "error": null,
+      "attempt_index": 1,
+      "rows": 5907189
+    },
+    {
+      "method": "get_financials",
+      "adapter": "existing_raw",
+      "success": true,
+      "error": null,
+      "attempt_index": 1,
+      "rows": 117280
+    },
+    {
+      "method": "get_stock_list",
+      "adapter": "akshare",
+      "success": true,
+      "error": null,
+      "attempt_index": 1,
+      "rows": 5194
+    },
+    {
+      "method": "get_st_flags",
+      "adapter": "akshare",
+      "success": true,
+      "error": null,
+      "attempt_index": 1,
+      "rows": 5194
     }
   ]
 }

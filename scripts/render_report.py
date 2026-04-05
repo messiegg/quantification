@@ -16,6 +16,7 @@ from src.utils.config import resolve_path
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Render Markdown/JSON daily reports and order files from a snapshot JSON.")
+    parser.add_argument("--as-of-date", default="", help="As-of date; when set, uses date-based snapshot and report paths by default.")
     parser.add_argument("--snapshot-json", default="data/snapshots/latest.json", help="Snapshot JSON file.")
     parser.add_argument("--output-json", default="reports/daily/latest.json", help="Rendered JSON path.")
     parser.add_argument("--output-md", default="reports/daily/latest.md", help="Rendered Markdown path.")
@@ -27,12 +28,23 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> int:
     args = parse_args()
-    report = json.loads(resolve_path(args.snapshot_json).read_text(encoding="utf-8"))
+    snapshot_json = args.snapshot_json
+    output_json = args.output_json
+    output_md = args.output_md
+    orders_json = args.orders_json
+    orders_csv = args.orders_csv
+    if args.as_of_date:
+        snapshot_json = f"data/snapshots/{args.as_of_date}.json"
+        output_json = f"reports/daily/{args.as_of_date}.json"
+        output_md = f"reports/daily/{args.as_of_date}.md"
+        orders_json = f"reports/daily/orders_{args.as_of_date}.json"
+        orders_csv = f"reports/daily/orders_{args.as_of_date}.csv"
+    report = json.loads(resolve_path(snapshot_json).read_text(encoding="utf-8"))
     if args.codex_note_file:
         note_path = resolve_path(args.codex_note_file)
         if note_path.exists():
             report.setdefault("notes", []).append(note_path.read_text(encoding="utf-8").strip())
-    write_daily_report(report, args.output_json, args.output_md, args.orders_json, args.orders_csv)
+    write_daily_report(report, output_json, output_md, orders_json, orders_csv)
     return 0
 
 
