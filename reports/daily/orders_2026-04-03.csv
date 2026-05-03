@@ -1,0 +1,9 @@
+date,symbol,name,holding_state,current_position_tranches,target_position_tranches,current_weight,target_weight,target_position_change,current_shares,target_shares,delta_shares,rounded_lots,action_enum,priority_score,action_reason,blocked_reason,data_status,latest_total_equity,current_cash,available_buying_power,target_order_value,estimated_turnover,estimated_commission,estimated_stamp_duty,estimated_total_cash_impact,target_price_reference
+2026-04-03,600036.sh,招商银行,FROZEN,1,0,0.03,0.0,-0.03,200,0,-200,2,SELL_ALL,0.0,估值过热，触发清仓。,,ok,200000.0,50000.0,57873.7,7880.0,7880.0,2.36,3.94,7873.7,39.4
+2026-04-03,000708.sz,中信特钢,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,67.1746,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,16.61
+2026-04-03,000786.sz,北新建材,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,81.9397,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,25.75
+2026-04-03,600018.sh,上港集团,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,80.2953,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,5.02
+2026-04-03,600309.sh,万华化学,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,74.6949,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,82.38
+2026-04-03,600346.sh,恒力石化,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,60.318,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,21.56
+2026-04-03,600378.sh,昊华科技,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,72.7118,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,31.92
+2026-04-03,603799.sh,华友钴业,NONE,0,0,0.0,0.0,0.0,0,0,0,0,EMPTY,69.088,未满足开仓条件。,,ok,200000.0,50000.0,57873.7,0.0,0.0,0.0,0.0,0.0,57.42

@@ -39,3 +39,38 @@ def test_evaluate_quality_uses_extended_thresholds(configs: dict) -> None:
     )
     assert passed is True
     assert reasons == []
+
+
+def test_evaluate_quality_uses_rule_statuses_for_uncomputable_values(configs: dict) -> None:
+    filters_cfg = configs["strategy"]["buckets"]["defensive_dividend"]["filters"]
+    passed, reasons = evaluate_quality(
+        {
+            "listed_days": 2000,
+            "not_st": True,
+            "market_cap_billion": 80,
+            "avg_amount_60d_million": 150,
+            "roe": pd.NA,
+            "roe_rule_value": -999999999.0,
+            "roe_rule_status": "equity_non_positive",
+            "latest_net_profit": 1,
+            "cfo_ttm": pd.NA,
+            "cfo_ttm_rule_value": -999999999.0,
+            "cfo_ttm_rule_status": "insufficient_history",
+            "debt_to_assets": 60,
+            "dv_ttm": 0.04,
+            "main_metric": "pe_ttm",
+            "pe_ttm": pd.NA,
+            "pe_ttm_rule_value": -999999999.0,
+            "pe_ttm_rule_status": "ttm_non_positive",
+            "stock_pb_q_blended": 20,
+            "pb": 1.2,
+        },
+        filters_cfg,
+    )
+
+    assert passed is False
+    assert reasons == [
+        "roe_equity_non_positive",
+        "cfo_ttm_insufficient_history",
+        "pe_ttm_ttm_non_positive",
+    ]

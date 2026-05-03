@@ -217,7 +217,7 @@ class BacktestEngine:
 
     def _overlay_historical_universe(self, features: pd.DataFrame) -> tuple[pd.DataFrame, bool]:
         if self.historical_universe_dir is None or not self.historical_universe_dir.exists():
-            return features, False
+            return features, True
         histories: list[dict] = []
         for path in sorted(self.historical_universe_dir.glob("*.json")):
             try:
@@ -227,17 +227,29 @@ class BacktestEngine:
             effective_from = payload.get("effective_from")
             effective_to = payload.get("effective_to")
             stocks = payload.get("stocks", [])
-            if not effective_from or not stocks:
+            if not effective_from:
                 continue
             histories.append(
                 {
                     "effective_from": pd.Timestamp(effective_from),
                     "effective_to": pd.Timestamp(effective_to) if effective_to else None,
                     "symbols": {str(item.get("symbol")) for item in stocks if item.get("symbol")},
+                    "stock_map": {
+                        str(item.get("symbol")): {
+                            "universe_bucket": item.get("bucket"),
+                            "universe_main_metric": item.get("main_metric"),
+                            "universe_final_score": item.get("final_score"),
+                            "universe_industry": item.get("industry_l1"),
+                            "industry_rank": item.get("industry_rank"),
+                            "selected_as": item.get("selected_as"),
+                        }
+                        for item in stocks
+                        if item.get("symbol")
+                    },
                 }
             )
         if not histories:
-            return features, False
+            return features, True
         prepared = features.copy()
         approximate_backtest = False
         for date in sorted(pd.to_datetime(prepared["date"].dropna().unique())):
@@ -251,7 +263,37 @@ class BacktestEngine:
                 continue
             selected = max(matches, key=lambda item: item["effective_from"])
             mask = prepared["date"] == date.strftime("%Y-%m-%d")
-            prepared.loc[mask, "in_effective_universe"] = prepared.loc[mask, "symbol"].astype(str).isin(selected["symbols"])
+            current = prepared.loc[mask].copy()
+            current["in_effective_universe"] = current["symbol"].astype(str).isin(selected["symbols"])
+            stock_details = current["symbol"].astype(str).map(selected["stock_map"])
+            bucket_updates = stock_details.map(lambda item: item.get("universe_bucket") if isinstance(item, dict) else pd.NA)
+            main_metric_updates = stock_details.map(lambda item: item.get("universe_main_metric") if isinstance(item, dict) else pd.NA)
+            universe_final_score_updates = pd.to_numeric(
+                stock_details.map(lambda item: item.get("universe_final_score") if isinstance(item, dict) else pd.NA),
+                errors="coerce",
+            )
+            universe_industry_updates = stock_details.map(lambda item: item.get("universe_industry") if isinstance(item, dict) else pd.NA)
+            industry_rank_updates = pd.to_numeric(
+                stock_details.map(lambda item: item.get("industry_rank") if isinstance(item, dict) else pd.NA),
+                errors="coerce",
+            )
+            selected_as_updates = stock_details.map(lambda item: item.get("selected_as") if isinstance(item, dict) else pd.NA)
+
+            prepared.loc[mask, "in_effective_universe"] = current["in_effective_universe"].values
+            prepared.loc[mask, "bucket"] = bucket_updates.combine_first(current["bucket"]).values if "bucket" in current.columns else bucket_updates.values
+            prepared.loc[mask, "main_metric"] = (
+                main_metric_updates.combine_first(current["main_metric"]).values if "main_metric" in current.columns else main_metric_updates.values
+            )
+            prepared.loc[mask, "universe_bucket"] = bucket_updates.values
+            prepared.loc[mask, "universe_main_metric"] = main_metric_updates.values
+            prepared.loc[mask, "universe_final_score"] = universe_final_score_updates.values
+            prepared.loc[mask, "universe_industry"] = universe_industry_updates.values
+            prepared.loc[mask, "industry_rank"] = (
+                industry_rank_updates.combine_first(pd.to_numeric(current["industry_rank"], errors="coerce")).values
+                if "industry_rank" in current.columns
+                else industry_rank_updates.values
+            )
+            prepared.loc[mask, "selected_as"] = selected_as_updates.values
         return prepared, approximate_backtest
 
     @staticmethod

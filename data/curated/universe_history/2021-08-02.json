@@ -1,0 +1,123 @@
+{
+  "as_of_date": "2021-07-30",
+  "rebalance_day": true,
+  "effective_from": "2021-08-02",
+  "effective_to": "2021-08-31",
+  "methodology_version": "effective_universe_v2",
+  "candidate_pool_size": 32,
+  "effective_universe_size": 3,
+  "change_counts": {
+    "added": 2,
+    "removed": 3,
+    "retained": 1
+  },
+  "changes": [
+    {
+      "symbol": "600176.sh",
+      "name": "中国巨石",
+      "industry": "建筑材料",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 60.7219
+    },
+    {
+      "symbol": "600985.sh",
+      "name": "淮北矿业",
+      "industry": "煤炭",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 64.6599
+    },
+    {
+      "symbol": "000672.sz",
+      "name": "上峰水泥",
+      "industry": "建筑材料",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 67.2874,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002245.sz",
+      "name": "蔚蓝锂芯",
+      "industry": "交通运输",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 61.2797,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002408.sz",
+      "name": "齐翔腾达",
+      "industry": "基础化工",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 60.7757,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "601216.sh",
+      "name": "君正集团",
+      "industry": "基础化工",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 62.5077
+    }
+  ],
+  "stocks": [
+    {
+      "symbol": "601216.sh",
+      "name": "君正集团",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 62.5077,
+      "stock_q_blended": 48.6417,
+      "industry_q_blended": 100.0,
+      "roe": 5.18,
+      "dv_ttm": 0.0744,
+      "market_cap_billion": 340.2699,
+      "avg_amount_60d_million": 531.2536,
+      "industry_rank": 1,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600176.sh",
+      "name": "中国巨石",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "建筑材料",
+      "main_metric": "pb",
+      "final_score": 60.7219,
+      "stock_q_blended": 91.0289,
+      "industry_q_blended": 82.7125,
+      "roe": 5.91,
+      "dv_ttm": 0.0169,
+      "market_cap_billion": 529.2147,
+      "avg_amount_60d_million": 6851.6185,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600985.sh",
+      "name": "淮北矿业",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "煤炭",
+      "main_metric": "pb",
+      "final_score": 64.6599,
+      "stock_q_blended": 47.1645,
+      "industry_q_blended": 100.0,
+      "roe": 5.44,
+      "dv_ttm": 0.0803,
+      "market_cap_billion": 200.7158,
+      "avg_amount_60d_million": 3106.3867,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    }
+  ]
+}

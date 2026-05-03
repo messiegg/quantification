@@ -93,6 +93,51 @@ def test_akshare_industry_members_falls_back_on_empty_primary(configs: dict, mon
     ]
 
 
+def test_akshare_dividend_events_normalize_cash_dividend_fields(configs: dict, monkeypatch) -> None:
+    adapter = AkshareAdapter(configs["data_sources"])
+
+    monkeypatch.setattr(
+        adapter,
+        "_call_with_cache",
+        lambda namespace, loader, *cache_parts: pd.DataFrame(
+            [
+                {
+                    "代码": "600036",
+                    "名称": "招商银行",
+                    "现金分红-现金分红比例": 19.72,
+                    "现金分红-股息率": 0.0541,
+                    "预案公告日": "2024-03-26",
+                    "股权登记日": "2024-07-11",
+                    "除权除息日": "2024-07-12",
+                    "方案进度": "实施分配",
+                    "最新公告日期": "2024-07-05",
+                    "总股本": 25219845601,
+                }
+            ]
+        ),
+    )
+
+    frame = adapter.get_dividend_events("2023-12-31")
+
+    assert frame.to_dict(orient="records") == [
+        {
+            "code": "600036.sh",
+            "name": "招商银行",
+            "report_date": "2023-12-31",
+            "announcement_date": "2024-07-05",
+            "plan_announcement_date": "2024-03-26",
+            "record_date": "2024-07-11",
+            "ex_dividend_date": "2024-07-12",
+            "cash_dividend_per_10": 19.72,
+            "cash_dividend_per_share": 1.972,
+            "dividend_yield": 0.0541,
+            "progress": "实施分配",
+            "total_shares": 25219845601,
+            "source": "stock_fhps_em",
+        }
+    ]
+
+
 def test_baostock_valuation_history_returns_metric_column(configs: dict, monkeypatch) -> None:
     adapter = BaoStockAdapter(configs["data_sources"])
 

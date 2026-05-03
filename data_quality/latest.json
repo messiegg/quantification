@@ -13,18 +13,18 @@
     {
       "path": "data/raw/price_daily.parquet",
       "exists": true,
-      "rows": 5907189,
-      "missing_rate": 0.219932,
-      "date_min": "2018-01-02",
+      "rows": 7324218,
+      "missing_rate": 0.215482,
+      "date_min": "2015-01-05",
       "date_max": "2026-04-03",
       "stale": false
     },
     {
       "path": "data/raw/benchmark_daily.parquet",
       "exists": true,
-      "rows": 1353,
-      "missing_rate": 0.007555,
-      "date_min": "2021-01-04",
+      "rows": 2733,
+      "missing_rate": 0.0,
+      "date_min": "2015-01-05",
       "date_max": "2026-04-03",
       "stale": false
     },
@@ -58,9 +58,9 @@
     {
       "path": "data/raw/financials.parquet",
       "exists": true,
-      "rows": 117280,
-      "missing_rate": 0.018851,
-      "date_min": "2020-03-31",
+      "rows": 147475,
+      "missing_rate": 0.016288,
+      "date_min": "2014-03-31",
       "date_max": "2025-12-31",
       "stale": true
     },

@@ -8,6 +8,7 @@ import pandas as pd
 
 from src.strategy.fundamentals import force_exit_reasons
 from src.strategy.metric_map import candidate_buckets_for_industry, metric_for_industry
+from src.strategy.quality import metric_failure_reason, metric_rule_status, metric_value_for_rules
 from src.utils.config import resolve_path
 
 
@@ -55,8 +56,10 @@ def next_trading_day(feature_frame: pd.DataFrame, as_of_date: str) -> str:
 def effective_to_date(as_of_date: str, frequency: str) -> str:
     current = pd.Timestamp(as_of_date)
     if frequency == "quarterly":
-        return (current + pd.offsets.QuarterEnd(1)).strftime("%Y-%m-%d")
-    return (current + pd.offsets.MonthEnd(1)).strftime("%Y-%m-%d")
+        current_quarter_end = current.to_period("Q").end_time.normalize()
+        return (current_quarter_end + pd.offsets.QuarterEnd(1)).strftime("%Y-%m-%d")
+    current_month_end = current.to_period("M").end_time.normalize()
+    return (current_month_end + pd.offsets.MonthEnd(1)).strftime("%Y-%m-%d")
 
 
 def _safe_float(value: object, default: float = 0.0) -> float:
@@ -73,6 +76,16 @@ def _main_metric_for_bucket(industry: str, bucket: str, metric_map_cfg: dict) ->
     if bucket == "cyclical_rotation":
         return "pb"
     return metric_for_industry(industry, metric_map_cfg)
+
+
+def _main_metric_status(row: pd.Series, main_metric: str) -> str:
+    status_column = "pb_rule_status" if main_metric == "pb" else "pe_ttm_rule_status"
+    return metric_rule_status(row, status_column)
+
+
+def _main_metric_history_value(row: pd.Series, main_metric: str) -> float:
+    raw_column = f"stock_{main_metric}_history_observations"
+    return metric_value_for_rules(row, raw_column, f"{raw_column}_rule_value")
 
 
 def _score_row(row: pd.Series, bucket: str, scoring_cfg: dict, metric_map_cfg: dict) -> dict[str, float]:
@@ -167,8 +180,15 @@ def _base_filter_reasons(row: pd.Series, universe_rules_cfg: dict, main_metric: 
     if _safe_float(row.get("listed_days")) < float(base_cfg["listed_days_min"]):
         reasons.append("listed_days")
     min_history_obs = int(base_cfg["main_metric_history_years_min"]) * int(trading_days)
-    if _safe_float(row.get(f"stock_{main_metric}_history_observations")) < min_history_obs:
-        reasons.append("main_metric_history")
+    main_metric_status = _main_metric_status(row, main_metric)
+    main_metric_history = _main_metric_history_value(row, main_metric)
+    if pd.isna(main_metric_history):
+        reasons.append(metric_failure_reason(main_metric, main_metric_status) if main_metric_status != "ok" else "main_metric_history")
+    elif float(main_metric_history) < min_history_obs:
+        if main_metric_status in {"ttm_non_positive", "equity_non_positive"}:
+            reasons.append(metric_failure_reason(main_metric, main_metric_status))
+        else:
+            reasons.append("main_metric_history")
     if _safe_float(row.get("avg_amount_60d_million")) < float(base_cfg["avg_amount_60d_million_min"]):
         reasons.append("avg_amount_60d_million")
     if _safe_float(row.get("market_cap_billion")) < float(base_cfg["market_cap_billion_min"]):
@@ -189,27 +209,40 @@ def _bucket_filter_reasons(row: pd.Series, bucket: str, universe_rules_cfg: dict
         reasons.append("avg_amount_60d_million")
     if _safe_float(row.get("latest_net_profit")) <= float(cfg["latest_net_profit_min_exclusive"]):
         reasons.append("latest_net_profit")
-    if _safe_float(row.get("roe")) < float(cfg["roe_min"]):
-        reasons.append("roe")
+    roe_status = metric_rule_status(row, "roe_rule_status")
+    roe_value = metric_value_for_rules(row, "roe", "roe_rule_value")
+    if pd.isna(roe_value) or float(roe_value) < float(cfg["roe_min"]):
+        reasons.append(metric_failure_reason("roe", roe_status))
     if bucket == "defensive_dividend":
-        if _safe_float(row.get("cfo_ttm")) <= float(cfg["cfo_ttm_min_exclusive"]):
-            reasons.append("cfo_ttm")
+        cfo_status = metric_rule_status(row, "cfo_ttm_rule_status")
+        cfo_value = metric_value_for_rules(row, "cfo_ttm", "cfo_ttm_rule_value")
+        if pd.isna(cfo_value) or float(cfo_value) <= float(cfg["cfo_ttm_min_exclusive"]):
+            reasons.append(metric_failure_reason("cfo_ttm", cfo_status))
         if _safe_float(row.get("debt_to_assets"), default=10**9) > float(cfg["debt_to_assets_max"]):
             reasons.append("debt_to_assets")
         if _safe_float(row.get("dv_ttm")) < float(cfg["dv_ttm_min"]):
             reasons.append("dv_ttm")
         if main_metric == "pe_ttm":
-            pe_ttm = _safe_float(row.get("pe_ttm"), default=-1.0)
-            if pe_ttm <= 0 or pe_ttm > float(cfg["pe_ttm_max_when_primary_metric"]):
-                reasons.append("pe_ttm")
+            pe_status = metric_rule_status(row, "pe_ttm_rule_status")
+            pe_ttm = metric_value_for_rules(row, "pe_ttm", "pe_ttm_rule_value")
+            if pd.isna(pe_ttm) or float(pe_ttm) <= 0 or float(pe_ttm) > float(cfg["pe_ttm_max_when_primary_metric"]):
+                reasons.append(metric_failure_reason("pe_ttm", pe_status))
         if main_metric == "pb":
-            if _safe_float(row.get("pb")) <= float(cfg["pb_min_exclusive"]) or _safe_float(row.get("stock_pb_q_blended")) > float(
-                cfg["pb_q_blended_max_when_primary_metric"]
+            pb_status = metric_rule_status(row, "pb_rule_status")
+            pb_value = metric_value_for_rules(row, "pb", "pb_rule_value")
+            pb_q_blended = metric_value_for_rules(row, "stock_pb_q_blended", "stock_pb_q_blended_rule_value")
+            if (
+                pd.isna(pb_value)
+                or float(pb_value) <= float(cfg["pb_min_exclusive"])
+                or pd.isna(pb_q_blended)
+                or float(pb_q_blended) > float(cfg["pb_q_blended_max_when_primary_metric"])
             ):
-                reasons.append("pb_q_blended")
+                reasons.append(metric_failure_reason("pb_q_blended", pb_status))
     else:
-        if _safe_float(row.get("pb")) <= float(cfg["pb_min_exclusive"]):
-            reasons.append("pb")
+        pb_status = metric_rule_status(row, "pb_rule_status")
+        pb_value = metric_value_for_rules(row, "pb", "pb_rule_value")
+        if pd.isna(pb_value) or float(pb_value) <= float(cfg["pb_min_exclusive"]):
+            reasons.append(metric_failure_reason("pb", pb_status))
         market_cap_rank = _safe_float(row.get("industry_market_cap_rank"), default=10**9)
         market_cap_pct = _safe_float(row.get("industry_market_cap_percentile"), default=1.0)
         if not (

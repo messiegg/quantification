@@ -1,0 +1,27 @@
+# Listed Days Diagnosis (2026-04-03)
+
+- current listed_days source: `src/pipeline/features.py::_compute_listed_days_from_calendar`
+  - current logic uses `stock_list.listed_date + benchmark_daily.date`
+  - if that source is unavailable, it falls back to `groupby(code).cumcount() + 1`
+- current date range used: `data/raw/benchmark_daily.parquet`
+  - start: `2021-01-04`
+  - end: `2026-04-03`
+  - unique trading dates: `1271`
+- current max possible listed_days as of 2026-04-03: `1271`
+  - this is below `config/universe_rules.yml -> bucket_filters.base.listed_days_min = 1500`
+- independent trade calendar table already exists: `no`
+  - `data/curated/trade_calendar.parquet` was absent before this fix attempt
+- listing_date availability: `yes`
+  - `data/raw/stock_list.parquet` contains `listed_date` for `5194 / 5194` symbols
+- price-based formal calendar availability: `yes`
+  - `data/raw/price_daily.parquet` already covers `2018-01-02` to `2026-04-03`
+  - unique price dates: `2001`
+  - weekend dates mixed in: `0`
+- whether this is the primary blocker: `yes`
+  - all `1347` symbols inside current candidate industries have `listed_days < 1500` under the old benchmark-capped calculation
+  - this guarantees `candidate_pool_size = 0` in the current run
+  - this is the first hard blocker, but not guaranteed to be the only remaining blocker after the cap is removed
+- impacted symbol count in candidate industries: `1347`
+- current universe status:
+  - `candidate_pool_size = 0`
+  - `effective_universe_size = 0`

@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 
 from src.pipeline.features import prepare_financial_effective_frame
 from src.pipeline.strict_data import (
+    build_dividend_daily,
     build_industry_daily,
     build_market_cap_daily,
     build_shares_daily,
@@ -42,11 +43,14 @@ def main() -> int:
     prices = pd.read_parquet(resolve_path("data/raw/price_daily.parquet"))
     share_change = pd.read_parquet(resolve_path("data/raw/share_change.parquet"))
     financials = pd.read_parquet(resolve_path("data/raw/financials.parquet"))
+    dividend_events_path = resolve_path("data/raw/dividend_events.parquet")
+    dividend_events = pd.read_parquet(dividend_events_path) if dividend_events_path.exists() else pd.DataFrame()
     industry_members_effective = pd.read_parquet(resolve_path("data/curated/industry_members_effective.parquet"))
 
     financials_effective = prepare_financial_effective_frame(financials, strategy_cfg)
     shares_daily = build_shares_daily(prices, share_change)
     market_cap_daily = build_market_cap_daily(prices, shares_daily)
+    dividend_daily = build_dividend_daily(prices, dividend_events)
     stock_valuation_daily = build_stock_valuation_daily(market_cap_daily, financials_effective)
     industry_daily = build_industry_daily(stock_valuation_daily, industry_members_effective)
 
@@ -54,6 +58,7 @@ def main() -> int:
     financials_effective.to_parquet(resolve_path("data/curated/financials_effective.parquet"), index=False)
     shares_daily.to_parquet(resolve_path("data/curated/shares_daily.parquet"), index=False)
     market_cap_daily.to_parquet(resolve_path("data/curated/market_cap_daily.parquet"), index=False)
+    dividend_daily.to_parquet(resolve_path("data/curated/dividend_daily.parquet"), index=False)
     stock_valuation_daily.to_parquet(resolve_path("data/curated/stock_valuation_daily.parquet"), index=False)
     industry_daily.to_parquet(resolve_path("data/curated/industry_daily.parquet"), index=False)
 

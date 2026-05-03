@@ -1,0 +1,291 @@
+{
+  "as_of_date": "2025-04-30",
+  "rebalance_day": true,
+  "effective_from": "2025-05-06",
+  "effective_to": "2025-05-31",
+  "methodology_version": "effective_universe_v2",
+  "candidate_pool_size": 13,
+  "effective_universe_size": 5,
+  "change_counts": {
+    "added": 5,
+    "removed": 16
+  },
+  "changes": [
+    {
+      "symbol": "000429.sz",
+      "name": "粤高速Ａ",
+      "industry": "交通运输",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 66.7873
+    },
+    {
+      "symbol": "002001.sz",
+      "name": "新 和 成",
+      "industry": "基础化工",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 78.4223
+    },
+    {
+      "symbol": "600096.sh",
+      "name": "云天化",
+      "industry": "基础化工",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 77.0423
+    },
+    {
+      "symbol": "600988.sh",
+      "name": "赤峰黄金",
+      "industry": "有色金属",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 83.04
+    },
+    {
+      "symbol": "601225.sh",
+      "name": "陕西煤业",
+      "industry": "煤炭",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 68.6794
+    },
+    {
+      "symbol": "000012.sz",
+      "name": "南  玻Ａ",
+      "industry": "建筑材料",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 84.3496,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000708.sz",
+      "name": "中信特钢",
+      "industry": "钢铁",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 75.3218,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000786.sz",
+      "name": "北新建材",
+      "industry": "建筑材料",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 87.0994,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000792.sz",
+      "name": "盐湖股份",
+      "industry": "基础化工",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 80.7125,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000878.sz",
+      "name": "云南铜业",
+      "industry": "有色金属",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 77.846,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000983.sz",
+      "name": "山西焦煤",
+      "industry": "煤炭",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 70.9261,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002508.sz",
+      "name": "老板电器",
+      "industry": "家用电器",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 73.0631,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002532.sz",
+      "name": "天山铝业",
+      "industry": "有色金属",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 74.7914,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600011.sh",
+      "name": "华能国际",
+      "industry": "公用事业",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 81.7027,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600023.sh",
+      "name": "浙能电力",
+      "industry": "公用事业",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 75.8067,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600026.sh",
+      "name": "中远海能",
+      "industry": "交通运输",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 77.9779,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600233.sh",
+      "name": "圆通速递",
+      "industry": "交通运输",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 83.0569,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600309.sh",
+      "name": "万华化学",
+      "industry": "基础化工",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 81.3219,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600346.sh",
+      "name": "恒力石化",
+      "industry": "石油石化",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 70.8475,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600690.sh",
+      "name": "海尔智家",
+      "industry": "家用电器",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 72.5709,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600985.sh",
+      "name": "淮北矿业",
+      "industry": "煤炭",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 74.1097,
+      "force_exit_reasons": []
+    }
+  ],
+  "stocks": [
+    {
+      "symbol": "000429.sz",
+      "name": "粤高速Ａ",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "交通运输",
+      "main_metric": "pb",
+      "final_score": 66.7873,
+      "stock_q_blended": 95.1945,
+      "industry_q_blended": 28.3367,
+      "roe": 6.1,
+      "dv_ttm": 0.0405,
+      "market_cap_billion": 282.0497,
+      "avg_amount_60d_million": 1130.9475,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002001.sz",
+      "name": "新 和 成",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 78.4223,
+      "stock_q_blended": 44.7985,
+      "industry_q_blended": 42.8249,
+      "roe": 6.29,
+      "dv_ttm": 0.021,
+      "market_cap_billion": 658.0196,
+      "avg_amount_60d_million": 2100.4323,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600096.sh",
+      "name": "云天化",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 77.0423,
+      "stock_q_blended": 47.5528,
+      "industry_q_blended": 42.8249,
+      "roe": 5.6,
+      "dv_ttm": 0.0482,
+      "market_cap_billion": 380.4398,
+      "avg_amount_60d_million": 3068.0953,
+      "industry_rank": 2,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600988.sh",
+      "name": "赤峰黄金",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "有色金属",
+      "main_metric": "pb",
+      "final_score": 83.04,
+      "stock_q_blended": 38.8882,
+      "industry_q_blended": 28.9045,
+      "roe": 5.93,
+      "dv_ttm": 0.0019,
+      "market_cap_billion": 496.1974,
+      "avg_amount_60d_million": 6862.4633,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "601225.sh",
+      "name": "陕西煤业",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "煤炭",
+      "main_metric": "pb",
+      "final_score": 68.6794,
+      "stock_q_blended": 76.9907,
+      "industry_q_blended": 60.793,
+      "roe": 5.14,
+      "dv_ttm": 0.0791,
+      "market_cap_billion": 1745.1,
+      "avg_amount_60d_million": 3949.6218,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    }
+  ]
+}

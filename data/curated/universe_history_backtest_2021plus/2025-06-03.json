@@ -1,0 +1,183 @@
+{
+  "as_of_date": "2025-05-30",
+  "rebalance_day": true,
+  "effective_from": "2025-06-03",
+  "effective_to": "2025-06-30",
+  "methodology_version": "effective_universe_v2",
+  "candidate_pool_size": 13,
+  "effective_universe_size": 6,
+  "change_counts": {
+    "added": 2,
+    "removed": 1,
+    "retained": 4
+  },
+  "changes": [
+    {
+      "symbol": "000737.sz",
+      "name": "北方铜业",
+      "industry": "有色金属",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 82.9148
+    },
+    {
+      "symbol": "002648.sz",
+      "name": "卫星化学",
+      "industry": "基础化工",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 77.7268
+    },
+    {
+      "symbol": "600096.sh",
+      "name": "云天化",
+      "industry": "基础化工",
+      "change_tag": "removed",
+      "selected_as": null,
+      "final_score": 77.0423,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000429.sz",
+      "name": "粤高速Ａ",
+      "industry": "交通运输",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 60.2745
+    },
+    {
+      "symbol": "002001.sz",
+      "name": "新 和 成",
+      "industry": "基础化工",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 77.1958
+    },
+    {
+      "symbol": "600988.sh",
+      "name": "赤峰黄金",
+      "industry": "有色金属",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 82.6752
+    },
+    {
+      "symbol": "601225.sh",
+      "name": "陕西煤业",
+      "industry": "煤炭",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 66.4296
+    }
+  ],
+  "stocks": [
+    {
+      "symbol": "000429.sz",
+      "name": "粤高速Ａ",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "交通运输",
+      "main_metric": "pb",
+      "final_score": 60.2745,
+      "stock_q_blended": 95.4599,
+      "industry_q_blended": 61.6825,
+      "roe": 6.1,
+      "dv_ttm": 0.0399,
+      "market_cap_billion": 286.8586,
+      "avg_amount_60d_million": 953.1763,
+      "industry_rank": 1,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002648.sz",
+      "name": "卫星化学",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 77.7268,
+      "stock_q_blended": 43.0431,
+      "industry_q_blended": 47.0635,
+      "roe": 5.05,
+      "dv_ttm": 0.0,
+      "market_cap_billion": 546.7312,
+      "avg_amount_60d_million": 4893.6654,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002001.sz",
+      "name": "新 和 成",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 77.1958,
+      "stock_q_blended": 47.2066,
+      "industry_q_blended": 47.0635,
+      "roe": 6.29,
+      "dv_ttm": 0.023,
+      "market_cap_billion": 667.8545,
+      "avg_amount_60d_million": 2056.5188,
+      "industry_rank": 2,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000737.sz",
+      "name": "北方铜业",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "有色金属",
+      "main_metric": "pb",
+      "final_score": 82.9148,
+      "stock_q_blended": 23.2083,
+      "industry_q_blended": 31.3968,
+      "roe": 5.77,
+      "dv_ttm": 0.0115,
+      "market_cap_billion": 165.5199,
+      "avg_amount_60d_million": 4325.3459,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "600988.sh",
+      "name": "赤峰黄金",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "有色金属",
+      "main_metric": "pb",
+      "final_score": 82.6752,
+      "stock_q_blended": 38.5462,
+      "industry_q_blended": 31.3968,
+      "roe": 5.93,
+      "dv_ttm": 0.0,
+      "market_cap_billion": 496.0073,
+      "avg_amount_60d_million": 7361.9128,
+      "industry_rank": 2,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "601225.sh",
+      "name": "陕西煤业",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "煤炭",
+      "main_metric": "pb",
+      "final_score": 66.4296,
+      "stock_q_blended": 82.2222,
+      "industry_q_blended": 67.0982,
+      "roe": 5.14,
+      "dv_ttm": 0.0723,
+      "market_cap_billion": 1909.915,
+      "avg_amount_60d_million": 3884.8707,
+      "industry_rank": 1,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    }
+  ]
+}

@@ -17,6 +17,8 @@ from src.adapters.factory import create_default_adapter
 from src.utils.config import resolve_path
 from src.utils.exceptions import DataSourceError
 
+RULE_UNCOMPUTABLE_SENTINEL = -999999999.0
+
 
 def strict_run_dates(as_of_date: str, data_cfg: dict) -> dict[str, str]:
     strict_cfg = data_cfg.get("strict_run", {})
@@ -266,6 +268,16 @@ def clean_price_frame(frame: pd.DataFrame) -> pd.DataFrame:
         if column not in cleaned.columns:
             cleaned[column] = pd.NA
         cleaned[column] = pd.to_numeric(cleaned[column], errors="coerce")
+    # AkShare TX returns amount in 10k CNY and omits volume. Normalize it to CNY once.
+    akshare_tx_like = (
+        cleaned["volume"].isna()
+        & cleaned["amount"].notna()
+        & cleaned["close"].notna()
+        & (cleaned["close"] > 0)
+        & ((cleaned["amount"] / cleaned["close"]) < 1e5)
+    )
+    if akshare_tx_like.any():
+        cleaned.loc[akshare_tx_like, "amount"] = cleaned.loc[akshare_tx_like, "amount"] * 10000.0
     cleaned = cleaned.dropna(subset=["code", "date", "close"]).drop_duplicates(subset=["code", "date"], keep="last")
     return cleaned.sort_values(["code", "date"]).reset_index(drop=True)
 
@@ -274,8 +286,32 @@ def clean_benchmark_frame(frame: pd.DataFrame) -> pd.DataFrame:
     cleaned = clean_price_frame(frame)
     if cleaned.empty:
         return cleaned
+    code_text = cleaned["code"].astype(str).str.lower()
+    valid_code = code_text.str.fullmatch(r"\d{6}\.(sh|sz|bj)")
+    cleaned = cleaned[valid_code].copy()
+    if cleaned.empty:
+        return cleaned
     cleaned = cleaned[cleaned["close"] > 0].copy()
-    return cleaned.sort_values(["date", "code"]).drop_duplicates(subset=["date"], keep="last").reset_index(drop=True)
+    cleaned["_field_count"] = cleaned[["open", "high", "low", "close", "volume", "amount", "turn"]].notna().sum(axis=1)
+    cleaned["_market_priority"] = cleaned["code"].astype(str).str.endswith(".sh").map({True: 0, False: 1}).fillna(2)
+    cleaned = cleaned.sort_values(
+        ["date", "_field_count", "_market_priority", "code"],
+        ascending=[True, False, True, True],
+    ).drop_duplicates(subset=["date"], keep="first")
+    return cleaned.drop(columns=["_field_count", "_market_priority"]).reset_index(drop=True)
+
+
+def build_trade_calendar(price_daily: pd.DataFrame) -> pd.DataFrame:
+    if price_daily.empty or "date" not in price_daily.columns:
+        return pd.DataFrame(columns=["date", "source"])
+    raw_dates = pd.to_datetime(price_daily["date"], errors="coerce").dropna()
+    if raw_dates.empty:
+        return pd.DataFrame(columns=["date", "source"])
+    ordered_dates = raw_dates.drop_duplicates().sort_values()
+    trading_dates = ordered_dates[ordered_dates.dt.weekday < 5]
+    calendar = pd.DataFrame({"date": trading_dates.dt.strftime("%Y-%m-%d")})
+    calendar["source"] = "price_daily"
+    return calendar.drop_duplicates(subset=["date"]).sort_values("date").reset_index(drop=True)
 
 
 def fetch_benchmark_daily(data_cfg: dict, symbol: str, start_date: str, end_date: str) -> pd.DataFrame:
@@ -354,6 +390,106 @@ def build_market_cap_daily(price_daily: pd.DataFrame, shares_daily: pd.DataFrame
             "market_cap_billion",
         ]
     ].drop_duplicates(subset=["symbol", "date"])
+
+
+def build_dividend_daily(price_daily: pd.DataFrame, dividend_events: pd.DataFrame) -> pd.DataFrame:
+    if price_daily.empty or dividend_events.empty:
+        return pd.DataFrame(columns=["symbol", "date", "dividend_per_share_ttm", "dividend_event_count_ttm", "dv_ttm"])
+
+    prices = clean_price_frame(price_daily).rename(columns={"code": "symbol"}).copy()
+    prices["symbol"] = prices["symbol"].astype(str).map(normalize_symbol)
+    prices["date"] = pd.to_datetime(prices["date"], errors="coerce")
+    prices["close"] = pd.to_numeric(prices["close"], errors="coerce")
+    prices = prices.dropna(subset=["symbol", "date"]).sort_values(["date", "symbol"]).reset_index(drop=True)
+    prices["row_id"] = range(len(prices))
+
+    events = dividend_events.copy()
+    if "code" in events.columns and "symbol" not in events.columns:
+        events = events.rename(columns={"code": "symbol"})
+    events["symbol"] = events["symbol"].astype(str).map(normalize_symbol)
+    for column in ("announcement_date", "plan_announcement_date", "record_date", "ex_dividend_date"):
+        if column not in events.columns:
+            events[column] = pd.NaT
+        events[column] = pd.to_datetime(events[column], errors="coerce")
+    if "cash_dividend_per_share" not in events.columns and "cash_dividend_per_10" in events.columns:
+        events["cash_dividend_per_share"] = pd.to_numeric(events["cash_dividend_per_10"], errors="coerce") / 10.0
+    events["cash_dividend_per_share"] = pd.to_numeric(events.get("cash_dividend_per_share"), errors="coerce")
+    progress = events.get("progress", pd.Series("", index=events.index)).astype(str)
+    implemented = (
+        progress.str.contains("实施", na=False)
+        | events["record_date"].notna()
+        | events["ex_dividend_date"].notna()
+    )
+    events["effective_date"] = events["ex_dividend_date"].fillna(events["record_date"]).fillna(events["announcement_date"]).fillna(
+        events["plan_announcement_date"]
+    )
+    events = events[
+        implemented
+        & events["effective_date"].notna()
+        & events["cash_dividend_per_share"].notna()
+        & (events["cash_dividend_per_share"] > 0)
+    ].copy()
+    if events.empty:
+        result = prices[["symbol", "date"]].copy()
+        result["dividend_per_share_ttm"] = 0.0
+        result["dividend_event_count_ttm"] = 0
+        result["dv_ttm"] = 0.0
+        result["date"] = result["date"].dt.strftime("%Y-%m-%d")
+        return result
+
+    events = (
+        events.groupby(["symbol", "effective_date"], as_index=False)["cash_dividend_per_share"]
+        .sum()
+        .sort_values(["effective_date", "symbol"])
+        .reset_index(drop=True)
+    )
+    events["event_count"] = 1
+    events["dividend_cumsum"] = events.groupby("symbol")["cash_dividend_per_share"].cumsum()
+    events["event_cumsum"] = events.groupby("symbol")["event_count"].cumsum()
+
+    event_panel = events[["symbol", "effective_date", "dividend_cumsum", "event_cumsum"]].sort_values(["effective_date", "symbol"])
+    current = pd.merge_asof(
+        prices[["row_id", "symbol", "date"]].sort_values(["date", "symbol"]),
+        event_panel,
+        left_on="date",
+        right_on="effective_date",
+        by="symbol",
+        direction="backward",
+    )
+    current = current.rename(columns={"dividend_cumsum": "current_dividend_cumsum", "event_cumsum": "current_event_cumsum"})
+    lookback = prices[["row_id", "symbol", "date"]].copy()
+    lookback["lookback_date"] = lookback["date"] - pd.Timedelta(days=365)
+    prior = pd.merge_asof(
+        lookback.sort_values(["lookback_date", "symbol"]),
+        event_panel,
+        left_on="lookback_date",
+        right_on="effective_date",
+        by="symbol",
+        direction="backward",
+        allow_exact_matches=False,
+    )
+    prior = prior.rename(columns={"dividend_cumsum": "prior_dividend_cumsum", "event_cumsum": "prior_event_cumsum"})
+
+    result = prices[["row_id", "symbol", "date", "close"]].copy()
+    result = result.merge(
+        current[["row_id", "current_dividend_cumsum", "current_event_cumsum"]],
+        how="left",
+        on="row_id",
+    )
+    result = result.merge(
+        prior[["row_id", "prior_dividend_cumsum", "prior_event_cumsum"]],
+        how="left",
+        on="row_id",
+    )
+    result["dividend_per_share_ttm"] = result["current_dividend_cumsum"].fillna(0.0) - result["prior_dividend_cumsum"].fillna(0.0)
+    result["dividend_event_count_ttm"] = (
+        result["current_event_cumsum"].fillna(0).astype(int) - result["prior_event_cumsum"].fillna(0).astype(int)
+    )
+    result["dv_ttm"] = 0.0
+    valid_close = result["close"] > 0
+    result.loc[valid_close, "dv_ttm"] = result.loc[valid_close, "dividend_per_share_ttm"] / result.loc[valid_close, "close"]
+    result["date"] = result["date"].dt.strftime("%Y-%m-%d")
+    return result[["symbol", "date", "dividend_per_share_ttm", "dividend_event_count_ttm", "dv_ttm"]]
 
 
 def _daily_industry_lookup(sw_category: pd.DataFrame) -> tuple[dict[str, str], dict[str, str], dict[str, str]]:
@@ -446,7 +582,19 @@ def build_industry_members_effective(
 
 def build_stock_valuation_daily(market_cap_daily: pd.DataFrame, financials_effective: pd.DataFrame) -> pd.DataFrame:
     if market_cap_daily.empty:
-        return pd.DataFrame(columns=["symbol", "date", "pb", "pe_ttm"])
+        return pd.DataFrame(
+            columns=[
+                "symbol",
+                "date",
+                "pb",
+                "pe_ttm",
+                "ttm_profit_positive",
+                "pb_rule_value",
+                "pb_rule_status",
+                "pe_ttm_rule_value",
+                "pe_ttm_rule_status",
+            ]
+        )
     left = market_cap_daily.copy()
     right = financials_effective.rename(columns={"code": "symbol"}).copy()
     left["date"] = pd.to_datetime(left["date"], errors="coerce")
@@ -460,6 +608,7 @@ def build_stock_valuation_daily(market_cap_daily: pd.DataFrame, financials_effec
                 "date",
                 "equity_effective",
                 "net_profit_ttm_effective",
+                "net_profit_ttm_rule_status",
                 "report_date",
                 "announcement_date",
                 "effective_date",
@@ -478,6 +627,22 @@ def build_stock_valuation_daily(market_cap_daily: pd.DataFrame, financials_effec
     merged.loc[valid_pb, "pb"] = total_mv[valid_pb] / equity[valid_pb]
     merged["pe_ttm"] = pd.NA
     merged.loc[valid_pe, "pe_ttm"] = total_mv[valid_pe] / profit_ttm[valid_pe]
+    merged["ttm_profit_positive"] = valid_pe
+    merged["pb_rule_status"] = "ok"
+    merged.loc[~valid_pb, "pb_rule_status"] = "source_missing"
+    merged.loc[equity.notna() & equity.le(0), "pb_rule_status"] = "equity_non_positive"
+    merged["pb_rule_value"] = pd.to_numeric(merged["pb"], errors="coerce")
+    merged.loc[merged["pb_rule_value"].isna() & merged["pb_rule_status"].eq("equity_non_positive"), "pb_rule_value"] = RULE_UNCOMPUTABLE_SENTINEL
+    ttm_status = merged.get("net_profit_ttm_rule_status", pd.Series("ok", index=merged.index, dtype="object")).astype(str)
+    merged["pe_ttm_rule_status"] = "ok"
+    merged.loc[~valid_pe, "pe_ttm_rule_status"] = "source_missing"
+    merged.loc[~valid_pe & ttm_status.eq("insufficient_history"), "pe_ttm_rule_status"] = "insufficient_history"
+    merged.loc[~valid_pe & profit_ttm.notna() & profit_ttm.le(0), "pe_ttm_rule_status"] = "ttm_non_positive"
+    merged["pe_ttm_rule_value"] = pd.to_numeric(merged["pe_ttm"], errors="coerce")
+    merged.loc[
+        merged["pe_ttm_rule_value"].isna() & merged["pe_ttm_rule_status"].isin(["ttm_non_positive", "insufficient_history"]),
+        "pe_ttm_rule_value",
+    ] = RULE_UNCOMPUTABLE_SENTINEL
     merged["date"] = merged["date"].dt.strftime("%Y-%m-%d")
     return merged[
         [
@@ -490,6 +655,11 @@ def build_stock_valuation_daily(market_cap_daily: pd.DataFrame, financials_effec
             "net_profit_ttm_effective",
             "pb",
             "pe_ttm",
+            "ttm_profit_positive",
+            "pb_rule_value",
+            "pb_rule_status",
+            "pe_ttm_rule_value",
+            "pe_ttm_rule_status",
             "report_date",
             "announcement_date",
             "effective_date",

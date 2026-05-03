@@ -12,6 +12,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from src.pipeline.snapshot import prepare_daily_snapshot
+from src.pipeline.strict_data import clean_benchmark_frame
 from src.utils.cli import write_json
 from src.utils.config import load_project_configs, resolve_path
 from src.utils.exceptions import DataSourceError
@@ -102,7 +103,7 @@ def main() -> int:
     account_cfg = configs["account"]
 
     features = read_dataset_flex(args.features_file)
-    benchmark = pd.read_parquet(resolve_path(args.benchmark_file))
+    benchmark = clean_benchmark_frame(pd.read_parquet(resolve_path(args.benchmark_file)))
     financials = pd.read_parquet(resolve_path(args.financials_file))
     as_of_date = args.as_of_date or str(features["date"].max())
     snapshot_features = features[features["date"] == as_of_date].copy()

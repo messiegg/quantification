@@ -1,0 +1,764 @@
+{
+  "name": "financial_history_gaps",
+  "as_of_date": "2026-04-03",
+  "before": {
+    "requested_start_date": "2020-01-01",
+    "requested_end_date": "2026-04-03",
+    "as_of_date": "2026-04-03",
+    "required_report_date": "2025-09-30",
+    "missing_count": 40,
+    "missing_symbols": [
+      "000056.sz",
+      "000609.sz",
+      "000615.sz",
+      "000656.sz",
+      "000669.sz",
+      "000692.sz",
+      "000890.sz",
+      "000972.sz",
+      "002168.sz",
+      "002305.sz",
+      "002306.sz",
+      "002513.sz",
+      "002547.sz",
+      "002620.sz",
+      "002634.sz",
+      "002647.sz",
+      "002713.sz",
+      "002789.sz",
+      "300029.sz",
+      "300093.sz",
+      "300157.sz",
+      "300159.sz",
+      "300169.sz",
+      "300237.sz",
+      "300268.sz",
+      "300338.sz",
+      "300340.sz",
+      "300391.sz",
+      "300472.sz",
+      "300506.sz",
+      "300716.sz",
+      "600165.sh",
+      "600167.sh",
+      "600322.sh",
+      "600340.sh",
+      "600581.sh",
+      "603021.sh",
+      "603402.sh",
+      "688520.sh",
+      "688795.sh"
+    ],
+    "blocking_count": 0,
+    "blocking_symbols": [],
+    "category_counts": {
+      "roe_missing_on_latest": 40
+    },
+    "latest_report_distribution_top": {
+      "2025-09-30": 35,
+      "2025-12-31": 5
+    },
+    "sample_details": [
+      {
+        "symbol": "000056.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000609.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-24",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000615.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000656.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000669.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000692.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000890.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000972.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002168.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002305.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002306.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002513.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002547.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002620.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002634.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002647.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-02-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002713.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002789.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300029.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-22",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300093.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-04-03",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300157.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300159.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300169.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300237.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300268.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-16",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300338.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-27",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300340.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300391.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-27",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300472.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300506.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300716.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-23",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600165.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600167.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600322.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600340.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600581.sh",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "603021.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "603402.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "688520.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "688795.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-11-14",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      }
+    ]
+  },
+  "after": {
+    "requested_start_date": "2020-01-01",
+    "requested_end_date": "2026-04-03",
+    "as_of_date": "2026-04-03",
+    "required_report_date": "2025-09-30",
+    "missing_count": 40,
+    "missing_symbols": [
+      "000056.sz",
+      "000609.sz",
+      "000615.sz",
+      "000656.sz",
+      "000669.sz",
+      "000692.sz",
+      "000890.sz",
+      "000972.sz",
+      "002168.sz",
+      "002305.sz",
+      "002306.sz",
+      "002513.sz",
+      "002547.sz",
+      "002620.sz",
+      "002634.sz",
+      "002647.sz",
+      "002713.sz",
+      "002789.sz",
+      "300029.sz",
+      "300093.sz",
+      "300157.sz",
+      "300159.sz",
+      "300169.sz",
+      "300237.sz",
+      "300268.sz",
+      "300338.sz",
+      "300340.sz",
+      "300391.sz",
+      "300472.sz",
+      "300506.sz",
+      "300716.sz",
+      "600165.sh",
+      "600167.sh",
+      "600322.sh",
+      "600340.sh",
+      "600581.sh",
+      "603021.sh",
+      "603402.sh",
+      "688520.sh",
+      "688795.sh"
+    ],
+    "blocking_count": 0,
+    "blocking_symbols": [],
+    "category_counts": {
+      "roe_missing_on_latest": 40
+    },
+    "latest_report_distribution_top": {
+      "2025-09-30": 35,
+      "2025-12-31": 5
+    },
+    "sample_details": [
+      {
+        "symbol": "000056.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000609.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-24",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000615.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000656.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000669.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000692.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000890.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "000972.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002168.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002305.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002306.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002513.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-25",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002547.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002620.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002634.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002647.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-02-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002713.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "002789.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300029.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-22",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300093.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-04-03",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300157.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300159.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300169.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300237.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300268.sz",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-16",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300338.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-27",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300340.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300391.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-27",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300472.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300506.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-28",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "300716.sz",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-23",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600165.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600167.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600322.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600340.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "600581.sh",
+        "latest_report_date": "2025-12-31",
+        "latest_announcement_date": "2026-03-30",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "603021.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-29",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "603402.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "688520.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-10-31",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      },
+      {
+        "symbol": "688795.sh",
+        "latest_report_date": "2025-09-30",
+        "latest_announcement_date": "2025-11-14",
+        "issues": [
+          "roe_missing_on_latest"
+        ]
+      }
+    ]
+  }
+}

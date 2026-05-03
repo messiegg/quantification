@@ -29,3 +29,22 @@ def test_add_quantile_columns_builds_blended_series() -> None:
     assert latest["q_5y"] == 20.0
     assert latest["q_10y"] == 20.0
     assert latest["q_blended"] == 20.0
+
+
+def test_add_quantile_columns_treats_ties_as_lte_current_share() -> None:
+    frame = pd.DataFrame(
+        {
+            "code": ["600000.sh"] * 4,
+            "date": pd.date_range("2024-01-01", periods=4).strftime("%Y-%m-%d"),
+            "value": [1.0, 2.0, 2.0, 1.0],
+        }
+    )
+    result = add_quantile_columns(
+        frame,
+        entity_col="code",
+        value_col="value",
+        date_col="date",
+        windows={"q_5y": 3, "q_10y": 3},
+        blended_weights={"q_5y": 0.6, "q_10y": 0.4},
+    )
+    assert result["q_5y"].tolist() == [100.0, 100.0, 100.0, 33.33333333333333]

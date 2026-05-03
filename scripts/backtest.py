@@ -11,9 +11,11 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from src.pipeline.strict_data import clean_benchmark_frame
 from src.strategy.backtest_engine import BacktestEngine
 from src.utils.cli import write_json
 from src.utils.config import load_project_configs, resolve_path
+from src.utils.storage import read_dataset_flex
 
 
 def parse_args() -> argparse.Namespace:
@@ -28,12 +30,34 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 
+def load_backtest_features(path_like: str, start_date: str, end_date: str) -> pd.DataFrame:
+    path = resolve_path(path_like)
+    start_ts = pd.Timestamp(start_date)
+    end_ts = pd.Timestamp(end_date)
+    if path.is_dir():
+        years = range(start_ts.year, end_ts.year + 1)
+        frames: list[pd.DataFrame] = []
+        for year in years:
+            yearly_path = path / f"{year}.parquet"
+            if yearly_path.exists():
+                frames.append(pd.read_parquet(yearly_path))
+        if not frames:
+            features = read_dataset_flex(path)
+        else:
+            features = pd.concat(frames, ignore_index=True, sort=False)
+    else:
+        features = pd.read_parquet(path)
+    if features.empty:
+        return features
+    dates = pd.to_datetime(features["date"], errors="coerce")
+    return features[(dates >= start_ts) & (dates <= end_ts)].copy()
+
+
 def main() -> int:
     args = parse_args()
     configs = load_project_configs()
-    features = pd.read_parquet(resolve_path(args.features_file))
-    benchmark = pd.read_parquet(resolve_path(args.benchmark_file))
-    features = features[(features["date"] >= args.start_date) & (features["date"] <= args.end_date)].copy()
+    features = load_backtest_features(args.features_file, args.start_date, args.end_date)
+    benchmark = clean_benchmark_frame(pd.read_parquet(resolve_path(args.benchmark_file)))
     benchmark = benchmark[(benchmark["date"] >= args.start_date) & (benchmark["date"] <= args.end_date)].copy()
 
     engine = BacktestEngine(

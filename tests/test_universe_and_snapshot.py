@@ -5,7 +5,13 @@ import copy
 import pandas as pd
 
 from src.pipeline.snapshot import prepare_daily_snapshot
-from src.strategy.universe import build_effective_universe, is_rebalance_day
+from src.strategy.universe import (
+    _base_filter_reasons,
+    _bucket_filter_reasons,
+    build_effective_universe,
+    effective_to_date,
+    is_rebalance_day,
+)
 
 
 def _feature_row(symbol: str, bucket: str, industry: str, score: float = 80.0) -> dict:
@@ -101,6 +107,11 @@ def test_universe_monthly_rebuild_and_hysteresis(configs: dict) -> None:
     assert "600003.sh" not in set(selected["symbol"])
 
 
+def test_effective_to_date_advances_to_next_period_end_from_last_trading_day() -> None:
+    assert effective_to_date("2025-01-27", "monthly") == "2025-02-28"
+    assert effective_to_date("2025-03-28", "quarterly") == "2025-06-30"
+
+
 def test_decision_scope_includes_effective_universe_union_current_holdings_and_frozen(configs: dict) -> None:
     strategy_cfg = copy.deepcopy(configs["strategy"])
     universe_rules_cfg = copy.deepcopy(configs["universe_rules"])
@@ -194,3 +205,37 @@ def test_force_exit_holding_sells_all(configs: dict) -> None:
     decision = report["decisions"][0]
     assert decision["holding_state"] == "FORCE_EXIT"
     assert decision["action_enum"] == "SELL_ALL"
+
+
+def test_filter_reasons_use_special_value_status_without_misclassifying_as_missing(configs: dict) -> None:
+    row = pd.Series(
+        {
+            "industry": "银行",
+            "is_a_share": True,
+            "is_st": False,
+            "listed_days": 2000,
+            "avg_amount_60d_million": 150.0,
+            "market_cap_billion": 120.0,
+            "latest_net_profit": 5.0,
+            "roe": 10.0,
+            "cfo_ttm": 5.0,
+            "debt_to_assets": 55.0,
+            "dv_ttm": 0.04,
+            "pb": 1.2,
+            "pb_rule_value": 1.2,
+            "pb_rule_status": "ok",
+            "pe_ttm": pd.NA,
+            "pe_ttm_rule_value": -999999999.0,
+            "pe_ttm_rule_status": "ttm_non_positive",
+            "stock_pe_ttm_history_observations": pd.NA,
+            "stock_pe_ttm_history_observations_rule_value": -999999999.0,
+            "core_fields_complete": True,
+        }
+    )
+
+    base_reasons = _base_filter_reasons(row, configs["universe_rules"], "pe_ttm", trading_days=252)
+    bucket_reasons = _bucket_filter_reasons(row, "defensive_dividend", configs["universe_rules"], "pe_ttm")
+
+    assert "core_fields_missing" not in base_reasons
+    assert "pe_ttm_ttm_non_positive" in base_reasons
+    assert "pe_ttm_ttm_non_positive" in bucket_reasons

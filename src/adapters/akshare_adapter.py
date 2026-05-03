@@ -498,6 +498,66 @@ class AkshareAdapter(DataAdapter):
             ["code", "date", "report_date", "announcement_date", "roe", "net_profit", "cfo", "debt_to_assets"]
         ].sort_values("report_date")
 
+    def get_dividend_events(self, report_date: str) -> pd.DataFrame:
+        report_ts = pd.Timestamp(report_date)
+        date_arg = report_ts.strftime("%Y%m%d")
+        frame = self._call_with_cache(
+            "dividend_events",
+            lambda: self._invoke("stock_fhps_em", date=date_arg),
+            date_arg,
+        )
+        if frame.empty:
+            raise DataSourceError(f"AkShare dividend batch empty for report_date={report_date}.")
+
+        normalized = frame.rename(
+            columns={
+                "代码": "code",
+                "名称": "name",
+                "现金分红-现金分红比例": "cash_dividend_per_10",
+                "现金分红-股息率": "dividend_yield",
+                "预案公告日": "plan_announcement_date",
+                "股权登记日": "record_date",
+                "除权除息日": "ex_dividend_date",
+                "方案进度": "progress",
+                "最新公告日期": "announcement_date",
+                "总股本": "total_shares",
+            }
+        ).copy()
+        required = {"code", "cash_dividend_per_10"}
+        missing = required - set(normalized.columns)
+        if missing:
+            raise DataSourceError(f"AkShare dividend batch missing columns: {sorted(missing)}")
+
+        normalized["code"] = normalized["code"].astype(str).map(normalize_symbol)
+        normalized["report_date"] = report_ts.strftime("%Y-%m-%d")
+        for column in ("announcement_date", "plan_announcement_date", "record_date", "ex_dividend_date"):
+            if column not in normalized.columns:
+                normalized[column] = pd.NaT
+            normalized[column] = pd.to_datetime(normalized[column], errors="coerce").dt.strftime("%Y-%m-%d")
+        for column in ("cash_dividend_per_10", "dividend_yield", "total_shares"):
+            if column not in normalized.columns:
+                normalized[column] = pd.NA
+            normalized[column] = pd.to_numeric(normalized[column], errors="coerce")
+        normalized["cash_dividend_per_share"] = normalized["cash_dividend_per_10"] / 10.0
+        normalized["source"] = "stock_fhps_em"
+        return normalized[
+            [
+                "code",
+                "name",
+                "report_date",
+                "announcement_date",
+                "plan_announcement_date",
+                "record_date",
+                "ex_dividend_date",
+                "cash_dividend_per_10",
+                "cash_dividend_per_share",
+                "dividend_yield",
+                "progress",
+                "total_shares",
+                "source",
+            ]
+        ].sort_values(["report_date", "code"]).reset_index(drop=True)
+
     def get_st_flags(self, symbols: list[str], as_of_date: str) -> pd.DataFrame:
         listing = self.get_stock_list(as_of_date)
         listing["is_st"] = listing["name"].astype(str).str.contains("ST", case=False, na=False)

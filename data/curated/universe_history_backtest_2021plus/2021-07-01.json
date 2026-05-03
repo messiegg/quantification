@@ -1,0 +1,121 @@
+{
+  "as_of_date": "2021-06-30",
+  "rebalance_day": true,
+  "effective_from": "2021-07-01",
+  "effective_to": "2021-07-31",
+  "methodology_version": "effective_universe_v2",
+  "candidate_pool_size": 27,
+  "effective_universe_size": 4,
+  "change_counts": {
+    "added": 1,
+    "retained": 3
+  },
+  "changes": [
+    {
+      "symbol": "002245.sz",
+      "name": "蔚蓝锂芯",
+      "industry": "交通运输",
+      "change_tag": "added",
+      "selected_as": "new_entry",
+      "final_score": 61.2797
+    },
+    {
+      "symbol": "000672.sz",
+      "name": "上峰水泥",
+      "industry": "建筑材料",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 67.2874
+    },
+    {
+      "symbol": "002408.sz",
+      "name": "齐翔腾达",
+      "industry": "基础化工",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 60.7757
+    },
+    {
+      "symbol": "601216.sh",
+      "name": "君正集团",
+      "industry": "基础化工",
+      "change_tag": "retained",
+      "selected_as": "retained",
+      "final_score": 63.2464
+    }
+  ],
+  "stocks": [
+    {
+      "symbol": "002245.sz",
+      "name": "蔚蓝锂芯",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "交通运输",
+      "main_metric": "pb",
+      "final_score": 61.2797,
+      "stock_q_blended": 96.3627,
+      "industry_q_blended": 65.9005,
+      "roe": 5.74,
+      "dv_ttm": 0.0015,
+      "market_cap_billion": 202.1924,
+      "avg_amount_60d_million": 4342.2326,
+      "industry_rank": 1,
+      "selected_as": "new_entry",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "601216.sh",
+      "name": "君正集团",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 63.2464,
+      "stock_q_blended": 50.4901,
+      "industry_q_blended": 99.6829,
+      "roe": 5.18,
+      "dv_ttm": 0.0709,
+      "market_cap_billion": 357.108,
+      "avg_amount_60d_million": 724.2527,
+      "industry_rank": 1,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "002408.sz",
+      "name": "齐翔腾达",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "基础化工",
+      "main_metric": "pb",
+      "final_score": 60.7757,
+      "stock_q_blended": 70.6842,
+      "industry_q_blended": 99.6829,
+      "roe": 7.15,
+      "dv_ttm": 0.0388,
+      "market_cap_billion": 170.6589,
+      "avg_amount_60d_million": 3535.561,
+      "industry_rank": 2,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    },
+    {
+      "symbol": "000672.sz",
+      "name": "上峰水泥",
+      "bucket": "cyclical_rotation",
+      "industry_l1": "建筑材料",
+      "main_metric": "pb",
+      "final_score": 67.2874,
+      "stock_q_blended": 33.3524,
+      "industry_q_blended": 87.906,
+      "roe": 5.1,
+      "dv_ttm": 0.0677,
+      "market_cap_billion": 102.1907,
+      "avg_amount_60d_million": 843.8754,
+      "industry_rank": 1,
+      "selected_as": "retained",
+      "cycle_trap": false,
+      "force_exit_reasons": []
+    }
+  ]
+}

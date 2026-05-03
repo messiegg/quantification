@@ -25,11 +25,13 @@ def add_quantile_columns(
     if frame.empty:
         return frame.copy()
     ordered = frame.sort_values([entity_col, date_col]).copy()
+    numeric_values = pd.to_numeric(ordered[value_col], errors="coerce")
     for label, window in windows.items():
         ordered[label] = (
-            ordered.groupby(entity_col)[value_col]
+            numeric_values.groupby(ordered[entity_col])
             .rolling(window=window, min_periods=1)
-            .apply(lambda values: trailing_quantile(values), raw=False)
+            .rank(method="max", pct=True)
+            .mul(100.0)
             .reset_index(level=0, drop=True)
         )
     ordered["q_blended"] = 0.0

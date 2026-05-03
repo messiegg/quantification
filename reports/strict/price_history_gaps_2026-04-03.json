@@ -1,0 +1,856 @@
+{
+  "name": "price_history_gaps",
+  "as_of_date": "2026-04-03",
+  "before": {
+    "requested_start_date": "2015-01-01",
+    "expected_start_date": "2015-01-05",
+    "requested_end_date": "2026-04-03",
+    "missing_count": 75,
+    "missing_symbols": [
+      "601011.sh",
+      "601015.sh",
+      "601016.sh",
+      "601018.sh",
+      "601058.sh",
+      "601088.sh",
+      "601099.sh",
+      "601101.sh",
+      "601107.sh",
+      "601111.sh",
+      "601113.sh",
+      "601137.sh",
+      "601139.sh",
+      "601158.sh",
+      "601166.sh",
+      "601168.sh",
+      "601169.sh",
+      "601188.sh",
+      "601199.sh",
+      "601208.sh",
+      "601216.sh",
+      "601222.sh",
+      "601225.sh",
+      "601233.sh",
+      "601288.sh",
+      "601318.sh",
+      "601328.sh",
+      "601333.sh",
+      "601336.sh",
+      "601377.sh",
+      "601388.sh",
+      "601398.sh",
+      "601518.sh",
+      "601555.sh",
+      "601600.sh",
+      "601601.sh",
+      "601628.sh",
+      "601636.sh",
+      "601666.sh",
+      "601677.sh",
+      "601678.sh",
+      "601688.sh",
+      "601699.sh",
+      "601788.sh",
+      "601808.sh",
+      "601818.sh",
+      "601857.sh",
+      "601866.sh",
+      "601872.sh",
+      "601880.sh",
+      "601898.sh",
+      "601899.sh",
+      "601901.sh",
+      "601908.sh",
+      "601918.sh",
+      "601919.sh",
+      "601939.sh",
+      "601958.sh",
+      "601969.sh",
+      "601988.sh",
+      "601991.sh",
+      "601992.sh",
+      "601998.sh",
+      "603002.sh",
+      "603010.sh",
+      "603077.sh",
+      "603126.sh",
+      "603128.sh",
+      "603167.sh",
+      "603188.sh",
+      "603366.sh",
+      "603399.sh",
+      "603588.sh",
+      "603688.sh",
+      "603993.sh"
+    ],
+    "category_counts": {
+      "history_starts_after_expected": 75
+    },
+    "start_date_distribution_top": {
+      "2021-01-04": 66,
+      "2018-01-02": 9
+    },
+    "sample_details": [
+      {
+        "symbol": "601011.sh",
+        "listed_date": "2011-03-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601015.sh",
+        "listed_date": "2014-11-05",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1265,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601016.sh",
+        "listed_date": "2014-09-29",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1265,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601018.sh",
+        "listed_date": "2010-09-28",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601058.sh",
+        "listed_date": "2011-06-30",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601088.sh",
+        "listed_date": "2007-10-09",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601099.sh",
+        "listed_date": "2007-12-28",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601101.sh",
+        "listed_date": "2010-03-31",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601107.sh",
+        "listed_date": "2009-07-27",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1261,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601111.sh",
+        "listed_date": "2006-08-18",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601113.sh",
+        "listed_date": "2011-05-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1270,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601137.sh",
+        "listed_date": "2011-01-27",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601139.sh",
+        "listed_date": "2009-12-25",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601158.sh",
+        "listed_date": "2010-03-29",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601166.sh",
+        "listed_date": "2007-02-05",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601168.sh",
+        "listed_date": "2007-07-12",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601169.sh",
+        "listed_date": "2007-09-19",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601188.sh",
+        "listed_date": "2010-03-19",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601199.sh",
+        "listed_date": "2011-03-17",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601208.sh",
+        "listed_date": "2011-05-20",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601216.sh",
+        "listed_date": "2011-02-22",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601222.sh",
+        "listed_date": "2011-08-08",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601225.sh",
+        "listed_date": "2014-01-28",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601233.sh",
+        "listed_date": "2011-05-18",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601288.sh",
+        "listed_date": "2010-07-15",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601318.sh",
+        "listed_date": "2007-03-01",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601328.sh",
+        "listed_date": "2007-05-15",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601333.sh",
+        "listed_date": "2006-12-22",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601336.sh",
+        "listed_date": "2011-12-16",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601377.sh",
+        "listed_date": "2010-10-13",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1265,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601388.sh",
+        "listed_date": "2012-04-23",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601398.sh",
+        "listed_date": "2006-10-27",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601518.sh",
+        "listed_date": "2010-03-19",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601555.sh",
+        "listed_date": "2011-12-12",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1255,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601600.sh",
+        "listed_date": "2007-04-30",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601601.sh",
+        "listed_date": "2007-12-25",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601628.sh",
+        "listed_date": "2007-01-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601636.sh",
+        "listed_date": "2011-08-12",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601666.sh",
+        "listed_date": "2006-11-23",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601677.sh",
+        "listed_date": "2011-09-19",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601678.sh",
+        "listed_date": "2010-02-23",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601688.sh",
+        "listed_date": "2010-02-26",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601699.sh",
+        "listed_date": "2006-09-22",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601788.sh",
+        "listed_date": "2009-08-18",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601808.sh",
+        "listed_date": "2007-09-28",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601818.sh",
+        "listed_date": "2010-08-18",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601857.sh",
+        "listed_date": "2007-11-05",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601866.sh",
+        "listed_date": "2007-12-12",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1260,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601872.sh",
+        "listed_date": "2006-12-01",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601880.sh",
+        "listed_date": "2010-12-06",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1266,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601898.sh",
+        "listed_date": "2008-02-01",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601899.sh",
+        "listed_date": "2008-04-25",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601901.sh",
+        "listed_date": "2011-08-10",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601908.sh",
+        "listed_date": "2011-09-08",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601918.sh",
+        "listed_date": "2007-12-19",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601919.sh",
+        "listed_date": "2007-06-26",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601939.sh",
+        "listed_date": "2007-09-25",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601958.sh",
+        "listed_date": "2008-04-17",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601969.sh",
+        "listed_date": "2014-12-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1263,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601988.sh",
+        "listed_date": "2006-07-05",
+        "min_date": "2018-01-02",
+        "max_date": "2026-04-03",
+        "row_count": 2001,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601991.sh",
+        "listed_date": "2006-12-20",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601992.sh",
+        "listed_date": "2011-03-01",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "601998.sh",
+        "listed_date": "2007-04-27",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603002.sh",
+        "listed_date": "2012-05-18",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603010.sh",
+        "listed_date": "2014-10-10",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1265,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603077.sh",
+        "listed_date": "2012-07-31",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603126.sh",
+        "listed_date": "2014-07-31",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603128.sh",
+        "listed_date": "2012-05-29",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603167.sh",
+        "listed_date": "2012-09-06",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603188.sh",
+        "listed_date": "2014-09-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1270,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603366.sh",
+        "listed_date": "2012-05-21",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603399.sh",
+        "listed_date": "2012-08-24",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1263,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603588.sh",
+        "listed_date": "2014-12-29",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603688.sh",
+        "listed_date": "2014-10-31",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      },
+      {
+        "symbol": "603993.sh",
+        "listed_date": "2012-10-09",
+        "min_date": "2021-01-04",
+        "max_date": "2026-04-03",
+        "row_count": 1271,
+        "issues": [
+          "history_starts_after_expected"
+        ]
+      }
+    ]
+  },
+  "after": {
+    "requested_start_date": "2015-01-01",
+    "expected_start_date": "2015-01-05",
+    "requested_end_date": "2026-04-03",
+    "missing_count": 0,
+    "missing_symbols": [],
+    "category_counts": {},
+    "start_date_distribution_top": {},
+    "sample_details": []
+  }
+}
