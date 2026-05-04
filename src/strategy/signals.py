@@ -5,7 +5,8 @@ from math import ceil
 
 import pandas as pd
 
-from src.strategy.grid import can_add_grid_tranche, can_reduce_grid_tranche
+from src.strategy.grid import can_add_grid_tranche, can_reduce_grid_tranche, compute_grid_step
+from src.strategy.valuation_resolution import resolve_industry_valuation_quantile, resolve_stock_valuation_quantile
 
 
 ACTIONS = {"BUY_1", "BUY_2", "BUY_3", "HOLD", "HOLD_FROZEN", "REDUCE", "SELL_ALL", "EMPTY", "BLOCKED", "DATA_ERROR"}
@@ -107,6 +108,34 @@ def _priority_score(row: dict, entry_signal_score: float) -> float:
     return round(universe_score * 0.60 + entry_signal_score * 0.40, 4)
 
 
+def _profile_name(strategy_cfg: dict) -> str:
+    return str(strategy_cfg.get("profile", strategy_cfg.get("strategy_profile", "")))
+
+
+def _is_v2_strategy(strategy_cfg: dict) -> bool:
+    return _profile_name(strategy_cfg).startswith("combined_v2")
+
+
+def _control_flag(strategy_cfg: dict, name: str) -> bool:
+    return bool((strategy_cfg.get("control_overrides", {}) or {}).get(name, False))
+
+
+def _is_risk_guard_strategy(strategy_cfg: dict) -> bool:
+    return _profile_name(strategy_cfg) == "combined_v2_1_risk_guard" or _control_flag(strategy_cfg, "risk_guard")
+
+
+def _stock_valuation_quantile(row: dict, bucket: str) -> float:
+    return _safe_float(resolve_stock_valuation_quantile(row, bucket, None).value, default=100.0)
+
+
+def _industry_valuation_quantile(row: dict, bucket: str) -> float:
+    return _safe_float(resolve_industry_valuation_quantile(row, bucket, None).value, default=100.0)
+
+
+def _grid_step_for_row(row: dict, grid_cfg: dict) -> float:
+    return compute_grid_step(_safe_float(row.get("atr20")), max(_safe_float(row.get("close")), 1e-9), grid_cfg)
+
+
 def _action_for_target(current_tranches: int, target_tranches: int, holding_state: str) -> str:
     if holding_state == "FORCE_EXIT":
         return "SELL_ALL"
@@ -128,6 +157,7 @@ class SignalEngine:
         self.strategy_cfg = strategy_cfg
         self.universe_rules_cfg = universe_rules_cfg or {}
         self.account_cfg = account_cfg or {}
+        self.is_v2 = _is_v2_strategy(strategy_cfg)
         execution_cfg = self.account_cfg.get("execution", {}) if isinstance(self.account_cfg, dict) else {}
         position_sizing = self.account_cfg.get("position_sizing", {}) if isinstance(self.account_cfg, dict) else {}
         self.default_tranches = int(position_sizing.get("max_tranches_per_stock", strategy_cfg["execution"]["default_tranches"]))
@@ -151,13 +181,383 @@ class SignalEngine:
         )
         self.min_trade_value = float(position_sizing.get("min_trade_value", 0.0))
 
-    def _weight_for_tranches(self, tranches: int) -> float:
+    def _bucket_cfg(self, bucket: str) -> dict:
+        return self.strategy_cfg["buckets"].get(bucket, {})
+
+    def _weight_for_tranches(self, tranches: int, bucket: str | None = None) -> float:
         tranches = max(0, int(tranches))
+        if self.is_v2 and bucket:
+            bucket_weights = self._bucket_cfg(bucket).get("tranche_weights", {})
+            if bucket_weights:
+                weights = {int(key): float(value) for key, value in bucket_weights.items()}
+                if tranches in weights:
+                    return weights[tranches]
+                return weights.get(max(weights), 0.0)
         if tranches in self.tranche_weight_map:
             return float(self.tranche_weight_map[tranches])
         return float(self.tranche_weight_map.get(max(self.tranche_weight_map), 0.0))
 
+    def _bucket_max_weight(self, bucket: str) -> float:
+        if self.is_v2:
+            return float(self._bucket_cfg(bucket).get("max_single_name_weight", self.max_single_stock_weight))
+        return self.max_single_stock_weight
+
+    def _hard_add_ban_v2(self, record: dict) -> bool:
+        bucket = str(record.get("bucket"))
+        if _safe_float(record.get("close")) < _safe_float(record.get("ma250")) and _safe_float(record.get("ma120_slope_20d")) < 0:
+            return True
+        if bool(record.get("fundamental_break")):
+            return True
+        if bucket == "cyclical_rotation" and bool(record.get("cycle_peak_trap")):
+            return True
+        if bool(record.get("data_stale")) or not bool(record.get("core_fields_complete", True)):
+            return True
+        if _safe_float(record.get("current_weight")) >= self._bucket_max_weight(bucket) - 1e-9:
+            return True
+        return False
+
+    def _grid_add_ok_v2(self, record: dict) -> bool:
+        if _control_flag(self.strategy_cfg, "disable_grid"):
+            return False
+        if self._hard_add_ban_v2(record):
+            return False
+        if bool(record.get("fundamental_break")):
+            return False
+        if not bool(record.get("thesis_still_valid", True)):
+            return False
+        grid_cfg = self.strategy_cfg["execution"]["grid_execution"]
+        last_fill = _safe_float(record.get("last_fill_price"), default=_safe_float(record.get("close")))
+        close = _safe_float(record.get("close"))
+        if close > last_fill * (1.0 - _grid_step_for_row(record, grid_cfg)):
+            return False
+        if record.get("bucket") == "cyclical_rotation":
+            if bool(record.get("cycle_peak_trap")):
+                return False
+            if _safe_float(record.get("ma20_slope_10d"), default=-1.0) < -0.01:
+                return False
+        return True
+
+    def _grid_trim_ok_v2(self, record: dict) -> bool:
+        if _control_flag(self.strategy_cfg, "disable_grid"):
+            return False
+        if int(record.get("current_position_tranches", 0)) <= 1:
+            return False
+        grid_cfg = self.strategy_cfg["execution"]["grid_execution"]
+        last_fill = _safe_float(record.get("last_fill_price"), default=_safe_float(record.get("close")))
+        close = _safe_float(record.get("close"))
+        return bool(
+            close >= last_fill * (1.0 + _grid_step_for_row(record, grid_cfg))
+            and _stock_valuation_quantile(record, str(record.get("bucket"))) >= float(grid_cfg.get("reduce_extra_min_stock_q_blended", 55))
+        )
+
+    def _buy_level_v2(self, record: dict, current_tranches: int) -> tuple[int, str]:
+        bucket = str(record.get("bucket"))
+        bucket_cfg = self._bucket_cfg(bucket)
+        final_score = _safe_float(record.get("universe_final_score", record.get("final_score")))
+        stock_q = _stock_valuation_quantile(record, bucket)
+        industry_q = _industry_valuation_quantile(record, bucket)
+        close = _safe_float(record.get("close"))
+        ma120 = _safe_float(record.get("ma120"), default=0.0)
+        close_to_ma120 = close / ma120 if ma120 else float("inf")
+        current_weight = _safe_float(record.get("current_weight"))
+        if self._hard_add_ban_v2(record):
+            return current_tranches, "hard_add_ban 阻断开仓或加仓。"
+
+        if bucket == "defensive_dividend":
+            if (
+                not _control_flag(self.strategy_cfg, "disable_high_dividend_supplement")
+                and _safe_float(record.get("dv_ttm")) >= 0.045
+                and final_score >= 65
+                and stock_q <= 45
+                and close_to_ma120 <= 1.03
+                and current_tranches == 0
+            ):
+                return 1, "高股息补充触发 BUY_1。"
+            if current_tranches == 0:
+                passed = bool(
+                    final_score >= 55
+                    and stock_q <= 40
+                    and industry_q <= 55
+                    and close_to_ma120 <= 1.00
+                    and _safe_float(record.get("dv_ttm")) >= 0.025
+                    and _safe_float(record.get("latest_net_profit")) > 0
+                    and current_weight < self._weight_for_tranches(1, bucket)
+                )
+                return (1, "满足 defensive BUY_1。") if passed else (0, "未满足 defensive BUY_1。")
+            if current_tranches == 1:
+                elapsed_ok = _safe_int(record.get("days_since_last_buy")) >= 20 and close_to_ma120 <= 1.00
+                passed = bool(
+                    final_score >= 60
+                    and stock_q <= 30
+                    and industry_q <= 45
+                    and close_to_ma120 <= 0.96
+                    and current_weight < self._weight_for_tranches(2, bucket)
+                    and (self._grid_add_ok_v2(record) or elapsed_ok)
+                )
+                return (2, "满足 defensive BUY_2。") if passed else (1, "未满足 defensive BUY_2 或网格加仓条件。")
+            if current_tranches == 2:
+                passed = bool(
+                    final_score >= 65
+                    and stock_q <= 20
+                    and industry_q <= 35
+                    and close_to_ma120 <= 0.92
+                    and current_weight < self._weight_for_tranches(3, bucket)
+                    and self._grid_add_ok_v2(record)
+                    and not bool(record.get("fundamental_break"))
+                )
+                return (3, "满足 defensive BUY_3。") if passed else (2, "未满足 defensive BUY_3 或网格加仓条件。")
+            return current_tranches, "已达到 defensive 最大分批。"
+
+        pb_q = _safe_float(record.get("stock_pb_q_blended", stock_q), default=stock_q)
+        industry_pb_q = _safe_float(record.get("industry_pb_q_blended", industry_q), default=industry_q)
+        ma20 = _safe_float(record.get("ma20"))
+        ma60 = _safe_float(record.get("ma60"))
+        ma20_slope = _safe_float(record.get("ma20_slope_10d"), default=-1.0)
+        if bool(record.get("cycle_peak_trap")):
+            return current_tranches, "cycle_peak_trap 阻断周期股开仓或加仓。"
+        if current_tranches == 0:
+            passed = bool(
+                final_score >= 55
+                and pb_q <= 35
+                and industry_pb_q <= 45
+                and (close >= ma20 or ma20_slope >= 0)
+                and close_to_ma120 <= 1.08
+                and current_weight < self._weight_for_tranches(1, bucket)
+            )
+            return (1, "满足 cyclical BUY_1。") if passed else (0, "未满足 cyclical BUY_1。")
+        if current_tranches == 1:
+            elapsed_ok = _safe_int(record.get("days_since_last_buy")) >= 20 and ma20_slope >= 0
+            passed = bool(
+                final_score >= 60
+                and pb_q <= 25
+                and industry_pb_q <= 35
+                and (close >= ma60 or (close >= ma20 and ma20_slope > 0))
+                and current_weight < self._weight_for_tranches(2, bucket)
+                and (self._grid_add_ok_v2(record) or elapsed_ok)
+            )
+            return (2, "满足 cyclical BUY_2。") if passed else (1, "未满足 cyclical BUY_2 或网格加仓条件。")
+        if current_tranches == 2:
+            passed = bool(
+                final_score >= 65
+                and pb_q <= 15
+                and industry_pb_q <= 25
+                and close >= ma60
+                and ma20_slope >= 0
+                and current_weight < self._weight_for_tranches(3, bucket)
+                and self._grid_add_ok_v2(record)
+            )
+            return (3, "满足 cyclical BUY_3。") if passed else (2, "未满足 cyclical BUY_3 或网格加仓条件。")
+        return current_tranches, "已达到 cyclical 最大分批。"
+
+    def _sell_target_v2(self, record: dict, current_tranches: int) -> tuple[int, str, str]:
+        bucket = str(record.get("bucket"))
+        stock_q = _stock_valuation_quantile(record, bucket)
+        industry_q = _industry_valuation_quantile(record, bucket)
+        close = _safe_float(record.get("close"))
+        ma20 = _safe_float(record.get("ma20"))
+        ma60 = _safe_float(record.get("ma60"))
+        ma120 = _safe_float(record.get("ma120"))
+        ma250 = _safe_float(record.get("ma250"))
+        ma120_slope = _safe_float(record.get("ma120_slope_20d"))
+        holding_days = _safe_int(record.get("holding_days"))
+        unrealized_pnl_pct = _safe_float(record.get("unrealized_pnl_pct"))
+        min_trim_days = int(self.strategy_cfg["execution"].get("min_holding_days_for_soft_trim", 40))
+        min_exit_days = int(self.strategy_cfg["execution"].get("min_holding_days_for_soft_exit", 60))
+
+        if bool(record.get("fundamental_break")):
+            return 0, "fundamental_break，强制清仓。", "fundamental_break"
+        if not _control_flag(self.strategy_cfg, "disable_trend_stop") and close < ma250 and ma120_slope < 0 and unrealized_pnl_pct <= -0.12:
+            return 0, "长期趋势破坏且亏损超过阈值，强制清仓。", "trend_stop"
+        if bucket == "cyclical_rotation" and bool(record.get("cycle_peak_trap")) and close < ma60 and _safe_float(record.get("ma20_slope_10d")) < 0:
+            return 0, "cycle_peak_trap 叠加趋势转弱，清仓。", "cycle_peak_trap_trend_break"
+
+        if bucket == "defensive_dividend":
+            if holding_days >= min_exit_days and (
+                (stock_q >= 90 and ma120 and close >= 1.10 * ma120)
+                or (industry_q >= 90 and stock_q >= 80)
+            ):
+                return 0, "防御股估值明显回归，清仓。", "valuation_reversion_exit"
+            if holding_days >= min_trim_days and current_tranches > 1 and (
+                (stock_q >= 65 and ma120 and close >= 1.05 * ma120)
+                or self._grid_trim_ok_v2(record)
+            ):
+                return max(1, current_tranches - 1), "防御股估值回升或网格止盈，减一档。", "soft_trim"
+        else:
+            if holding_days >= min_exit_days and (stock_q >= 85 or industry_q >= 90):
+                return 0, "周期股估值回归，清仓。", "valuation_reversion_exit"
+            if holding_days >= min_trim_days and current_tranches > 1 and (
+                (stock_q >= 60 and close >= ma20)
+                or self._grid_trim_ok_v2(record)
+            ):
+                return max(1, current_tranches - 1), "周期股估值回升或网格止盈，减一档。", "soft_trim"
+        return current_tranches, "继续持有。", ""
+
+    def _apply_v2_buy_guards(
+        self,
+        record: dict,
+        market_regime: dict,
+        current_tranches: int,
+        target_tranches: int,
+        action_reason: str,
+    ) -> tuple[int, str]:
+        if target_tranches <= current_tranches:
+            return target_tranches, action_reason
+        regime = str(market_regime.get("regime", ""))
+        bucket = str(record.get("bucket"))
+        final_score = _safe_float(record.get("universe_final_score", record.get("final_score")))
+        close = _safe_float(record.get("close"))
+        ma60 = _safe_float(record.get("ma60"))
+        ma120 = _safe_float(record.get("ma120"))
+        ma20_slope = _safe_float(record.get("ma20_slope_10d"), default=-1.0)
+        stock_q = _stock_valuation_quantile(record, bucket)
+        industry_q = _industry_valuation_quantile(record, bucket)
+
+        if _control_flag(self.strategy_cfg, "risk_off_no_new_buy") and regime == "risk_off":
+            if current_tranches == 0:
+                record["blocked_reason"] = "REGIME_OPEN_BLOCK"
+            record["reason_codes"].append("REGIME_OPEN_BLOCK")
+            return current_tranches, "risk_off_no_new_buy 对照：risk_off 不允许新开仓或加仓。"
+
+        if not _is_risk_guard_strategy(self.strategy_cfg):
+            return target_tranches, action_reason
+
+        if regime == "risk_on":
+            return target_tranches, action_reason
+
+        if regime == "neutral" and bucket == "cyclical_rotation" and current_tranches == 0:
+            passed = bool(
+                stock_q <= 30
+                and industry_q <= 35
+                and (close >= ma60 or ma20_slope > 0)
+                and final_score >= 60
+            )
+            if not passed:
+                record["blocked_reason"] = "REGIME_OPEN_BLOCK"
+                record["reason_codes"].append("REGIME_OPEN_BLOCK")
+                return current_tranches, "v2_1 neutral 周期开仓风险约束未通过。"
+            return target_tranches, action_reason
+
+        if regime == "risk_off":
+            if bucket == "cyclical_rotation":
+                if current_tranches == 0:
+                    record["blocked_reason"] = "REGIME_OPEN_BLOCK"
+                record["reason_codes"].append("REGIME_OPEN_BLOCK")
+                return current_tranches, "v2_1 risk_off 禁止 cyclical_rotation 新开仓和加仓。"
+            if bucket == "defensive_dividend":
+                if current_tranches > 0 or target_tranches > 1:
+                    record["reason_codes"].append("REGIME_OPEN_BLOCK")
+                    return current_tranches, "v2_1 risk_off defensive 只允许 BUY_1，不允许加仓。"
+                passed = bool(
+                    _safe_float(record.get("dv_ttm")) >= 0.035
+                    and stock_q <= 30
+                    and industry_q <= 40
+                    and final_score >= 65
+                    and ma120 > 0
+                    and close <= ma120
+                    and not self._hard_add_ban_v2(record)
+                )
+                if not passed:
+                    record["blocked_reason"] = "REGIME_OPEN_BLOCK"
+                    record["reason_codes"].append("REGIME_OPEN_BLOCK")
+                    return current_tranches, "v2_1 risk_off defensive BUY_1 风险约束未通过。"
+                return target_tranches, action_reason
+
+        return target_tranches, action_reason
+
+    def _base_decision_v2(self, record: dict, market_regime: dict, safe_mode: bool) -> dict:
+        bucket = str(record.get("bucket"))
+        current_tranches = int(record.get("current_position_tranches", 0))
+        current_weight = _safe_float(record.get("current_weight"), default=self._weight_for_tranches(current_tranches, bucket))
+        holding_state = record.get("holding_state", "NONE")
+        record["current_position_tranches"] = current_tranches
+        record["current_weight"] = round(current_weight, 6)
+        record["current_shares"] = _safe_int(record.get("current_shares"))
+        record["avg_cost"] = round(_safe_float(record.get("avg_cost")), 4)
+        record["risk_flags"] = list(record.get("risk_flags", []))
+        record["reason_codes"] = list(record.get("reason_codes", []))
+        record["blocked_reason"] = record.get("blocked_reason")
+        record["data_status"] = record.get("data_status", "ok")
+        record["entry_signal_score"] = 0.0
+        record["priority_score"] = round(_safe_float(record.get("universe_final_score", record.get("final_score"))), 4)
+        stock_resolution = resolve_stock_valuation_quantile(record, bucket, None)
+        industry_resolution = resolve_industry_valuation_quantile(record, bucket, None)
+        record["stock_valuation_quantile"] = stock_resolution.value
+        record["stock_valuation_quantile_source_field"] = stock_resolution.source_field
+        record["stock_valuation_metric"] = stock_resolution.metric
+        record["industry_valuation_quantile"] = industry_resolution.value
+        record["industry_valuation_quantile_source_field"] = industry_resolution.source_field
+        record["industry_valuation_metric"] = industry_resolution.metric
+        record["valuation_fallback_used"] = bool(stock_resolution.fallback_used or industry_resolution.fallback_used)
+        record["valuation_fallback_reason"] = ";".join(
+            reason
+            for reason in (stock_resolution.fallback_reason, industry_resolution.fallback_reason)
+            if reason
+        )
+        if not stock_resolution.source_field:
+            record["reason_codes"].append("VALUATION_QUANTILE_MISSING")
+        if not industry_resolution.source_field:
+            record["reason_codes"].append("INDUSTRY_VALUATION_QUANTILE_MISSING")
+
+        if bool(record.get("cycle_peak_trap")):
+            record["reason_codes"].append("CYCLE_TRAP")
+            record["risk_flags"].append("cycle_trap")
+        if bool(record.get("fundamental_break")):
+            record["reason_codes"].append("FUNDAMENTAL_BREAK")
+            record["risk_flags"].append("fundamental_break")
+        if bool(record.get("data_stale")):
+            record["reason_codes"].append("DATA_STALE_BLOCK")
+            record["risk_flags"].append("data_stale")
+
+        if current_tranches > 0:
+            target_tranches, action_reason, exit_reason = self._sell_target_v2(record, current_tranches)
+            if target_tranches == current_tranches and holding_state != "FROZEN" and not safe_mode:
+                target_tranches, action_reason = self._buy_level_v2(record, current_tranches)
+                target_tranches, action_reason = self._apply_v2_buy_guards(record, market_regime, current_tranches, target_tranches, action_reason)
+            elif target_tranches == current_tranches and holding_state == "FROZEN":
+                action_reason = "FROZEN 持仓不因出池直接卖出。"
+                record["reason_codes"].append("FROZEN_NOT_BUYABLE")
+            record["exit_reason"] = exit_reason
+        else:
+            if not bool(record.get("in_effective_universe", False)):
+                target_tranches = 0
+                action_reason = "不在 effective universe 中。"
+                record["blocked_reason"] = "NOT_IN_EFFECTIVE_UNIVERSE"
+            elif safe_mode:
+                target_tranches = 0
+                action_reason = "safe_mode 启用，仅做风险控制，不开新仓。"
+                record["blocked_reason"] = "DATA_STALE_BLOCK"
+                record["reason_codes"].append("DATA_STALE_BLOCK")
+            elif market_regime["regime"] == "risk_off" and self.strategy_cfg["market_regime"].get("block_new_in_risk_off", False):
+                target_tranches = 0
+                action_reason = "risk_off 阻断新开仓。"
+                record["blocked_reason"] = "REGIME_OPEN_BLOCK"
+            else:
+                target_tranches, action_reason = self._buy_level_v2(record, 0)
+                target_tranches, action_reason = self._apply_v2_buy_guards(record, market_regime, 0, target_tranches, action_reason)
+                if target_tranches == 0 and self._hard_add_ban_v2(record):
+                    record["blocked_reason"] = "HARD_ADD_BAN"
+
+        if target_tranches > current_tranches:
+            level_name = f"BUY_{target_tranches}"
+            record["entry_signal_score"] = compute_entry_signal_score(record, self._bucket_cfg(bucket), "BUY_1") if "buy_levels" in self._bucket_cfg(bucket) else 0.0
+            record["signal_level"] = level_name
+        elif target_tranches < current_tranches:
+            record["signal_level"] = "SELL_ALL" if target_tranches == 0 else "SELL_HALF"
+        else:
+            record["signal_level"] = "HOLD"
+        record["priority_score"] = round(
+            _safe_float(record.get("universe_final_score", record.get("final_score")), default=0.0)
+            + _safe_float(record.get("entry_signal_score")) * 0.1,
+            4,
+        )
+        record["desired_target_tranches"] = target_tranches
+        record["desired_target_weight"] = round(self._weight_for_tranches(target_tranches, bucket), 6)
+        record["action_reason"] = action_reason
+        return record
+
     def _base_decision(self, record: dict, market_regime: dict, safe_mode: bool) -> dict:
+        if self.is_v2:
+            return self._base_decision_v2(record, market_regime, safe_mode)
         bucket_cfg = self.strategy_cfg["buckets"].get(record["bucket"], {})
         current_tranches = int(record.get("current_position_tranches", 0))
         current_weight = _safe_float(record.get("current_weight"), default=self._weight_for_tranches(current_tranches))
@@ -430,9 +830,16 @@ class SignalEngine:
         current_cash = float(account_state.get("current_cash", 0.0))
         reserved_cash = float(account_state.get("reserved_cash", 0.0))
         current_invested_value = float(account_state.get("current_invested_value", 0.0))
+        holdings_count = int(account_state.get("holdings_count", 0))
 
         decisions = [self._base_decision(record.copy(), market_regime, safe_mode) for record in snapshot.to_dict(orient="records")]
         self._merge_position_fields(decisions, positions)
+        for decision in decisions:
+            current_tranches = int(decision.get("current_position_tranches", 0))
+            desired_tranches = int(decision.get("desired_target_tranches", current_tranches))
+            decision["intended_target_tranches"] = desired_tranches
+            decision["intended_target_weight"] = round(self._weight_for_tranches(desired_tranches, str(decision.get("bucket"))), 6)
+            decision["intended_action_enum"] = _action_for_target(current_tranches, desired_tranches, decision.get("holding_state", "NONE"))
         fixed_weight = 0.0
         released_cash = 0.0
         buy_requests: list[dict] = []
@@ -444,7 +851,7 @@ class SignalEngine:
                 continue
 
             decision["target_position_tranches"] = target_tranches
-            decision["target_weight"] = round(self._weight_for_tranches(target_tranches), 6)
+            decision["target_weight"] = round(self._weight_for_tranches(target_tranches, str(decision.get("bucket"))), 6)
             decision["target_position_change"] = round(decision["target_weight"] - decision["current_weight"], 6)
             action_enum = (
                 "BLOCKED"
@@ -468,19 +875,38 @@ class SignalEngine:
             initial_buying_power = round(min(cash_room_value, gross_room_value), 2)
             available_buying_power = initial_buying_power
 
-        ordered_requests = sorted(
-            buy_requests,
-            key=lambda item: (
-                0 if int(item["current_position_tranches"]) > 0 else 1,
-                -float(item["priority_score"]),
-                item["symbol"],
-            ),
-        )
+        if self.is_v2:
+            signal_rank = {"BUY_3": 3, "BUY_2": 2, "BUY_1": 1}
+            ordered_requests = sorted(
+                buy_requests,
+                key=lambda item: (
+                    -signal_rank.get(str(item.get("signal_level", item.get("intended_action_enum"))), 0),
+                    -float(item.get("priority_score", 0.0)),
+                    _stock_valuation_quantile(item, str(item.get("bucket"))),
+                    -_safe_float(item.get("dv_ttm")),
+                    -_safe_float(item.get("market_cap_billion")),
+                    item["symbol"],
+                ),
+            )
+        else:
+            ordered_requests = sorted(
+                buy_requests,
+                key=lambda item: (
+                    0 if int(item["current_position_tranches"]) > 0 else 1,
+                    -float(item["priority_score"]),
+                    item["symbol"],
+                ),
+            )
+        new_buys_today = 0
+        adds_today = 0
+        max_new = int(self.strategy_cfg["execution"].get("max_new_positions_per_day", 10**9))
+        max_adds = int(self.strategy_cfg["execution"].get("max_adds_per_day", 10**9))
+        max_positions = int(self.strategy_cfg["execution"].get("max_positions", 10**9))
         for decision in ordered_requests:
             current_tranches = int(decision["current_position_tranches"])
             target_tranches = int(decision["desired_target_tranches"])
             decision["target_position_tranches"] = target_tranches
-            decision["target_weight"] = round(self._weight_for_tranches(target_tranches), 6)
+            decision["target_weight"] = round(self._weight_for_tranches(target_tranches, str(decision.get("bucket"))), 6)
             decision["target_position_change"] = round(decision["target_weight"] - decision["current_weight"], 6)
             decision, required_cash = self._execution_plan(
                 decision,
@@ -490,21 +916,41 @@ class SignalEngine:
             )
             requested_weight = max(0.0, decision["target_weight"] - _safe_float(decision["current_weight"]))
             cash_blocked = available_buying_power is not None and required_cash > available_buying_power + 1e-9
+            daily_limit_blocked = False
+            if self.is_v2 and decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}:
+                if current_tranches == 0 and new_buys_today >= max_new:
+                    daily_limit_blocked = True
+                if current_tranches == 0 and holdings_count + new_buys_today >= max_positions:
+                    daily_limit_blocked = True
+                if current_tranches > 0 and adds_today >= max_adds:
+                    daily_limit_blocked = True
             if (
                 decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}
                 and requested_weight <= capacity + 1e-9
                 and not decision.get("blocked_reason")
                 and not cash_blocked
+                and not daily_limit_blocked
             ):
                 capacity = round(max(0.0, capacity - requested_weight), 6)
+                if self.is_v2:
+                    if current_tranches == 0:
+                        new_buys_today += 1
+                    else:
+                        adds_today += 1
                 if available_buying_power is not None:
                     available_buying_power = round(max(0.0, available_buying_power - required_cash), 2)
                 continue
 
             if decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}:
-                if cash_blocked:
+                if requested_weight > capacity + 1e-9:
+                    decision["blocked_reason"] = "REGIME_CAP_BLOCK"
+                    decision["reason_codes"].append("REGIME_CAP_BLOCK")
+                elif cash_blocked:
                     decision["blocked_reason"] = "INSUFFICIENT_CASH"
                     decision["reason_codes"].append("INSUFFICIENT_CASH")
+                elif daily_limit_blocked:
+                    decision["blocked_reason"] = "DAILY_POSITION_LIMIT"
+                    decision["reason_codes"].append("DAILY_POSITION_LIMIT")
                 elif not decision.get("blocked_reason"):
                     decision["blocked_reason"] = "REGIME_CAP_BLOCK"
                     decision["reason_codes"].append("REGIME_CAP_BLOCK")

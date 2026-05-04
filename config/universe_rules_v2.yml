@@ -1,0 +1,92 @@
+methodology_version: combined_v2
+profile: combined_v2
+rebalance_frequency: monthly
+
+target_size: 36
+floor_size: 24
+ceiling_size: 48
+target_universe_size: 36
+target_universe_floor: 24
+target_universe_ceiling: 48
+max_names_per_industry: 3
+max_per_industry: 3
+
+retained_min_score: 50
+new_min_score: 55
+retained_industry_rank: 6
+retained_any_rank_score: 60
+new_industry_rank: 4
+floor_fill_min_score: 52
+bucket_targets:
+  defensive_dividend:
+    min: 18
+    max: 28
+  cyclical_rotation:
+    min: 10
+    max: 20
+
+freeze_removed_holdings: true
+force_exit_rules:
+  - st
+  - fundamental_break
+  - delist_risk
+  - prolonged_data_failure
+data_stale_blocks_new_entries: true
+prolonged_data_failure_days: 10
+long_suspension_days: 20
+core_required_fields:
+  - industry
+  - market_cap_billion
+  - avg_amount_60d_million
+  - pb
+  - stock_pb_q_blended
+  - industry_pb_q_blended
+
+bucket_filters:
+  base:
+    listed_days_min: 1000
+    main_metric_history_years_min: 0
+    avg_amount_60d_million_min: 50
+    market_cap_billion_min: 300
+    require_industry: true
+    require_a_share: true
+    require_not_st: true
+    core_required_fields:
+      - industry
+      - market_cap_billion
+      - avg_amount_60d_million
+      - pb
+  defensive_dividend:
+    market_cap_billion_min: 300
+    avg_amount_60d_million_min: 50
+    roe_min: 6
+    latest_net_profit_min_exclusive: 0
+    debt_to_assets_max: 85
+    dv_ttm_min: 0.025
+    pe_ttm_max_when_primary_metric: 25
+    pb_min_exclusive: 0
+    pb_q_blended_max_when_primary_metric: 75
+  cyclical_rotation:
+    market_cap_billion_min: 300
+    avg_amount_60d_million_min: 50
+    latest_net_profit_min_exclusive: 0
+    roe_min: 3
+    pb_min_exclusive: 0
+    pb_q_blended_max: 60
+    market_cap_industry_rank_top_n: 10
+    market_cap_industry_rank_top_pct: 0.40
+
+scoring:
+  profile: combined_v2
+  defensive_dividend:
+    final:
+      valuation_score: 0.35
+      quality_score: 0.30
+      dividend_score: 0.20
+      leader_score: 0.15
+  cyclical_rotation:
+    final:
+      valuation_score: 0.40
+      quality_score: 0.25
+      leader_score: 0.20
+      cycle_safety_score: 0.15

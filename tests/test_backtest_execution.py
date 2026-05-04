@@ -600,3 +600,94 @@ def test_backtest_empty_historical_universe_is_formal_not_approximate(configs: d
 
     assert result.approximate_backtest is False
     assert result.trade_list.empty
+
+
+def _next_bar_test_configs(configs: dict, initial_cash: float = 10_000) -> tuple[dict, dict, dict]:
+    strategy_cfg = copy.deepcopy(configs["strategy"])
+    universe_rules_cfg = copy.deepcopy(configs["universe_rules"])
+    account_cfg = copy.deepcopy(configs["account"])
+    account_cfg["account"]["initial_capital"] = initial_cash
+    account_cfg["account"]["current_cash"] = initial_cash
+    account_cfg["account"]["latest_total_equity"] = initial_cash
+    account_cfg["execution"]["commission_rate"] = 0.0
+    account_cfg["execution"]["stamp_duty_rate_sell"] = 0.0
+    account_cfg["execution"]["slippage_bps"] = 0
+    account_cfg["execution"]["round_lot"] = 1
+    account_cfg["position_sizing"]["min_trade_value"] = 0
+    strategy_cfg["execution"]["fee_rate"] = 0.0
+    strategy_cfg["execution"]["stamp_tax_rate"] = 0.0
+    strategy_cfg["execution"]["slippage_rate"] = 0.0
+    return strategy_cfg, universe_rules_cfg, account_cfg
+
+
+def _signal_row(date: str, open_price: float, close: float) -> dict:
+    return {
+        "date": date,
+        "symbol": "600000.sh",
+        "name": "测试银行",
+        "industry": "银行",
+        "bucket": "defensive_dividend",
+        "open": open_price,
+        "close": close,
+        "ma20": close,
+        "ma60": close * 0.95,
+        "ma120": close * 1.2,
+        "ma200": close * 0.9,
+        "ma250": close,
+        "atr20": 0.1,
+        "ma20_slope_10d": 0.01,
+        "ma60_slope_20d": 0.01,
+        "ma120_slope_20d": 0.0,
+        "stock_q_blended": 10.0,
+        "industry_q_blended": 10.0,
+        "quality_pass": True,
+        "cycle_peak_trap": False,
+        "fundamental_break": False,
+        "in_effective_universe": True,
+        "holding_state": "NONE",
+        "current_position_tranches": 0,
+        "current_weight": 0.0,
+        "final_score": 82.0,
+        "universe_final_score": 82.0,
+        "data_stale": False,
+    }
+
+
+def test_next_bar_does_not_fill_last_trading_day_signal(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _next_bar_test_configs(configs)
+    engine = BacktestEngine(strategy_cfg, universe_rules_cfg=universe_rules_cfg, account_cfg=account_cfg, historical_universe_dir=None, execution_mode="next_bar")
+    features = pd.DataFrame([_signal_row("2024-01-02", 10.0, 10.0), _signal_row("2024-01-03", 10.0, 10.0)])
+    benchmark = pd.DataFrame({"date": ["2024-01-02", "2024-01-03"], "close": [100, 100]})
+
+    result = engine.run(features=features, benchmark=benchmark, bucket="combined")
+
+    assert len(result.trade_list) == 1
+    assert result.trade_list.iloc[0]["signal_date"] == "2024-01-02"
+    assert result.trade_list.iloc[0]["fill_date"] == "2024-01-03"
+
+
+def test_same_close_fills_on_signal_day_close(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _next_bar_test_configs(configs)
+    engine = BacktestEngine(strategy_cfg, universe_rules_cfg=universe_rules_cfg, account_cfg=account_cfg, historical_universe_dir=None, execution_mode="same_close")
+    features = pd.DataFrame([_signal_row("2024-01-02", 9.0, 10.0), _signal_row("2024-01-03", 9.0, 10.0)])
+    benchmark = pd.DataFrame({"date": ["2024-01-02", "2024-01-03"], "close": [100, 100]})
+
+    result = engine.run(features=features, benchmark=benchmark, bucket="combined")
+
+    assert result.trade_list.iloc[0]["signal_date"] == "2024-01-02"
+    assert result.trade_list.iloc[0]["fill_date"] == "2024-01-02"
+    assert result.trade_list.iloc[0]["fill_price"] == 10.0
+
+
+def test_next_bar_reclips_buy_when_fill_price_exceeds_cash(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _next_bar_test_configs(configs, initial_cash=1_000)
+    engine = BacktestEngine(strategy_cfg, universe_rules_cfg=universe_rules_cfg, account_cfg=account_cfg, historical_universe_dir=None, execution_mode="next_bar")
+    features = pd.DataFrame([_signal_row("2024-01-02", 1.0, 1.0), _signal_row("2024-01-03", 100.0, 100.0)])
+    benchmark = pd.DataFrame({"date": ["2024-01-02", "2024-01-03"], "close": [100, 100]})
+
+    result = engine.run(features=features, benchmark=benchmark, bucket="combined")
+
+    trade = result.trades_detailed.iloc[0]
+    assert trade["execution_adjustment"] == "CLIPPED"
+    assert trade["cash_after"] >= 0
+    assert trade["shares"] < 30

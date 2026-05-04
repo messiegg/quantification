@@ -165,6 +165,99 @@ bash scripts/run_demo.sh
 - 回测可按历史 effective universe 回放；若历史池缺失，会显式标记 `approximate_backtest`。
 - 即使历史 effective universe 不完整，回测仍会保留已持仓标的的风险控制逻辑，不把“脱池”直接等同于“立刻清仓”。
 
+### baseline 诊断与 combined_v2 对比
+
+正式三年诊断固定使用本地已验证数据窗口 `2023-04-03` 到 `2026-04-03`，不读取或假定 `2026-04-03` 之后的数据。baseline 仍使用 `config/strategy.yml` 与 `config/universe_rules.yml`；新策略使用独立的 `config/strategy_v2.yml` 与 `config/universe_rules_v2.yml`，不覆盖旧逻辑。
+
+单独跑 baseline 诊断：
+
+```bash
+./.venv/bin/python scripts/backtest.py \
+  --bucket combined \
+  --start-date 2023-04-03 \
+  --end-date 2026-04-03 \
+  --historical-universe-dir data/curated/universe_history \
+  --diagnostics-prefix baseline
+```
+
+跑 baseline 与 combined_v2 对比：
+
+```bash
+./.venv/bin/python scripts/run_backtest_compare.py \
+  --start-date 2023-04-03 \
+  --end-date 2026-04-03
+```
+
+对比脚本会生成：
+
+- `reports/backtest/baseline_signal_funnel.csv`
+- `reports/backtest/baseline_universe_funnel.csv`
+- `reports/backtest/baseline_blocked_signals.csv`
+- `reports/backtest/baseline_trades_detailed.csv`
+- `reports/backtest/baseline_diagnostic_report.md`
+- `reports/backtest/combined_v2_signal_funnel.csv`
+- `reports/backtest/combined_v2_universe_funnel.csv`
+- `reports/backtest/combined_v2_blocked_signals.csv`
+- `reports/backtest/combined_v2_trades_detailed.csv`
+- `reports/backtest/combined_v2_candidate_scores.csv`
+- `reports/backtest/combined_v2_diagnostic_report.md`
+- `reports/backtest/compare_combined_vs_v2_metrics.csv`
+- `reports/backtest/compare_combined_vs_v2.md`
+
+### combined_v2 严格审计与鲁棒性报告
+
+审计固定使用 `2023-04-03` 到 `2026-04-03`，不读取 `2026-04-03` 之后的数据；主口径为 `execution_mode=next_bar`，即 t 日收盘后形成信号，下一交易日按 open 成交，缺少 open 时退回下一交易日 close。`same_close` 只作为乐观成交价对照。
+
+运行完整性、前视、执行口径、walk-forward、敏感性、成本和归因审计：
+
+```bash
+./.venv/bin/python scripts/audit_backtest_integrity.py
+./.venv/bin/python scripts/audit_backtest_lookahead.py
+./.venv/bin/python scripts/run_backtest_execution_compare.py
+./.venv/bin/python scripts/run_backtest_walkforward.py
+./.venv/bin/python scripts/run_backtest_sensitivity.py
+./.venv/bin/python scripts/run_backtest_cost_stress.py
+./.venv/bin/python scripts/run_backtest_attribution.py
+./.venv/bin/python scripts/run_backtest_controls.py
+./.venv/bin/python scripts/run_backtest_v2_1_risk_guard.py
+./.venv/bin/python scripts/build_combined_v2_release_candidate.py
+./.venv/bin/python scripts/build_combined_v2_audit_summary.py
+```
+
+关键输出：
+
+- `reports/backtest/audit/integrity_audit.md`
+- `reports/backtest/audit/lookahead_audit.md`
+- `reports/backtest/audit/universe_pit_audit.csv`
+- `reports/backtest/audit/execution_mode_compare.md`
+- `reports/backtest/robustness/walkforward_report.md`
+- `reports/backtest/robustness/sensitivity_report.md`
+- `reports/backtest/robustness/cost_stress_report.md`
+- `reports/backtest/attribution/combined_v2_attribution_report.md`
+- `reports/backtest/attribution/combined_v2_monthly_returns_check.csv`
+- `reports/backtest/attribution/combined_v2_signal_attribution.csv`
+- `reports/backtest/attribution/combined_v2_daily_regime_attribution.csv`
+- `reports/backtest/controls/control_baselines_report.md`
+- `reports/backtest/controls/random_placebo_metrics.csv`
+- `reports/backtest/v2_1/compare_v2_vs_v2_1_risk_guard.md`
+- `reports/backtest/audit/report_consistency_check.csv`
+- `reports/backtest/audit/lookahead_valuation_field_resolution.csv`
+- `reports/backtest/release/combined_v2_rc_manifest.json`
+- `reports/backtest/release/combined_v2_rc_manifest.md`
+- `reports/backtest/audit/combined_v2_audit_summary.md`
+- `reports/backtest/audit/combined_v2_rc_summary.md`
+
+当前严格主口径：`combined_v2 PIT next_bar`。PIT 修正后的 combined_v2 next_bar 年化为 `7.14%`、累计收益 `21.96%`、最大回撤 `-9.36%`、成交 `76` 笔。上一轮 `9.14%`、`83` 笔是 legacy pre-PIT 旧口径，已由 `INT-012-LEGACY` 标记为 superseded，不再作为当前主策略必须复现的 PASS/FAIL 标准。当前复现检查为 `INT-013-CURRENT-PIT-STRICT`。
+
+归因报告已修正三项口径：
+
+- 月度收益用连续 NAV 链计算，`combined_v2_monthly_returns_check.csv` 最后一行复合累计与 final NAV 累计差异应小于 `1e-8`。
+- 未平仓持仓的持有天数统计到回测结束日，并输出 `is_open_position`、`open_position_days`、`realized_holding_days`、`total_holding_days_to_end`。
+- signal attribution 拆为 entry signal、exit signal、entry-exit pair；regime attribution 拆为成交/兑现口径和 daily MTM 口径。
+- 估值分位审计不再检查不存在的泛型字段，而是记录 resolver 实际使用的 stock/industry source field、metric 和 source date；release manifest 冻结当前 next_bar 主口径、配置路径、核心绩效和关键输出哈希。
+
+control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖正式 v2 配置。`combined_v2_1_risk_guard` 是独立候选 profile，只改 market regime 风险侧买入限制，沿用 v2 universe，不替换 combined_v2 主口径。
+
 ## 对账与可复现
 
 - `scripts/run_demo.sh` 使用 `fixtures/demo_case/` 的固定输入，重建一致的 `config/universe.yml`、`reports/daily/orders_latest.json` 和 `data/curated/run_manifest.json`。

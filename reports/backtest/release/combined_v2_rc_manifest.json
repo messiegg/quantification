@@ -1,0 +1,136 @@
+{
+  "run_id": "combined_v2_rc_2023-04-03_2026-04-03_next_bar",
+  "created_at": "2026-05-04T07:43:52.341185+00:00",
+  "git_commit": "123b504a068ef0fab86055cf04bd3cc5d69731fc",
+  "python_version": "3.14.3",
+  "start_date": "2023-04-03",
+  "end_date": "2026-04-03",
+  "data_max_date": "2026-04-03",
+  "profile": "combined_v2",
+  "execution_mode": "next_bar",
+  "strategy_config_path": "config/strategy_v2.yml",
+  "universe_config_path": "config/universe_rules_v2.yml",
+  "historical_universe_dir": "reports/backtest/combined_v2_universe_history",
+  "account_config_path": "config/account.yml",
+  "fee": 0.0003,
+  "tax": 0.0005,
+  "slippage": 5,
+  "lot_size": 100,
+  "min_trade_amount": 5000,
+  "initial_capital": 200000.0,
+  "final_nav": 243928.8809062001,
+  "annual_return": 0.0713520247687258,
+  "cumulative_return": 0.2196444045310004,
+  "max_drawdown": -0.0936454742991675,
+  "sharpe": 0.7782204340639889,
+  "total_trades": 76,
+  "buy_trades": 43,
+  "sell_trades": 33,
+  "avg_daily_exposure": 0.4697743770034566,
+  "max_daily_exposure": 0.7569459961603964,
+  "avg_positions": 12.287878787878787,
+  "max_positions": 20,
+  "realized_pnl": 38533.829894000024,
+  "unrealized_pnl": 5395.0510122000705,
+  "total_fees": 166.57459004999993,
+  "total_tax": 132.92600375,
+  "benchmark_annual_return": 0.0288843553937312,
+  "excess_annual_return": 0.0424676693749945,
+  "control_metrics_snapshot": [
+    {
+      "control_id": "combined_v2_next_bar",
+      "profile": "combined_v2",
+      "execution_mode": "next_bar",
+      "annual_return": 0.0713520247687258,
+      "cumulative_return": 0.2196444045310004,
+      "max_drawdown": -0.0936454742991675,
+      "sharpe": 0.7782204340639889,
+      "calmar": 0.7619377797241833,
+      "volatility": 0.0945422111158505,
+      "total_trades": 76,
+      "buy_trades": 43,
+      "sell_trades": 33,
+      "avg_daily_exposure": 0.4697743770034566,
+      "max_daily_exposure": 0.7569459961603964,
+      "avg_positions": 12.287878787878787,
+      "max_positions": 20,
+      "turnover": 2.7762431675,
+      "total_fees": 166.57459004999993,
+      "total_tax": 132.92600375,
+      "total_slippage": 277.61849999997116,
+      "realized_pnl": 38533.829894000024,
+      "unrealized_pnl": 5395.0510122000705,
+      "benchmark_annual_return": 0.0288843553937312,
+      "excess_annual_return": 0.0424676693749945,
+      "defensive_pnl": 27465.657712800017,
+      "cyclical_pnl": 16550.04218120001
+    }
+  ],
+  "key_output_file_hashes": [
+    {
+      "path": "config/strategy_v2.yml",
+      "sha256": "2d1d303f0e845a0d44279c4c60438604bad1e10cd3eea6e5c6a0152b5c7b2a04",
+      "exists": true
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/combined_v2_trades_detailed.csv",
+      "sha256": "6a1e6a6859c8dfa0e399bf0f900aadad6a3920e36ce3e2cb95a090d6c8643cec",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/combined_v2_signal_funnel.csv",
+      "sha256": "68a417c1438d6925dfc4bfb33832526eb4b28c06811991c7d2df8329b49214f8",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/combined_v2_candidate_scores.csv",
+      "sha256": "e73c8e531d8777ee511d657241d689196a61e7dd62c8b6db3e8ad45b6d9b97bc",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/attribution/combined_v2_position_attribution.csv",
+      "sha256": "33927cc57ed658b2d379757b57c4607cd5f3f0dce8b643ca57c9fc4bf37bc778",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/attribution/combined_v2_trade_attribution.csv",
+      "sha256": "b396b30200aa348ab6d4dc48dc84d1540ad3c2bbc0ed11657f904b34a64f37a2",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/attribution/combined_v2_monthly_returns.csv",
+      "sha256": "263bbbd73a5fd9755ae77c2c4aa7172d981fba302f3bb4d89092f2b1b58f847d",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/attribution/combined_v2_signal_attribution.csv",
+      "sha256": "fc94e98ea51b2478dd0f30cd4fd77f2fb252389f298595359c0dd0188dd3daaf",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/attribution/combined_v2_regime_attribution.csv",
+      "sha256": "b6319a00e0e386751d2490b47f1c5024c2071f6c090019c823750e3ee7934ba2",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/audit/lookahead_audit.csv",
+      "sha256": "e445f1c0ee4db5f9964d83928900424f3a9719b20874ccc9a61fbdc67c240c1c",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/audit/integrity_audit.csv",
+      "sha256": "f38ab2c649db9d43726528a52f172e5bc380b539982b01c62163c244000072d3",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/controls/control_baselines_metrics.csv",
+      "sha256": "c295d12ceb198d199bb81914db21234e9bf2e685ea696982ce2dd88face185a3",
+      "exists": true
+    }
+  ]
+}

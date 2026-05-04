@@ -2,6 +2,8 @@ from __future__ import annotations
 
 
 def compute_grid_step(atr20: float, close: float, grid_cfg: dict) -> float:
+    if float(close) <= 0:
+        return float(grid_cfg["max_step"])
     raw = float(grid_cfg["atr_multiplier"]) * float(atr20) / float(close)
     return max(float(grid_cfg["min_step"]), min(float(grid_cfg["max_step"]), raw))
 

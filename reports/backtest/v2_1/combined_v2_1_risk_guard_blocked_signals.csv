@@ -1,0 +1,114 @@
+date,ts_code,name,bucket,intended_action,intended_signal_level,intended_target_weight,current_weight,close,reason_code,reason_detail
+2023-05-04,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.3,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-05,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.68,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-08,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.83,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-09,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.94,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-10,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.19,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-11,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.02,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-12,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.01,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-15,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.87,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-16,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.63,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-17,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.78,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-18,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.59,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-26,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.91,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-29,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,44.05,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-29,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.58,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-30,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,42.93,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-30,002032.sz,苏 泊 尔,defensive_dividend,BUY_1,BUY_1,0.04,0.0,40.39,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-05-31,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,41.93,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-09-14,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.94,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-15,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.76,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-18,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.73,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-19,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.77,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-20,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.82,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-21,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.73,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-26,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.59,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-27,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.6,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-09-28,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.61,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-09,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.53,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-10,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.48,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-10,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,26.06,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-11,600926.sh,杭州银行,defensive_dividend,BUY_1,BUY_1,0.04,0.0,9.37,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-19,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,47.28,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-20,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.23,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-23,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.3,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-24,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.23,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-25,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.47,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-26,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.56,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-27,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.79,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-27,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,30.33,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-27,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,25.4,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-30,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,29.3,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-30,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,25.04,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-31,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.97,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-10-31,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,29.35,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-10-31,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,25.65,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-01,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.06,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-01,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,28.9,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-01,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,25.4,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-02,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.23,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-02,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,28.5,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-02,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,25.02,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-03,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.85,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-03,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,28.47,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-03,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,24.84,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-06,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.19,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-06,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,29.51,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-06,601601.sh,中国太保,defensive_dividend,BUY_1,BUY_1,0.04,0.0,24.96,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-07,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.15,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-07,601336.sh,新华保险,defensive_dividend,BUY_1,BUY_1,0.04,0.0,28.79,TOTAL_EXPOSURE_LIMIT,买入请求因仓位上限、资金约束或执行约束被阻断。
+2023-11-08,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.9,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-09,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.5,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-28,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.58,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-29,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,45.06,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-11-30,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,44.72,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-12-27,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,46.65,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-12-28,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,47.1,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2023-12-29,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,47.68,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-01-02,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,47.61,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-01-03,000333.sz,美的集团,defensive_dividend,BUY_1,BUY_1,0.04,0.0,47.5,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-08,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.88,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-19,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.01,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-21,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.09,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-26,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.93,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-27,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.04,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-28,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.99,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-02-29,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.01,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-03-01,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.98,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-03-04,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.94,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-03-05,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.99,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-03-06,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.96,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-03-07,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,4.96,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-04-29,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.18,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-04-30,600018.sh,上港集团,cyclical_rotation,BUY_2,BUY_2,0.06,0.039,5.19,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-02,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,46.1,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-03,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,45.33,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-04,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,44.76,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-05,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,45.04,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-08,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,44.51,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-09,002032.sz,苏 泊 尔,defensive_dividend,BUY_2,BUY_2,0.08,0.039542,44.46,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-07-18,600309.sh,万华化学,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,80.53,LOT_SIZE_ZERO,目标变动低于整手约束，无法下达可执行订单。
+2024-07-19,600309.sh,万华化学,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,81.29,LOT_SIZE_ZERO,目标变动低于整手约束，无法下达可执行订单。
+2024-07-22,600309.sh,万华化学,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,80.38,LOT_SIZE_ZERO,目标变动低于整手约束，无法下达可执行订单。
+2024-09-24,002352.sz,顺丰控股,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,35.96,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-09-24,600233.sh,圆通速递,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,15.84,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-09-25,600233.sh,圆通速递,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,15.71,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2024-09-30,601018.sh,宁波港,defensive_dividend,REDUCE,SELL_HALF,0.04,0.05979,3.7,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-01,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.25,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-02,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.12,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-03,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.21,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-07,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,22.7,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-11,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.63,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-14,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.22,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-15,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.43,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-16,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.55,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-17,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.37,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-18,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.16,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-21,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.93,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-22,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,24.15,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-23,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.93,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-24,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.94,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-25,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.62,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-28,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.59,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-29,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.48,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。
+2025-04-30,600585.sh,海螺水泥,cyclical_rotation,BUY_1,BUY_1,0.03,0.0,23.13,MIN_TRADE_AMOUNT,目标成交额低于最小交易额，订单被阻断。

@@ -13,13 +13,14 @@ if str(ROOT) not in sys.path:
 
 from src.pipeline.strict_data import clean_benchmark_frame
 from src.strategy.backtest_engine import BacktestEngine
+from src.strategy.backtest_reports import build_universe_funnel, write_diagnostic_outputs
 from src.utils.cli import write_json
-from src.utils.config import load_project_configs, resolve_path
+from src.utils.config import load_yaml, load_yaml_optional, resolve_path
 from src.utils.storage import read_dataset_flex
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Run point-in-time backtests using next-day-open execution.")
+    parser = argparse.ArgumentParser(description="Run point-in-time backtests.")
     parser.add_argument("--bucket", default="combined", choices=["defensive_dividend", "cyclical_rotation", "combined"], help="Backtest bucket.")
     parser.add_argument("--start-date", required=True, help="Backtest start date.")
     parser.add_argument("--end-date", required=True, help="Backtest end date.")
@@ -27,6 +28,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--benchmark-file", default="data/raw/benchmark_daily.parquet", help="Benchmark parquet.")
     parser.add_argument("--historical-universe-dir", default="data/curated/universe_history", help="Historical effective universe directory.")
     parser.add_argument("--output-prefix", default="", help="Backtest output prefix.")
+    parser.add_argument("--profile", default="", help="Report/profile label, e.g. combined or combined_v2.")
+    parser.add_argument("--strategy-config", default="config/strategy.yml", help="Strategy config file.")
+    parser.add_argument("--universe-config", default="config/universe_rules.yml", help="Universe rule config file.")
+    parser.add_argument("--account-config", default="config/account.yml", help="Account config file.")
+    parser.add_argument("--metric-map-config", default="config/metric_map.yml", help="Metric map config file.")
+    parser.add_argument("--diagnostics-prefix", default="", help="Write diagnostics under reports/backtest using this prefix.")
+    parser.add_argument("--execution-mode", default="next_bar", choices=["next_bar", "same_close"], help="Execution mode: signal-close then next bar, or optimistic same close.")
     return parser.parse_args()
 
 
@@ -55,16 +63,20 @@ def load_backtest_features(path_like: str, start_date: str, end_date: str) -> pd
 
 def main() -> int:
     args = parse_args()
-    configs = load_project_configs()
+    strategy_cfg = load_yaml(args.strategy_config)
+    universe_rules_cfg = load_yaml(args.universe_config)
+    account_cfg = load_yaml_optional(args.account_config)
+    metric_map_cfg = load_yaml(args.metric_map_config)
     features = load_backtest_features(args.features_file, args.start_date, args.end_date)
     benchmark = clean_benchmark_frame(pd.read_parquet(resolve_path(args.benchmark_file)))
     benchmark = benchmark[(benchmark["date"] >= args.start_date) & (benchmark["date"] <= args.end_date)].copy()
 
     engine = BacktestEngine(
-        configs["strategy"],
-        universe_rules_cfg=configs["universe_rules"],
-        account_cfg=configs["account"],
+        strategy_cfg,
+        universe_rules_cfg=universe_rules_cfg,
+        account_cfg=account_cfg,
         historical_universe_dir=args.historical_universe_dir,
+        execution_mode=args.execution_mode,
     )
     result = engine.run(features=features, benchmark=benchmark, bucket=args.bucket)
 
@@ -76,6 +88,7 @@ def main() -> int:
         "start_date": args.start_date,
         "end_date": args.end_date,
         "metrics": result.metrics,
+        "execution_mode": result.execution_mode,
         "trade_list": result.trade_list.to_dict(orient="records"),
         "stock_attribution": result.stock_attribution.to_dict(orient="records"),
         "industry_attribution": result.industry_attribution.to_dict(orient="records"),
@@ -91,6 +104,7 @@ def main() -> int:
         f"- Max Drawdown: {result.metrics['max_drawdown']:.2%}",
         f"- Win Rate: {result.metrics['win_rate']:.2%}",
         f"- Sharpe: {result.metrics['sharpe']:.2f}",
+        f"- Execution mode: {result.execution_mode}",
         f"- Approximate backtest: {'yes' if result.approximate_backtest else 'no'}",
         "",
         "## Trades",
@@ -106,6 +120,9 @@ def main() -> int:
     md_file = resolve_path(md_path)
     md_file.parent.mkdir(parents=True, exist_ok=True)
     md_file.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    if args.diagnostics_prefix:
+        universe_funnel, candidate_scores = build_universe_funnel(features, args.historical_universe_dir, universe_rules_cfg, metric_map_cfg)
+        write_diagnostic_outputs(args.diagnostics_prefix, result, universe_funnel, candidate_scores=candidate_scores if args.diagnostics_prefix == "combined_v2" else None)
     return 0
 
 
