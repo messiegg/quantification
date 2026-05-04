@@ -29,6 +29,10 @@ SCRIPTS = [
 ]
 
 
+def project_python_command() -> str:
+    return "./.venv/bin/python" if (ROOT / ".venv" / "bin" / "python").exists() else "python"
+
+
 def _run_help(script_path: str) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         [sys.executable, script_path, "--help"],
@@ -51,7 +55,7 @@ def build_update_commands(target_trading_date: str, next_missing_date: str | Non
     if str(update.get("status")) == "FAIL" or str(features.get("status")) == "FAIL":
         return [], "UPDATE_CLI_UNSUPPORTED"
 
-    update_cmd = [sys.executable, "scripts/update_market_data.py"]
+    update_cmd = [project_python_command(), "scripts/update_market_data.py"]
     if bool(update.get("supports_as_of_date")):
         update_cmd.extend(["--as-of-date", target_trading_date])
     elif bool(update.get("supports_start_date")) and bool(update.get("supports_end_date")) and next_missing_date:
@@ -61,7 +65,7 @@ def build_update_commands(target_trading_date: str, next_missing_date: str | Non
     if bool(update.get("supports_all_stocks")):
         update_cmd.append("--all-stocks")
 
-    feature_cmd = [sys.executable, "scripts/build_features.py"]
+    feature_cmd = [project_python_command(), "scripts/build_features.py"]
     if bool(features.get("supports_as_of_date")):
         feature_cmd.extend(["--as-of-date", target_trading_date])
     elif bool(features.get("supports_start_date")) and bool(features.get("supports_end_date")) and next_missing_date:

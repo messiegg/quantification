@@ -4,6 +4,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -25,6 +26,15 @@ FORBIDDEN_ACTIVE_PHRASES = [
     "auto_order_allowed: true",
     "真实订单已生成",
 ]
+STALE_BLOCKED_PATTERNS = [
+    "STALE_DATA_BLOCKED",
+    "data_max_date: 2026-04-03",
+    '"data_max_date": "2026-04-03"',
+    "stale_trading_days: 18",
+    '"stale_trading_days": 18',
+    "action_allowed: false",
+    '"action_allowed": false',
+]
 
 
 def _read_json(path: Path) -> dict:
@@ -40,8 +50,28 @@ def _text(path: Path) -> str:
 def _legacy_superseded(path: Path) -> bool:
     if not path.exists():
         return False
-    header = "\n".join(path.read_text(encoding="utf-8").splitlines()[:8])
-    return "LEGACY_SUPERSEDED" in header
+    first_line = path.read_text(encoding="utf-8").splitlines()[:1]
+    return bool(first_line and "LEGACY_SUPERSEDED" in first_line[0])
+
+
+def _relative(path: Path) -> str:
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
+def _git_tracked(path: Path) -> bool:
+    rel = _relative(path)
+    result = subprocess.run(
+        ["git", "ls-files", "--", rel],
+        cwd=ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    return bool(result.stdout.strip())
 
 
 def _row(rows: list[dict], check_id: str, check_name: str, status: str, expected: object, actual: object, evidence: str, recommendation: str) -> None:
@@ -79,21 +109,48 @@ def build_observation_gate_consistency_check(
 
     allowed = str(freshness.get("allowed_actions", "")) == "observation_report_allowed"
     historical_only = str(freshness.get("allowed_actions", "")) == "historical_review_only"
-    blocked_is_current = blocked_path.exists() and not _legacy_superseded(blocked_path)
+    blocked_exists = blocked_path.exists()
+    blocked_is_legacy = _legacy_superseded(blocked_path)
+    blocked_text = _text(blocked_path)
+    blocked_stale_patterns = [pattern for pattern in STALE_BLOCKED_PATTERNS if pattern in blocked_text]
+    blocked_is_current = blocked_exists and not blocked_is_legacy
+    blocked_is_tracked = _git_tracked(blocked_path)
 
-    if allowed:
+    if allowed and str(freshness.get("blocking_reason", "")) == "NONE":
         _row(
             rows,
-            "GATE-001",
-            "allowed freshness has no current blocked report",
+            "GATE-001A",
+            "blocked report absent or legacy when allowed",
             "PASS" if not blocked_is_current else "FAIL",
             "observation_blocked.md absent or LEGACY_SUPERSEDED",
             "current" if blocked_is_current else "absent_or_legacy",
             str(blocked_path),
             "freshness 已允许观察时，旧 blocked 报告不能作为当前主报告存在。",
         )
+        _row(
+            rows,
+            "GATE-001B",
+            "no stale blocked content when allowed",
+            "PASS" if not (blocked_is_current and blocked_stale_patterns) else "FAIL",
+            "no STALE_DATA_BLOCKED/2026-04-03/action_allowed=false current content",
+            "|".join(blocked_stale_patterns) if blocked_stale_patterns else "none",
+            str(blocked_path),
+            "允许观察时，当前主路径下不得保留旧 STALE_DATA_BLOCKED 内容。",
+        )
+        _row(
+            rows,
+            "GATE-001C",
+            "tracked old blocked report absent unless legacy",
+            "PASS" if not (blocked_is_tracked and blocked_is_current) else "FAIL",
+            "not tracked or LEGACY_SUPERSEDED",
+            f"tracked={blocked_is_tracked}, legacy={blocked_is_legacy}",
+            str(blocked_path),
+            "Git 跟踪的旧 blocked report 必须删除，除非第一行标记 LEGACY_SUPERSEDED。",
+        )
         _row(rows, "GATE-002", "summary exists when freshness allowed", "PASS" if summary_path.exists() else "FAIL", "exists", summary_path.exists(), str(summary_path), "允许观察时必须生成 observation_summary.md。")
         _row(rows, "GATE-003", "manifest action_allowed true", "PASS" if manifest.get("action_allowed") is True else "FAIL", "true", manifest.get("action_allowed"), str(out_dir / "observation_run_manifest.json"), "manifest 必须反映本次观察已允许。")
+    elif allowed:
+        _row(rows, "GATE-001", "allowed freshness has no blocking_reason", "FAIL", "blocking_reason=NONE", freshness.get("blocking_reason", "missing"), str(out_dir / "data_freshness_report.json"), "allowed_actions 已允许时 blocking_reason 必须为 NONE。")
     elif historical_only:
         _row(rows, "GATE-004", "blocked report exists when freshness blocks", "PASS" if blocked_path.exists() else "FAIL", "exists", blocked_path.exists(), str(blocked_path), "freshness 阻断时必须生成 blocked 报告。")
         _row(rows, "GATE-005", "summary absent when freshness blocks", "PASS" if not summary_path.exists() else "FAIL", "absent", summary_path.exists(), str(summary_path), "阻断时不得保留当前 observation_summary.md。")

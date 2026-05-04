@@ -1,7 +1,7 @@
 # stale report check
 
 - overall_status: PASS
-- scanned_files: 14
+- scanned_files: 16
 - fail_count: 0
 - warn_count: 0
 
@@ -11,6 +11,7 @@
 - PASS | GLOBAL | old_attribution_residue_absent | 未发现旧 signal/regime attribution 行。
 - PASS | GLOBAL | release_sync_stale_residue_absent | 未发现 release sync 提交前状态残留。
 - PASS | reports/observation/2026-05-04/observation_blocked.md | observation_gate_allowed_no_current_blocked | freshness 允许观察时，不得保留未标记 legacy 的 STALE_DATA_BLOCKED 主报告。
+- PASS | reports/observation/2026-05-04/observation_blocked.md | observation_gate_allowed_no_stale_blocked_content | freshness 允许观察时，当前主路径不得残留旧 blocked 内容；历史文件必须第一行标记 LEGACY_SUPERSEDED。
 - PASS | reports/observation/2026-05-04/observation_summary.md | observation_gate_allowed_summary_exists | freshness 允许观察时必须生成 observation_summary.md。
 - PASS | reports/observation/2026-05-04/observation_run_manifest.json | observation_gate_allowed_manifest，matched=True | manifest 必须以本次允许观察结果为准。
 - PASS | reports/observation/2026-05-04/observation_summary.md | observation_summary_market_closed_marker，matched=MARKET_CLOSED_AS_OF_DATE | 非交易日 observation_summary.md 必须显式标记市场关闭。

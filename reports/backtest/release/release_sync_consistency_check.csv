@@ -21,6 +21,7 @@ SYNC-CSV-TRACKED-manual_observation_protocol.md,docs/manual_observation_protocol
 SUMMARY-REQ-001,observation_release_sync_summary.md required current conclusion,PASS,present: RC verify: PASS,present,RC verify: PASS,发布同步总结必须保留 RC PASS、策略未变更等当前结论。
 SUMMARY-REQ-002,observation_release_sync_summary.md required current conclusion,PASS,present: 不涉及策略变更,present,不涉及策略变更,发布同步总结必须保留 RC PASS、策略未变更等当前结论。
 OBS-GATE-001,allowed observation has no current blocked report,PASS,observation_blocked.md absent or LEGACY_SUPERSEDED,absent_or_legacy,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,freshness 允许观察时，不能保留当前有效的 STALE_DATA_BLOCKED 主报告。
+OBS-GATE-001B,allowed observation has no stale blocked content,PASS,no stale blocked content,none,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,freshness 允许观察时，当前主路径不得残留旧 STALE_DATA_BLOCKED 内容。
 OBS-GATE-002,allowed observation summary exists,PASS,exists,exists,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,freshness 允许观察时必须生成 observation_summary.md。
 OBS-GATE-003,allowed observation manifest action_allowed,PASS,true,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_run_manifest.json,manifest 必须反映本次 gate 已允许观察。
 OBS-SUMMARY-001,holiday observation summary marker,PASS,MARKET_CLOSED_AS_OF_DATE,present,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,非交易日 summary 必须标记市场关闭。

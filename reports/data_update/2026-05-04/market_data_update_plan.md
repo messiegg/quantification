@@ -3,10 +3,10 @@
 - as_of_date: 2026-05-04
 - requested_as_of_is_trading_day: false
 - target_trading_date: 2026-04-30
-- calendar_source: project_trade_calendar+a_share_weekday_holiday_overrides
+- calendar_source: project_trade_calendar
 - current_data_max_date: 2026-04-03
 - current_feature_max_date: 2026-04-03
-- current_benchmark_max_date: 2026-04-03
+- current_benchmark_max_date: 2026-04-30
 - dry_run_writes_data: false
 - local_tdx_data_source_available: false
 - network_providers_configured: true

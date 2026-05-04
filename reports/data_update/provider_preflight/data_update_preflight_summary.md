@@ -25,13 +25,11 @@
 
 ## commands_planned
 
-- `/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks`
-- `/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30`
+- `./.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks`
+- `./.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30`
 
 ## 用户需要补充或确认
 
 - 如需离线更新，配置可读的本地 TDX vipdoc 路径。
 - 如需 Tushare，设置 TUSHARE_TOKEN 环境变量或 .env 条目。
 - 如需 JQData，设置 JQDATA_USERNAME / JQDATA_PASSWORD。
-- 重新运行 provider health 验证，确认数据源当前可用。
-- 数据更新后重新运行 observation 数据质量检查。

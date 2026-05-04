@@ -1,0 +1,13 @@
+{
+  "start_date":"2026-04-07",
+  "end_date":"2026-04-30",
+  "symbols_requested":5201,
+  "symbols_with_rows":5201,
+  "new_rows":93280,
+  "combined_rows":7417498,
+  "combined_min_date":"2015-01-05",
+  "combined_max_date":"2026-04-30",
+  "failed_chunks":[
+
+  ]
+}

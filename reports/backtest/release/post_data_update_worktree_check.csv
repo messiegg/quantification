@@ -1,0 +1,60 @@
+file_path,status_code,tracked_by_git,ignored_by_git,size_bytes,should_commit,should_ignore,action,reason
+config/universe.yml, M,True,False,4334,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/core_symbol_data_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/financials_missing.txt, M,True,False,39710,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/industry_members_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/market_caps_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/price_missing.txt, M,True,False,1340,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/st_flags_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/valuation_pb_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/missing_data/valuation_pe_ttm_missing.txt, M,True,False,52010,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data/curated/universe_history/2026-05-01.json, M,True,False,6023,True,False,COMMIT_TRACKED_SMALL_GENERATED_DATA,已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+data_quality/latest.json, M,True,False,2196,True,False,COMMIT_SMALL_AUDIT_STATE,小型 provider/data quality 状态可作为审计证据提交；不得包含 token。
+provider_health/latest.json, M,True,False,579,True,False,COMMIT_SMALL_AUDIT_STATE,小型 provider/data quality 状态可作为审计证据提交；不得包含 token。
+reports/backtest/audit/stale_report_check.csv, M,True,False,2500,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/audit/stale_report_check.md, M,True,False,2746,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/combined_v2_universe_history/2026-04-06.json, M,True,False,279,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/release/release_sync_consistency_check.csv, M,True,False,6957,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/release/release_sync_consistency_check.md, M,True,False,4993,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_gaps/latest.json, M,True,False,3490,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_gaps/latest.md, M,True,False,2198,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/2026-05-04/market_data_update_plan.json, M,True,False,1524,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/2026-05-04/market_data_update_plan.md, M,True,False,1128,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/2026-05-04/market_data_update_result.json, M,True,False,2160,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/2026-05-04/market_data_update_result.md, M,True,False,482,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/provider_preflight/data_update_preflight_summary.json, M,True,False,3649,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/provider_preflight/data_update_preflight_summary.md, M,True,False,1180,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/provider_preflight/provider_readiness_check.csv, M,True,False,3411,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/provider_preflight/provider_readiness_report.json, M,True,False,9071,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/provider_preflight/provider_readiness_report.md, M,True,False,3267,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/data_freshness_report.json, M,True,False,1358,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/data_quality_observation_report.json, M,True,False,8632,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/data_quality_observation_report.md, M,True,False,3419,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/observation_gate_consistency_check.csv, M,True,False,3264,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/observation_gate_consistency_check.md, M,True,False,2001,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/observation_run_manifest.json, M,True,False,1146,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/observation_summary.json, M,True,False,11608,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/observation_summary.md, M,True,False,2350,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/universe/latest.json, M,True,False,4468,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/universe/latest.md, M,True,False,687,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+scripts/audit_data_update_cli.py, M,True,False,8009,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_data_freshness.py, M,True,False,21135,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_data_quality_for_observation.py, M,True,False,13153,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_observation_gate_consistency.py, M,True,False,12840,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_release_sync_consistency.py, M,True,False,27308,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_report_freshness.py, M,True,False,16237,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/run_observation_pipeline.py, M,True,False,22714,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+tests/test_data_update_cli_audit.py, M,True,False,1865,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+tests/test_observation_gate_consistency.py, M,True,False,5098,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+tests/test_observation_pipeline.py, M,True,False,14007,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+tests/test_release_sync_consistency.py, M,True,False,5012,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+reports/backtest/audit/report_path_sanitization_check.csv,??,False,False,4611,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/audit/report_path_sanitization_check.md,??,False,False,5382,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/release/post_data_update_worktree_check.csv,??,False,False,10428,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/backtest/release/post_data_update_worktree_check.md,??,False,False,11501,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/data_update/2026-05-04/efinance_price_backfill_2026-04-30.json,??,False,False,259,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/observation/2026-05-04/profile_compare.md,??,False,False,452,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+reports/strict/daily_panels_2026-04-30.json,??,False,False,422,True,False,COMMIT_SMALL_REPORT,小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+scripts/check_post_data_update_worktree.py,??,False,False,7342,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+scripts/check_report_path_sanitization.py,??,False,False,5819,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。
+tests/test_report_path_sanitization.py,??,False,False,2698,True,False,COMMIT_CODE_OR_DOC,本轮代码、测试或文档变更，应提交。

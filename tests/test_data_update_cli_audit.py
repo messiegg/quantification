@@ -29,7 +29,7 @@ def test_audit_data_update_cli_start_end_fallback_warns_and_builds_command(monke
     commands, status = audit.build_update_commands("2026-04-30", next_missing_date="2026-04-07", audit_frame=frame)
     assert status == "OK"
     assert commands[0] == [
-        audit.sys.executable,
+        audit.project_python_command(),
         "scripts/update_market_data.py",
         "--start-date",
         "2026-04-07",
@@ -38,7 +38,7 @@ def test_audit_data_update_cli_start_end_fallback_warns_and_builds_command(monke
         "--all-stocks",
     ]
     assert commands[1] == [
-        audit.sys.executable,
+        audit.project_python_command(),
         "scripts/build_features.py",
         "--start-date",
         "2026-04-07",

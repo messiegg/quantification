@@ -15,7 +15,7 @@
     "calendar_market": "A_SHARE",
     "data_max_date": "2026-04-30",
     "feature_max_date": "2026-04-30",
-    "feature_source": "data/features/latest_feature_snapshot.parquet",
+    "feature_source": "data/features/daily_features",
     "benchmark_max_date": "2026-04-30",
     "universe_max_effective_date": "2026-05-01",
     "provider_health_date": "2026-04-30",
@@ -74,7 +74,7 @@
     "benchmark_ma200_available": true,
     "stock_valuation_source_fields_exist": true,
     "industry_valuation_source_fields_exist": true,
-    "effective_universe_file": "/Users/meseg/shu/stocks/quantile/data/curated/universe_history/2026-04-06.json",
+    "effective_universe_file": "data/curated/universe_history/2026-04-06.json",
     "provider_health_date": "2026-04-30",
     "provider_failure_count": 0,
     "checks": [
@@ -287,7 +287,7 @@
         "check_name": "effective universe available for target_trading_date",
         "status": "PASS",
         "expected": "available",
-        "actual": "/Users/meseg/shu/stocks/quantile/data/curated/universe_history/2026-04-06.json",
+        "actual": "data/curated/universe_history/2026-04-06.json",
         "evidence": "2026-04-30",
         "recommendation": "目标交易日必须能找到有效股票池。"
       },
@@ -335,5 +335,5 @@
       "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
     }
   ],
-  "manual_order_list": "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv"
+  "manual_order_list": "reports/observation/2026-05-04/combined_v2_manual_order_list.csv"
 }

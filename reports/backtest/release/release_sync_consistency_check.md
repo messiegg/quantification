@@ -1,7 +1,7 @@
 # release sync consistency check
 
 - overall_status: PASS
-- generated_at: 2026-05-04T17:06:31.898639+00:00
+- generated_at: 2026-05-04T17:41:12.457862+00:00
 - fail_count: 0
 - warn_count: 0
 
@@ -31,6 +31,7 @@
 - PASS | SUMMARY-REQ-001 | observation_release_sync_summary.md required current conclusion | actual=present | 发布同步总结必须保留 RC PASS、策略未变更等当前结论。
 - PASS | SUMMARY-REQ-002 | observation_release_sync_summary.md required current conclusion | actual=present | 发布同步总结必须保留 RC PASS、策略未变更等当前结论。
 - PASS | OBS-GATE-001 | allowed observation has no current blocked report | actual=absent_or_legacy | freshness 允许观察时，不能保留当前有效的 STALE_DATA_BLOCKED 主报告。
+- PASS | OBS-GATE-001B | allowed observation has no stale blocked content | actual=none | freshness 允许观察时，当前主路径不得残留旧 STALE_DATA_BLOCKED 内容。
 - PASS | OBS-GATE-002 | allowed observation summary exists | actual=exists | freshness 允许观察时必须生成 observation_summary.md。
 - PASS | OBS-GATE-003 | allowed observation manifest action_allowed | actual=True | manifest 必须反映本次 gate 已允许观察。
 - PASS | OBS-SUMMARY-001 | holiday observation summary marker | actual=present | 非交易日 summary 必须标记市场关闭。

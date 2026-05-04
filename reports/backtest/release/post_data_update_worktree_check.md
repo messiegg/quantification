@@ -1,0 +1,66 @@
+# post data update worktree check
+
+- file_count: 59
+- investigate_count: 0
+
+## files
+
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | config/universe.yml | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/core_symbol_data_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/financials_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/industry_members_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/market_caps_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/price_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/st_flags_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/valuation_pb_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/missing_data/valuation_pe_ttm_missing.txt | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_TRACKED_SMALL_GENERATED_DATA | data/curated/universe_history/2026-05-01.json | status= M | tracked=True | ignored=False | 已跟踪的小型生成数据状态可同步；不包含 parquet/database/cache。
+- COMMIT_SMALL_AUDIT_STATE | data_quality/latest.json | status= M | tracked=True | ignored=False | 小型 provider/data quality 状态可作为审计证据提交；不得包含 token。
+- COMMIT_SMALL_AUDIT_STATE | provider_health/latest.json | status= M | tracked=True | ignored=False | 小型 provider/data quality 状态可作为审计证据提交；不得包含 token。
+- COMMIT_SMALL_REPORT | reports/backtest/audit/stale_report_check.csv | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/audit/stale_report_check.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/combined_v2_universe_history/2026-04-06.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/release/release_sync_consistency_check.csv | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/release/release_sync_consistency_check.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_gaps/latest.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_gaps/latest.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/2026-05-04/market_data_update_plan.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/2026-05-04/market_data_update_plan.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/2026-05-04/market_data_update_result.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/2026-05-04/market_data_update_result.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/provider_preflight/data_update_preflight_summary.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/provider_preflight/data_update_preflight_summary.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/provider_preflight/provider_readiness_check.csv | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/provider_preflight/provider_readiness_report.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/provider_preflight/provider_readiness_report.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/data_freshness_report.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/data_quality_observation_report.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/data_quality_observation_report.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/observation_gate_consistency_check.csv | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/observation_gate_consistency_check.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/observation_run_manifest.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/observation_summary.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/observation_summary.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/universe/latest.json | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/universe/latest.md | status= M | tracked=True | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_CODE_OR_DOC | scripts/audit_data_update_cli.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_data_freshness.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_data_quality_for_observation.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_observation_gate_consistency.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_release_sync_consistency.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_report_freshness.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/run_observation_pipeline.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | tests/test_data_update_cli_audit.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | tests/test_observation_gate_consistency.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | tests/test_observation_pipeline.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | tests/test_release_sync_consistency.py | status= M | tracked=True | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_SMALL_REPORT | reports/backtest/audit/report_path_sanitization_check.csv | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/audit/report_path_sanitization_check.md | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/release/post_data_update_worktree_check.csv | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/backtest/release/post_data_update_worktree_check.md | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/data_update/2026-05-04/efinance_price_backfill_2026-04-30.json | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/observation/2026-05-04/profile_compare.md | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_SMALL_REPORT | reports/strict/daily_panels_2026-04-30.json | status=?? | tracked=False | ignored=False | 小型审计/观察/数据更新报告可提交；超过 1MB 时保留本地。
+- COMMIT_CODE_OR_DOC | scripts/check_post_data_update_worktree.py | status=?? | tracked=False | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | scripts/check_report_path_sanitization.py | status=?? | tracked=False | ignored=False | 本轮代码、测试或文档变更，应提交。
+- COMMIT_CODE_OR_DOC | tests/test_report_path_sanitization.py | status=?? | tracked=False | ignored=False | 本轮代码、测试或文档变更，应提交。

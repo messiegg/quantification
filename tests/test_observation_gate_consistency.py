@@ -61,7 +61,30 @@ def test_observation_gate_consistency_fails_current_blocked_when_allowed(monkeyp
     (out_dir / "observation_blocked.md").write_text("STALE_DATA_BLOCKED\n", encoding="utf-8")
     frame = gate.build_observation_gate_consistency_check("2026-05-04", write_report=False)
     failed = frame[frame["status"] == "FAIL"]
-    assert "GATE-001" in set(failed["check_id"])
+    assert "GATE-001A" in set(failed["check_id"])
+    assert "GATE-001B" in set(failed["check_id"])
+
+
+def test_observation_gate_consistency_allows_legacy_blocked_when_allowed(monkeypatch, tmp_path: Path) -> None:
+    out_dir = _patch_gate_config(monkeypatch, tmp_path) / "2026-05-04"
+    _write_json(out_dir / "data_freshness_report.json", _allowed_freshness())
+    _write_json(out_dir / "observation_run_manifest.json", {"action_allowed": True})
+    (out_dir / "observation_summary.md").write_text("MARKET_CLOSED_AS_OF_DATE\n", encoding="utf-8")
+    (out_dir / "observation_blocked.md").write_text("LEGACY_SUPERSEDED\nSTALE_DATA_BLOCKED\n", encoding="utf-8")
+    frame = gate.build_observation_gate_consistency_check("2026-05-04", write_report=False)
+    assert not set(frame[frame["status"] == "FAIL"]["check_id"]) & {"GATE-001A", "GATE-001B", "GATE-001C"}
+
+
+def test_observation_gate_consistency_fails_tracked_current_blocked_when_allowed(monkeypatch, tmp_path: Path) -> None:
+    out_dir = _patch_gate_config(monkeypatch, tmp_path) / "2026-05-04"
+    _write_json(out_dir / "data_freshness_report.json", _allowed_freshness())
+    _write_json(out_dir / "observation_run_manifest.json", {"action_allowed": True})
+    (out_dir / "observation_summary.md").write_text("MARKET_CLOSED_AS_OF_DATE\n", encoding="utf-8")
+    (out_dir / "observation_blocked.md").write_text("action_allowed: false\nstale_trading_days: 18\n", encoding="utf-8")
+    monkeypatch.setattr(gate, "_git_tracked", lambda path: True)
+    frame = gate.build_observation_gate_consistency_check("2026-05-04", write_report=False)
+    failed = frame[frame["status"] == "FAIL"]
+    assert "GATE-001C" in set(failed["check_id"])
 
 
 def test_observation_gate_consistency_blocks_summary_in_historical_review(monkeypatch, tmp_path: Path) -> None:

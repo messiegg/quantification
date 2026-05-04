@@ -236,6 +236,7 @@ def test_non_trading_day_observation_summary_is_next_day_review_only(monkeypatch
     assert manifest["action_allowed"] is True
     summary = (out_dir / "observation_summary.md").read_text(encoding="utf-8")
     assert "MARKET_CLOSED_AS_OF_DATE" in summary
+    assert "/Users/" not in summary
     assert "今日实盘执行" not in summary
     manual = out_dir / "combined_v2_manual_order_list.csv"
     assert manual.exists()
@@ -243,6 +244,8 @@ def test_non_trading_day_observation_summary_is_next_day_review_only(monkeypatch
     assert "execution_scope" in manual.read_text(encoding="utf-8")
     assert "auto_order_allowed" in manual.read_text(encoding="utf-8")
     assert "requires_human_review" in manual.read_text(encoding="utf-8")
+    manifest_text = (out_dir / "observation_run_manifest.json").read_text(encoding="utf-8")
+    assert "/Users/" not in manifest_text
     assert "今日实盘执行" not in summary
     assert "今日下单" not in summary
 

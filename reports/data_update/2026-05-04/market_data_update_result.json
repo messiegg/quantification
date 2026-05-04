@@ -6,14 +6,14 @@
     "requested_as_of_is_trading_day": false,
     "target_trading_date": "2026-04-30",
     "target_trading_date_is_valid": true,
-    "calendar_source": "project_trade_calendar+a_share_weekday_holiday_overrides",
+    "calendar_source": "project_trade_calendar",
     "calendar_min_date": "2015-01-05",
     "calendar_max_date": "2026-04-30",
     "calendar_market": "A_SHARE",
-    "created_at": "2026-05-04T12:11:45.784376+00:00",
+    "created_at": "2026-05-04T17:25:09.088732+00:00",
     "current_data_max_date": "2026-04-03",
     "current_feature_max_date": "2026-04-03",
-    "current_benchmark_max_date": "2026-04-03",
+    "current_benchmark_max_date": "2026-04-30",
     "gap_trading_dates": [
       "2026-04-07",
       "2026-04-08",
@@ -60,8 +60,8 @@
   "will_write_data": false,
   "wrote_data": false,
   "commands_planned": [
-    "/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks",
-    "/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30"
+    "./.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks",
+    "./.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30"
   ],
   "commands_executed": [],
   "skipped_reason": "PREFLIGHT_ONLY",

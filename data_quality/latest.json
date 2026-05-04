@@ -1,10 +1,10 @@
 {
-  "as_of_date": "2026-04-03",
+  "as_of_date": "2026-04-30",
   "tables": [
     {
       "path": "data/raw/stock_list.parquet",
       "exists": true,
-      "rows": 5194,
+      "rows": 5201,
       "missing_rate": 0.0,
       "date_min": null,
       "date_max": null,
@@ -13,19 +13,19 @@
     {
       "path": "data/raw/price_daily.parquet",
       "exists": true,
-      "rows": 7324218,
-      "missing_rate": 0.215482,
+      "rows": 7417498,
+      "missing_rate": 0.212772,
       "date_min": "2015-01-05",
-      "date_max": "2026-04-03",
+      "date_max": "2026-04-30",
       "stale": false
     },
     {
       "path": "data/raw/benchmark_daily.parquet",
       "exists": true,
-      "rows": 2733,
-      "missing_rate": 0.0,
+      "rows": 2751,
+      "missing_rate": 0.000727,
       "date_min": "2015-01-05",
-      "date_max": "2026-04-03",
+      "date_max": "2026-04-30",
       "stale": false
     },
     {
@@ -65,21 +65,30 @@
       "stale": true
     },
     {
+      "path": "data/raw/dividend_events.parquet",
+      "exists": true,
+      "rows": 23743,
+      "missing_rate": 0.010455,
+      "date_min": "2019-06-30",
+      "date_max": "2025-12-31",
+      "stale": true
+    },
+    {
       "path": "data/raw/st_flags.parquet",
       "exists": true,
-      "rows": 5613,
+      "rows": 10814,
       "missing_rate": 0.0,
       "date_min": "2026-01-31",
-      "date_max": "2026-04-04",
+      "date_max": "2026-04-30",
       "stale": false
     },
     {
       "path": "data/raw/market_caps.parquet",
       "exists": true,
-      "rows": 223,
+      "rows": 5424,
       "missing_rate": 0.0,
       "date_min": "2026-01-31",
-      "date_max": "2026-04-04",
+      "date_max": "2026-04-30",
       "stale": false
     }
   ]

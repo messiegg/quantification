@@ -9,7 +9,7 @@
   "calendar_market": "A_SHARE",
   "data_max_date": "2026-04-30",
   "feature_max_date": "2026-04-30",
-  "feature_source": "data/features/latest_feature_snapshot.parquet",
+  "feature_source": "data/features/daily_features",
   "benchmark_max_date": "2026-04-30",
   "universe_max_effective_date": "2026-05-01",
   "provider_health_date": "2026-04-30",

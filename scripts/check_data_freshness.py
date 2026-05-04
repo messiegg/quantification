@@ -91,25 +91,38 @@ def _date_frame_from_parquet(path_like: str | Path, date_columns: tuple[str, ...
 
 
 def _feature_max_date() -> tuple[pd.Timestamp | None, str]:
+    candidates: list[tuple[pd.Timestamp, str]] = []
     snapshot = resolve_path("data/features/latest_feature_snapshot.parquet")
     if snapshot.exists():
         date = _max_date_from_parquet(snapshot)
         if date is not None:
-            return date, "data/features/latest_feature_snapshot.parquet"
+            candidates.append((date, "data/features/latest_feature_snapshot.parquet"))
     daily_dir = resolve_path("data/features/daily_features")
     date = _max_date_from_parquet(daily_dir)
-    return date, "data/features/daily_features"
+    if date is not None:
+        candidates.append((date, "data/features/daily_features"))
+    if not candidates:
+        return None, "data/features/daily_features"
+    return max(candidates, key=lambda item: item[0])
 
 
 def _feature_dates() -> tuple[pd.Series, str]:
+    frames: list[pd.Series] = []
+    sources: list[str] = []
     snapshot = resolve_path("data/features/latest_feature_snapshot.parquet")
     if snapshot.exists():
         frame = _date_frame_from_parquet(snapshot)
         if not frame.empty:
-            return pd.to_datetime(frame["date"], errors="coerce").dropna().dt.normalize(), "data/features/latest_feature_snapshot.parquet"
+            frames.append(pd.to_datetime(frame["date"], errors="coerce").dropna().dt.normalize())
+            sources.append("data/features/latest_feature_snapshot.parquet")
     daily_dir = resolve_path("data/features/daily_features")
     frame = _date_frame_from_parquet(daily_dir)
-    return pd.to_datetime(frame["date"], errors="coerce").dropna().dt.normalize(), "data/features/daily_features"
+    if not frame.empty:
+        frames.append(pd.to_datetime(frame["date"], errors="coerce").dropna().dt.normalize())
+        sources.append("data/features/daily_features")
+    if not frames:
+        return pd.Series(dtype="datetime64[ns]"), "data/features/daily_features"
+    return pd.concat(frames, ignore_index=True).drop_duplicates().sort_values(), "+".join(sources)
 
 
 def _universe_max_effective_date() -> pd.Timestamp | None:

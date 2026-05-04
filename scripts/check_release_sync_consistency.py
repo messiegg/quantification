@@ -107,6 +107,15 @@ OBSERVATION_FORBIDDEN_ACTIVE_PHRASES = [
     "auto_order_allowed: true",
     "真实订单已生成",
 ]
+STALE_BLOCKED_PATTERNS = [
+    "STALE_DATA_BLOCKED",
+    "data_max_date: 2026-04-03",
+    '"data_max_date": "2026-04-03"',
+    "stale_trading_days: 18",
+    '"stale_trading_days": 18',
+    "action_allowed: false",
+    '"action_allowed": false',
+]
 
 
 def _git(args: list[str], check: bool = False) -> subprocess.CompletedProcess[str]:
@@ -178,8 +187,8 @@ def _bool_text(value: bool) -> str:
 def _legacy_superseded(path: Path) -> bool:
     if not path.exists():
         return False
-    header = "\n".join(path.read_text(encoding="utf-8").splitlines()[:8])
-    return "LEGACY_SUPERSEDED" in header
+    first_line = path.read_text(encoding="utf-8").splitlines()[:1]
+    return bool(first_line and "LEGACY_SUPERSEDED" in first_line[0])
 
 
 def _sync_row(file_path: str, should_track: bool, should_ignore: bool) -> dict:
@@ -544,6 +553,8 @@ def build_release_sync_consistency_check(
     allowed = freshness.get("allowed_actions") == "observation_report_allowed"
     if include_observation_gate and allowed:
         blocked_current = observation_blocked_path.exists() and not _legacy_superseded(observation_blocked_path)
+        blocked_text = observation_blocked_path.read_text(encoding="utf-8") if observation_blocked_path.exists() else ""
+        blocked_stale_matches = [pattern for pattern in STALE_BLOCKED_PATTERNS if pattern in blocked_text]
         _check_row(
             rows,
             "OBS-GATE-001",
@@ -553,6 +564,16 @@ def build_release_sync_consistency_check(
             "current" if blocked_current else "absent_or_legacy",
             str(observation_blocked_path),
             "freshness 允许观察时，不能保留当前有效的 STALE_DATA_BLOCKED 主报告。",
+        )
+        _check_row(
+            rows,
+            "OBS-GATE-001B",
+            "allowed observation has no stale blocked content",
+            "PASS" if not (blocked_current and blocked_stale_matches) else "FAIL",
+            "no stale blocked content",
+            "|".join(blocked_stale_matches) if blocked_stale_matches else "none",
+            str(observation_blocked_path),
+            "freshness 允许观察时，当前主路径不得残留旧 STALE_DATA_BLOCKED 内容。",
         )
         _check_row(
             rows,

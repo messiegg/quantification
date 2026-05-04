@@ -55,7 +55,8 @@
 
 - 只输出建议，需要人工判断和人工执行。
 - 不连接券商，禁止自动下单，不生成实盘委托。
-- 文件: /Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv
+- 本地文件: reports/observation/2026-05-04/combined_v2_manual_order_list.csv
+- 该文件为 ignored local artifact，不提交公开仓库。
 - auto_order_allowed: false。
 - broker_connected: false。
 - requires_human_review: true。

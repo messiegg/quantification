@@ -13,5 +13,5 @@
 
 ## commands_planned
 
-- `/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks`
-- `/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30`
+- `./.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks`
+- `./.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30`

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from scripts import check_report_freshness as stale_mod
 from scripts.check_release_sync_consistency import (
     PAPER_LEDGER_FILES,
     SUMMARY_FORBIDDEN,
@@ -70,6 +71,40 @@ def test_stale_report_check_detects_release_sync_stale_sentence(tmp_path: Path) 
         output_md=tmp_path / "stale.md",
     )
     matched = frame[frame["check_name"] == "release_sync_stale_residue"]
+    assert not matched.empty
+    assert set(matched["status"]) == {"FAIL"}
+
+
+def test_stale_report_check_detects_current_stale_blocked_report(monkeypatch, tmp_path: Path) -> None:
+    root = tmp_path
+
+    def fake_resolve(path: str | Path) -> Path:
+        candidate = Path(path)
+        return candidate if candidate.is_absolute() else root / candidate
+
+    monkeypatch.setattr(stale_mod, "resolve_path", fake_resolve)
+    obs_dir = root / "reports" / "observation" / "2026-05-04"
+    obs_dir.mkdir(parents=True, exist_ok=True)
+    (obs_dir / "data_freshness_report.json").write_text(
+        '{"allowed_actions":"observation_report_allowed","blocking_reason":"NONE"}',
+        encoding="utf-8",
+    )
+    (obs_dir / "observation_run_manifest.json").write_text('{"action_allowed":true}', encoding="utf-8")
+    (obs_dir / "observation_summary.md").write_text("MARKET_CLOSED_AS_OF_DATE\n", encoding="utf-8")
+    (obs_dir / "observation_blocked.md").write_text(
+        "blocking_reason: STALE_DATA_BLOCKED\ndata_max_date: 2026-04-03\nstale_trading_days: 18\naction_allowed: false\n",
+        encoding="utf-8",
+    )
+    attribution = root / "reports" / "backtest" / "attribution" / "combined_v2_attribution_report.md"
+    attribution.parent.mkdir(parents=True, exist_ok=True)
+    attribution.write_text("\n".join(stale_mod.REQUIRED_ATTRIBUTION_SECTIONS), encoding="utf-8")
+
+    frame = stale_mod.build_report_freshness_check(
+        scan_globs=[],
+        output_csv=root / "stale.csv",
+        output_md=root / "stale.md",
+    )
+    matched = frame[frame["check_name"] == "observation_gate_allowed_no_stale_blocked_content"]
     assert not matched.empty
     assert set(matched["status"]) == {"FAIL"}
 

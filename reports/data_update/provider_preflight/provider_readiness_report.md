@@ -5,10 +5,10 @@
 - target_trading_date: 2026-04-30
 - local_tdx_available: false
 - network_providers_available: true
-- provider_health_date: 2026-04-03
-- provider_health_stale: true
-- data_quality_date: 2026-04-03
-- data_quality_stale: true
+- provider_health_date: 2026-04-30
+- provider_health_stale: false
+- data_quality_date: 2026-04-30
+- data_quality_stale: false
 
 ## checks
 
@@ -23,10 +23,10 @@
 - WARN | TOKEN-jqdata_username | jqdata_username | JQDATA_USERNAME present | actual=False | 报告只记录 token_present，不输出 token 原文。
 - WARN | TOKEN-jqdata_password | jqdata_password | JQDATA_PASSWORD present | actual=False | 报告只记录 token_present，不输出 token 原文。
 - PASS | HEALTH-001 | provider_health | provider_health exists | actual=True | 缺少 provider health 时不能确认上一轮 provider 状态。
-- WARN | HEALTH-002 | provider_health | provider_health date | actual=2026-04-03 | provider health 过期时需要先做 provider 验证。
+- PASS | HEALTH-002 | provider_health | provider_health date | actual=2026-04-30 | provider health 过期时需要先做 provider 验证。
 - PASS | HEALTH-003 | provider_health | provider failures | actual=0 | 存在失败 provider 时需审阅失败原因。
 - PASS | QUALITY-001 | data_quality | data_quality exists | actual=True | 缺少 data quality 时需要重新生成。
-- WARN | QUALITY-002 | data_quality | data_quality date | actual=2026-04-03 | data quality 过期时不能直接信任当前覆盖。
+- PASS | QUALITY-002 | data_quality | data_quality date | actual=2026-04-30 | data quality 过期时不能直接信任当前覆盖。
 - PASS | WRITE-001 | filesystem | output directory writable | actual=True | 输出目录不可写时禁止非 dry-run 更新。
 - PASS | WRITE-002 | filesystem | output directory writable | actual=True | 输出目录不可写时禁止非 dry-run 更新。
 - PASS | WRITE-003 | filesystem | output directory writable | actual=True | 输出目录不可写时禁止非 dry-run 更新。

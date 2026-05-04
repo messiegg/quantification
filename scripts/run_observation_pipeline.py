@@ -58,6 +58,14 @@ def _read_csv_optional(path_like: str | Path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def _repo_relative(path_like: str | Path) -> str:
+    path = resolve_path(path_like)
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _latest_row(frame: pd.DataFrame, as_of_date: str) -> dict:
     if frame.empty or "date" not in frame.columns:
         return {}
@@ -227,19 +235,22 @@ def _generate_allowed_outputs(
     guard_path = out_dir / f"{conservative_profile}_actions.csv"
     actions.to_csv(action_path, index=False)
     blocked_day.to_csv(blocked_path, index=False)
-    generated.extend([str(action_path), str(blocked_path)])
+    generated.extend([_repo_relative(action_path), _repo_relative(blocked_path)])
     if allow_manual_order_list:
         manual_orders.to_csv(manual_path, index=False)
-        generated.append(str(manual_path))
+        generated.append(_repo_relative(manual_path))
     if compare_conservative:
         guard_actions.to_csv(guard_path, index=False)
-        generated.append(str(guard_path))
+        generated.append(_repo_relative(guard_path))
 
     compare_lines = [
         "# combined_v2 vs combined_v2_1_risk_guard 观察对照",
         "",
         "- combined_v2 仍是 primary_profile。",
         "- combined_v2_1_risk_guard 只作为 conservative_profile 输出，不替换主候选。",
+        "- 非交易日仅用于 next trading day manual review。",
+        "- auto_order_allowed: false。",
+        "- broker_connected: false。",
         f"- combined_v2 当日动作数: {len(actions)}",
         f"- combined_v2_1_risk_guard 当日动作数: {len(guard_actions)}",
     ]
@@ -252,7 +263,7 @@ def _generate_allowed_outputs(
         compare_lines.append("- v2_1 是否更保守: 当日无足够动作差异，继续观察。")
     compare_path = out_dir / "profile_compare.md"
     compare_path.write_text("\n".join(compare_lines) + "\n", encoding="utf-8")
-    generated.append(str(compare_path))
+    generated.append(_repo_relative(compare_path))
 
     cash, holdings_count, paper_market_value = _paper_state()
     blocked_summary = blocked_counts.to_dict(orient="records")
@@ -283,10 +294,10 @@ def _generate_allowed_outputs(
         "blocked_reasons": blocked_summary,
         "data_quality_warning_count": len(quality_warnings),
         "data_quality_warnings": quality_warnings,
-        "manual_order_list": str(manual_path) if allow_manual_order_list else "",
+        "manual_order_list": _repo_relative(manual_path) if allow_manual_order_list else "",
     }
     (out_dir / "observation_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    generated.append(str(out_dir / "observation_summary.json"))
+    generated.append(_repo_relative(out_dir / "observation_summary.json"))
 
     lines = [
         "# 每日人工观察报告",
@@ -367,7 +378,8 @@ def _generate_allowed_outputs(
         "",
         "- 只输出建议，需要人工判断和人工执行。",
         "- 不连接券商，禁止自动下单，不生成实盘委托。",
-        f"- 文件: {manual_path if allow_manual_order_list else '未生成'}",
+        f"- 本地文件: {_repo_relative(manual_path) if allow_manual_order_list else '未生成'}",
+        "- 该文件为 ignored local artifact，不提交公开仓库。" if allow_manual_order_list else "- 未生成手工动作清单。",
         "- auto_order_allowed: false。",
         "- broker_connected: false。",
         "- requires_human_review: true。",
@@ -391,7 +403,7 @@ def _generate_allowed_outputs(
     )
     summary_path = out_dir / "observation_summary.md"
     summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-    generated.append(str(summary_path))
+    generated.append(_repo_relative(summary_path))
     return generated
 
 
@@ -447,7 +459,7 @@ def run_observation_pipeline(
     if not action_allowed:
         _remove_action_outputs(out_dir)
         _write_blocked(out_dir, as_of_date, blocking_reason, freshness, data_quality)
-        generated.append(str(out_dir / "observation_blocked.md"))
+        generated.append(_repo_relative(out_dir / "observation_blocked.md"))
     else:
         blocked_path = out_dir / "observation_blocked.md"
         if blocked_path.exists():
@@ -485,7 +497,7 @@ def run_observation_pipeline(
         "action_allowed": action_allowed,
         "target_trading_date": freshness.get("target_trading_date", ""),
         "requested_as_of_is_trading_day": freshness.get("requested_as_of_is_trading_day", None),
-        "generated_files": generated + [str(out_dir / "data_freshness_report.md")],
+        "generated_files": generated + [_repo_relative(out_dir / "data_freshness_report.md")],
         "blocking_reason": blocking_reason,
         "broker_connected": False,
         "auto_order_enabled": False,

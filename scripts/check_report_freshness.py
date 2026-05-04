@@ -66,6 +66,15 @@ OBSERVATION_FORBIDDEN_ACTIVE_PHRASES = [
     "auto_order_allowed: true",
     "真实订单已生成",
 ]
+STALE_BLOCKED_PATTERNS = [
+    "STALE_DATA_BLOCKED",
+    "data_max_date: 2026-04-03",
+    '"data_max_date": "2026-04-03"',
+    "stale_trading_days: 18",
+    '"stale_trading_days": 18',
+    "action_allowed: false",
+    '"action_allowed": false',
+]
 
 
 def _relative(path: Path) -> str:
@@ -76,8 +85,8 @@ def _relative(path: Path) -> str:
 
 
 def _is_legacy_superseded(text: str) -> bool:
-    header = "\n".join(text.splitlines()[:8])
-    return "LEGACY_SUPERSEDED" in header
+    first_line = text.splitlines()[:1]
+    return bool(first_line and "LEGACY_SUPERSEDED" in first_line[0])
 
 
 def _row(file_path: str, check_name: str, status: str, matched_text: str, recommendation: str) -> dict:
@@ -201,7 +210,10 @@ def build_report_freshness_check(
     if include_observation_gate and freshness:
         allowed = freshness.get("allowed_actions") == "observation_report_allowed"
         historical_only = freshness.get("allowed_actions") == "historical_review_only"
-        blocked_current = blocked_path.exists() and not _is_legacy_superseded(blocked_path.read_text(encoding="utf-8"))
+        blocked_text = blocked_path.read_text(encoding="utf-8") if blocked_path.exists() else ""
+        blocked_legacy = _is_legacy_superseded(blocked_text) if blocked_text else False
+        blocked_current = blocked_path.exists() and not blocked_legacy
+        stale_blocked_matches = [pattern for pattern in STALE_BLOCKED_PATTERNS if pattern in blocked_text]
         if allowed:
             rows.append(
                 _row(
@@ -210,6 +222,15 @@ def build_report_freshness_check(
                     "FAIL" if blocked_current else "PASS",
                     "observation_blocked.md current" if blocked_current else "",
                     "freshness 允许观察时，不得保留未标记 legacy 的 STALE_DATA_BLOCKED 主报告。",
+                )
+            )
+            rows.append(
+                _row(
+                    _relative(blocked_path),
+                    "observation_gate_allowed_no_stale_blocked_content",
+                    "FAIL" if blocked_current and stale_blocked_matches else "PASS",
+                    "|".join(stale_blocked_matches) if stale_blocked_matches else "",
+                    "freshness 允许观察时，当前主路径不得残留旧 blocked 内容；历史文件必须第一行标记 LEGACY_SUPERSEDED。",
                 )
             )
             rows.append(

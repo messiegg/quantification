@@ -1,0 +1,23 @@
+{
+  "name": "daily_panels",
+  "as_of_date": "2026-04-30",
+  "stage": "derive_daily_panels",
+  "categories": [
+    {
+      "category": "market_cap_missing",
+      "count": 10,
+      "symbols": [
+        "001312.sz",
+        "301513.sz",
+        "301599.sz",
+        "301666.sz",
+        "301696.sz",
+        "603293.sh",
+        "603459.sh",
+        "688808.sh",
+        "688811.sh",
+        "688820.sh"
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
-generated_at: '2026-04-06T03:16:23Z'
-as_of_date: '2026-04-03'
-effective_from: '2026-04-06'
-effective_to: '2026-04-30'
+generated_at: '2026-05-04T13:13:00Z'
+as_of_date: '2026-04-30'
+effective_from: '2026-05-01'
+effective_to: '2026-05-31'
 methodology_version: effective_universe_v2
 rebalance_frequency: monthly
 rebalance_day: true
@@ -11,46 +11,62 @@ stocks:
   bucket: cyclical_rotation
   industry_l1: 交通运输
   main_metric: pb
-  final_score: 80.2953
-  stock_q_blended: 0.4745
-  industry_q_blended: 73.3288
+  final_score: 83.1452
+  stock_q_blended: 1.3492
+  industry_q_blended: 55.4127
   roe: 9.879
-  dv_ttm: 0.0
-  market_cap_billion: 1168.654
-  avg_amount_60d_million: 1636.564
+  dv_ttm: 0.039
+  market_cap_billion: 1163.998
+  avg_amount_60d_million: 1091.9618
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
   force_exit_reasons: []
-- symbol: 600309.sh
-  name: 万华化学
-  bucket: cyclical_rotation
-  industry_l1: 基础化工
-  main_metric: pb
-  final_score: 74.6949
-  stock_q_blended: 22.8511
-  industry_q_blended: 78.1968
-  roe: 9.26
-  dv_ttm: 0.0
-  market_cap_billion: 2578.8825
-  avg_amount_60d_million: 4277.541
+- symbol: 600011.sh
+  name: 华能国际
+  bucket: defensive_dividend
+  industry_l1: 公用事业
+  main_metric: pe_ttm
+  final_score: 78.222
+  stock_q_blended: 6.2534
+  industry_q_blended: 87.0476
+  roe: 19.04
+  dv_ttm: 0.0386
+  market_cap_billion: 1097.2967
+  avg_amount_60d_million: 1270.9729
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
   force_exit_reasons: []
-- symbol: 600378.sh
-  name: 昊华科技
+- symbol: 600873.sh
+  name: 梅花生物
   bucket: cyclical_rotation
   industry_l1: 基础化工
   main_metric: pb
-  final_score: 72.7118
-  stock_q_blended: 13.0117
-  industry_q_blended: 78.1968
-  roe: 7.01
-  dv_ttm: 0.0
-  market_cap_billion: 411.7679
-  avg_amount_60d_million: 939.2482
-  industry_rank: 2
+  final_score: 71.5319
+  stock_q_blended: 33.8889
+  industry_q_blended: 89.3968
+  roe: 19.73
+  dv_ttm: 0.0429
+  market_cap_billion: 278.1808
+  avg_amount_60d_million: 3334.1003
+  industry_rank: 1
+  selected_as: retained
+  cycle_trap: false
+  force_exit_reasons: []
+- symbol: 600690.sh
+  name: 海尔智家
+  bucket: defensive_dividend
+  industry_l1: 家用电器
+  main_metric: pe_ttm
+  final_score: 80.546
+  stock_q_blended: 12.0
+  industry_q_blended: 83.4762
+  roe: 16.98
+  dv_ttm: 0.0573
+  market_cap_billion: 2019.0037
+  avg_amount_60d_million: 3678.2465
+  industry_rank: 1
   selected_as: retained
   cycle_trap: false
   force_exit_reasons: []
@@ -59,13 +75,13 @@ stocks:
   bucket: cyclical_rotation
   industry_l1: 建筑材料
   main_metric: pb
-  final_score: 81.9397
-  stock_q_blended: 8.3836
-  industry_q_blended: 60.0669
+  final_score: 77.3179
+  stock_q_blended: 15.9206
+  industry_q_blended: 76.1587
   roe: 11.11
-  dv_ttm: 0.0
-  market_cap_billion: 438.3258
-  avg_amount_60d_million: 2179.2752
+  dv_ttm: 0.0333
+  market_cap_billion: 441.56
+  avg_amount_60d_million: 1604.0104
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
@@ -75,29 +91,29 @@ stocks:
   bucket: cyclical_rotation
   industry_l1: 有色金属
   main_metric: pb
-  final_score: 69.088
-  stock_q_blended: 37.647
-  industry_q_blended: 95.6991
+  final_score: 67.1496
+  stock_q_blended: 46.0108
+  industry_q_blended: 96.8889
   roe: 10.79
-  dv_ttm: 0.0
-  market_cap_billion: 1089.1009
-  avg_amount_60d_million: 5920.9907
+  dv_ttm: 0.0075
+  market_cap_billion: 1263.0308
+  avg_amount_60d_million: 5361.3471
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
   force_exit_reasons: []
-- symbol: 600346.sh
-  name: 恒力石化
-  bucket: cyclical_rotation
-  industry_l1: 石油石化
-  main_metric: pb
-  final_score: 60.318
-  stock_q_blended: 67.7804
-  industry_q_blended: 97.9682
-  roe: 7.79
-  dv_ttm: 0.0
-  market_cap_billion: 1517.6299
-  avg_amount_60d_million: 4807.2802
+- symbol: 300628.sz
+  name: 亿联网络
+  bucket: defensive_dividend
+  industry_l1: 通信
+  main_metric: pe_ttm
+  final_score: 76.1494
+  stock_q_blended: 35.2356
+  industry_q_blended: 78.1746
+  roe: 21.39
+  dv_ttm: 0.0493
+  market_cap_billion: 462.7427
+  avg_amount_60d_million: 784.2276
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
@@ -107,13 +123,13 @@ stocks:
   bucket: cyclical_rotation
   industry_l1: 钢铁
   main_metric: pb
-  final_score: 67.1746
-  stock_q_blended: 48.6406
-  industry_q_blended: 84.1545
+  final_score: 68.0978
+  stock_q_blended: 41.9524
+  industry_q_blended: 87.3968
   roe: 14.08
-  dv_ttm: 0.0
-  market_cap_billion: 838.333
-  avg_amount_60d_million: 1786.9698
+  dv_ttm: 0.0464
+  market_cap_billion: 769.6916
+  avg_amount_60d_million: 1357.63
   industry_rank: 1
   selected_as: retained
   cycle_trap: false
@@ -124,40 +140,46 @@ changes:
   industry: 钢铁
   change_tag: retained
   selected_as: retained
-  final_score: 67.1746
+  final_score: 68.0978
 - symbol: 000786.sz
   name: 北新建材
   industry: 建筑材料
   change_tag: retained
   selected_as: retained
-  final_score: 81.9397
+  final_score: 77.3179
+- symbol: 300628.sz
+  name: 亿联网络
+  industry: 通信
+  change_tag: retained
+  selected_as: retained
+  final_score: 76.1494
+- symbol: 600011.sh
+  name: 华能国际
+  industry: 公用事业
+  change_tag: retained
+  selected_as: retained
+  final_score: 78.222
 - symbol: 600018.sh
   name: 上港集团
   industry: 交通运输
   change_tag: retained
   selected_as: retained
-  final_score: 80.2953
-- symbol: 600309.sh
-  name: 万华化学
+  final_score: 83.1452
+- symbol: 600690.sh
+  name: 海尔智家
+  industry: 家用电器
+  change_tag: retained
+  selected_as: retained
+  final_score: 80.546
+- symbol: 600873.sh
+  name: 梅花生物
   industry: 基础化工
   change_tag: retained
   selected_as: retained
-  final_score: 74.6949
-- symbol: 600346.sh
-  name: 恒力石化
-  industry: 石油石化
-  change_tag: retained
-  selected_as: retained
-  final_score: 60.318
-- symbol: 600378.sh
-  name: 昊华科技
-  industry: 基础化工
-  change_tag: retained
-  selected_as: retained
-  final_score: 72.7118
+  final_score: 71.5319
 - symbol: 603799.sh
   name: 华友钴业
   industry: 有色金属
   change_tag: retained
   selected_as: retained
-  final_score: 69.088
+  final_score: 67.1496

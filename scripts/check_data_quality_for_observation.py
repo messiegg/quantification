@@ -55,6 +55,14 @@ def _read_parquet_optional(path_like: str | Path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def _repo_relative(path_like: str | Path) -> str:
+    path = resolve_path(path_like)
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
+
+
 def _feature_frame_on_date(target_date: str) -> pd.DataFrame:
     year_path = resolve_path(f"data/features/daily_features/{pd.Timestamp(target_date).year}.parquet")
     frame = _read_parquet_optional(year_path if year_path.exists() else "data/features/daily_features")
@@ -85,7 +93,7 @@ def _latest_universe_file(target_date: str) -> str:
                 candidates.append(child)
     if not candidates:
         return ""
-    return str(max(candidates, key=lambda item: item.stem))
+    return _repo_relative(max(candidates, key=lambda item: item.stem))
 
 
 def _row(rows: list[dict], check_id: str, check_name: str, status: str, expected: object, actual: object, evidence: str, recommendation: str) -> None:

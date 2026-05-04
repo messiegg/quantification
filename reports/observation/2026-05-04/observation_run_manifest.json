@@ -1,6 +1,6 @@
 {
   "as_of_date": "2026-05-04",
-  "run_time": "2026-05-04T17:06:26.336090+00:00",
+  "run_time": "2026-05-04T17:36:52.598493+00:00",
   "profile": "combined_v2",
   "mode": "paper",
   "conservative_profile": "combined_v2_1_risk_guard",
@@ -13,14 +13,14 @@
   "target_trading_date": "2026-04-30",
   "requested_as_of_is_trading_day": false,
   "generated_files": [
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_actions.csv",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_blocked_signals.csv",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_1_risk_guard_actions.csv",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/profile_compare.md",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.json",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md",
-    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/data_freshness_report.md"
+    "reports/observation/2026-05-04/combined_v2_actions.csv",
+    "reports/observation/2026-05-04/combined_v2_blocked_signals.csv",
+    "reports/observation/2026-05-04/combined_v2_manual_order_list.csv",
+    "reports/observation/2026-05-04/combined_v2_1_risk_guard_actions.csv",
+    "reports/observation/2026-05-04/profile_compare.md",
+    "reports/observation/2026-05-04/observation_summary.json",
+    "reports/observation/2026-05-04/observation_summary.md",
+    "reports/observation/2026-05-04/data_freshness_report.md"
   ],
   "blocking_reason": "NONE",
   "broker_connected": false,

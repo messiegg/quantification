@@ -1,43 +1,43 @@
 {
-  "current_date": "2026-04-04",
-  "target_trading_date": "2026-04-03",
-  "hs_a_share_symbol_count": 5194,
+  "current_date": "2026-05-04",
+  "target_trading_date": "2026-04-30",
+  "hs_a_share_symbol_count": 5201,
   "table_status": [
     {
       "dataset": "stock_list",
-      "latest_value": "2026-04-04",
+      "latest_value": "2026-04-30",
       "ready": true,
-      "row_count": 5497,
-      "unique_count": 5194,
+      "row_count": 5201,
+      "unique_count": 5201,
       "note": "master symbol table"
     },
     {
       "dataset": "price_daily",
-      "latest_value": "2026-04-03",
+      "latest_value": "2026-04-30",
       "ready": false,
-      "row_count": 96754,
-      "unique_count": 202,
+      "row_count": 7417498,
+      "unique_count": 5067,
       "note": "requires >=250 rows and latest trade date"
     },
     {
       "dataset": "st_flags",
-      "latest_value": "2026-04-04",
+      "latest_value": "2026-04-30",
       "ready": false,
-      "row_count": 423,
-      "unique_count": 400,
+      "row_count": 10814,
+      "unique_count": 0,
       "note": ""
     },
     {
       "dataset": "market_caps",
-      "latest_value": "2026-04-04",
+      "latest_value": "2026-04-30",
       "ready": false,
-      "row_count": 223,
-      "unique_count": 200,
+      "row_count": 5424,
+      "unique_count": 0,
       "note": ""
     },
     {
       "dataset": "valuation_pb",
-      "latest_value": "2026-04-03",
+      "latest_value": "2026-04-30",
       "ready": false,
       "row_count": 1239,
       "unique_count": 0,
@@ -45,7 +45,7 @@
     },
     {
       "dataset": "valuation_pe_ttm",
-      "latest_value": "2026-04-03",
+      "latest_value": "2026-04-30",
       "ready": false,
       "row_count": 1239,
       "unique_count": 0,
@@ -55,17 +55,17 @@
       "dataset": "financials",
       "latest_value": "2025-12-31",
       "ready": false,
-      "row_count": 3766,
-      "unique_count": 61,
+      "row_count": 147475,
+      "unique_count": 1230,
       "note": "latest report with roe/net_profit/cfo/debt_to_assets"
     },
     {
       "dataset": "benchmark_daily",
-      "latest_value": "2026-04-03",
-      "ready": false,
-      "row_count": 82,
-      "unique_count": 1,
-      "note": "invalid_rows=2"
+      "latest_value": "2026-04-30",
+      "ready": true,
+      "row_count": 2751,
+      "unique_count": 2,
+      "note": "invalid_rows=0"
     },
     {
       "dataset": "industry_daily",
@@ -80,19 +80,19 @@
       "latest_value": "2026-04-04",
       "ready": false,
       "row_count": 15684,
-      "unique_count": 205,
+      "unique_count": 0,
       "note": "required for latest industry mapping"
     }
   ],
   "missing_counts": {
-    "price": 4992,
-    "st_flags": 4794,
-    "market_caps": 4994,
-    "valuation_pb": 5194,
-    "valuation_pe_ttm": 5194,
-    "financials": 5133,
-    "industry_members": 4989,
-    "core_symbol_data": 5194
+    "price": 134,
+    "st_flags": 5201,
+    "market_caps": 5201,
+    "valuation_pb": 5201,
+    "valuation_pe_ttm": 5201,
+    "financials": 3971,
+    "industry_members": 5201,
+    "core_symbol_data": 5201
   },
   "missing_files": {
     "price": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/price_missing.txt",
@@ -106,16 +106,12 @@
   },
   "blockers": [
     {
-      "dataset": "benchmark_daily",
-      "reason": "latest_valid=2026-04-03, invalid_rows=2"
-    },
-    {
       "dataset": "industry_daily",
-      "reason": "latest=2026-01-30 < target_trading_date=2026-04-03"
+      "reason": "latest=2026-01-30 < target_trading_date=2026-04-30"
     },
     {
       "dataset": "industry_members",
-      "reason": "latest=2026-04-04, current_ready_symbols=205/5194"
+      "reason": "latest=2026-04-04, current_ready_symbols=0/5201"
     }
   ]
 }
