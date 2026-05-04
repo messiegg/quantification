@@ -1,0 +1,17 @@
+{
+  "requested_as_of_date": "2026-05-04",
+  "data_max_date": "2026-04-03",
+  "feature_max_date": "2026-04-03",
+  "feature_source": "data/features/latest_feature_snapshot.parquet",
+  "benchmark_max_date": "2026-04-03",
+  "universe_max_effective_date": "2026-05-01",
+  "provider_health_date": "2026-04-03",
+  "data_quality_date": "2026-04-03",
+  "rc_manifest_data_max_date": "2026-04-03",
+  "stale_calendar_days": 31,
+  "max_stale_calendar_days": 3,
+  "is_data_current": false,
+  "blocking_reason": "DATA_MAX_DATE_BEFORE_AS_OF_DATE|STALE_CALENDAR_DAYS_EXCEED_LIMIT",
+  "warnings": [],
+  "allowed_actions": "historical_review_only"
+}

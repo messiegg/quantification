@@ -1,0 +1,65 @@
+{
+  "created_at": "2026-05-04T08:09:42.076163+00:00",
+  "files": [
+    {
+      "path": "src/strategy/signals.py",
+      "sha256": "6b8f66c97c1eb8ad8335415cc18279ee7d3131728c3cc4fbf4da45cf88e6ef1d",
+      "exists": true
+    },
+    {
+      "path": "src/strategy/backtest_engine.py",
+      "sha256": "7ff240ad537ab4643dd90cc52d2e7e351980718a6112a3d4b872ab59489b633b",
+      "exists": true
+    },
+    {
+      "path": "src/strategy/universe.py",
+      "sha256": "b007dcc2a29c2aea7b3ed132090b4c47f9911d7b4b46c75038e1a8b538d8394a",
+      "exists": true
+    },
+    {
+      "path": "src/strategy/grid.py",
+      "sha256": "049524e4e7a9a6da44d6572b11bbc1575088cd28da2dbcb23149c7566cfdf551",
+      "exists": true
+    },
+    {
+      "path": "src/strategy/valuation_resolution.py",
+      "sha256": "b667633847cd261a56fc22f5850db763c863c88937b4d75deac709849c3bc79c",
+      "exists": true
+    },
+    {
+      "path": "src/strategy/backtest_reports.py",
+      "sha256": "fe5c74773a76a99fd13862945c3cdc929a71ca4563cb0bd9b6dd4540c8ca484c",
+      "exists": true
+    },
+    {
+      "path": "scripts/backtest.py",
+      "sha256": "ae045533e871de36baf52f78b9b3226f34857d93cab6cfe8ee6b73269c3e4332",
+      "exists": true
+    },
+    {
+      "path": "scripts/run_backtest_compare.py",
+      "sha256": "cf3265c938f063b2f7a389e046fc284940ff74a90faac3dd9aa1088b0fd49eb2",
+      "exists": true
+    },
+    {
+      "path": "scripts/run_backtest_execution_compare.py",
+      "sha256": "008a26e44141dfa9985c2abf7144b5f2e4a8364712153022ea15222306680418",
+      "exists": true
+    },
+    {
+      "path": "scripts/run_backtest_attribution.py",
+      "sha256": "0b9c7f08029f7cf0dd0f1bca3bb9a9091d368521f1bd2c7b8428fac73df0f30c",
+      "exists": true
+    },
+    {
+      "path": "scripts/audit_backtest_lookahead.py",
+      "sha256": "f4af6195f72ab45066a68317b7db16b31a3ecd851c86e6c32a07d07460d02783",
+      "exists": true
+    },
+    {
+      "path": "scripts/audit_backtest_integrity.py",
+      "sha256": "a391c263a40da4433555da3f02676f6b936eeed805b2f75894dc27e3067f85cf",
+      "exists": true
+    }
+  ]
+}

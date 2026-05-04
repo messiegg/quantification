@@ -1,0 +1,19 @@
+{
+  "as_of_date": "2026-05-04",
+  "run_time": "2026-05-04T09:25:01.821234+00:00",
+  "profile": "combined_v2",
+  "mode": "paper",
+  "conservative_profile": "combined_v2_1_risk_guard",
+  "data_freshness_status": "FAIL",
+  "rc_verify_status": "PASS",
+  "stale_report_check_status": "PASS",
+  "action_allowed": false,
+  "generated_files": [
+    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md",
+    "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/data_freshness_report.md"
+  ],
+  "blocking_reason": "STALE_DATA_BLOCKED",
+  "broker_connected": false,
+  "auto_order_enabled": false,
+  "llm_decision_allowed": false
+}

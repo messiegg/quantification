@@ -258,6 +258,103 @@ bash scripts/run_demo.sh
 
 control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖正式 v2 配置。`combined_v2_1_risk_guard` 是独立候选 profile，只改 market regime 风险侧买入限制，沿用 v2 universe，不替换 combined_v2 主口径。
 
+### combined_v2 RC 与观察期运行
+
+当前发布候选主口径冻结为：
+
+- profile: `combined_v2`
+- execution_mode: `next_bar`
+- period: `2023-04-03` 到 `2026-04-03`
+- annual_return: `0.0713520247687258`
+- cumulative_return: `0.2196444045310004`
+- max_drawdown: `-0.0936454742991675`
+- total_trades: `76`
+- final_nav: `243928.8809062001`
+- final rating: `PASS_CANDIDATE`
+
+`PASS_CANDIDATE` 只代表小资金、手动、继续观察候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。
+
+验证 RC：
+
+```bash
+./.venv/bin/python scripts/verify_combined_v2_rc.py
+```
+
+检查旧报告残留：
+
+```bash
+./.venv/bin/python scripts/check_report_freshness.py
+```
+
+关键输出：
+
+- `reports/backtest/release/combined_v2_rc_verify.csv`
+- `reports/backtest/release/combined_v2_rc_verify.md`
+- `reports/backtest/release/combined_v2_rc_code_manifest.json`
+- `reports/backtest/audit/stale_report_check.csv`
+- `reports/backtest/audit/stale_report_check.md`
+
+### 数据新鲜度守门
+
+```bash
+./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
+```
+
+当前数据截止 `2026-04-03` 时，不能生成 `2026-05-04` 的实盘观察日报。只有当数据真实更新到目标 `as_of_date`，并且 `data_max_date >= as_of_date`、feature snapshot、benchmark 和 freshness gate 都通过后，才能生成当天观察报告。
+
+数据 stale 时正确动作：
+
+- 只允许 historical review。
+- 输出 `reports/observation/<as_of_date>/data_freshness_report.md`。
+- 输出 `reports/observation/<as_of_date>/observation_blocked.md`。
+- 不生成 `combined_v2_manual_order_list.csv`。
+
+### observation pipeline
+
+```bash
+./.venv/bin/python scripts/run_observation_pipeline.py \
+  --as-of-date 2026-05-04 \
+  --profile combined_v2 \
+  --mode paper \
+  --compare-conservative true
+```
+
+全流程会先验证 RC，再检查报告 freshness，再检查数据 freshness。任何 `RC_VERIFY_FAIL`、`REPORT_STALE_OR_CONFLICTING` 或 `STALE_DATA_BLOCKED` 都会阻断日度动作输出。通过时才生成：
+
+- `reports/observation/<as_of_date>/observation_summary.md`
+- `reports/observation/<as_of_date>/combined_v2_actions.csv`
+- `reports/observation/<as_of_date>/combined_v2_blocked_signals.csv`
+- `reports/observation/<as_of_date>/combined_v2_manual_order_list.csv`
+- `reports/observation/<as_of_date>/combined_v2_1_risk_guard_actions.csv`
+- `reports/observation/<as_of_date>/profile_compare.md`
+- `reports/observation/<as_of_date>/observation_run_manifest.json`
+
+`combined_v2_1_risk_guard` 只作为 conservative profile 并行观察，不替换 `combined_v2`。
+
+### paper ledger
+
+首次观察会创建：
+
+- `data/observation/paper_account.yml`
+- `data/observation/paper_trades.csv`
+- `data/observation/paper_positions.yml`
+
+这三个文件是真实本地纸面账本，已在 `.gitignore` 中忽略，不提交到公开仓库。仓库只提交 `fixtures/observation/` 下的 example 模板；`scripts/update_paper_observation.py` 首次运行时会从 example 初始化本地账本。
+
+更新纸面账本：
+
+```bash
+./.venv/bin/python scripts/update_paper_observation.py --as-of-date 2026-05-04
+```
+
+纸面账本只记录人工确认或模拟成交，不连接券商，不自动下单。即使生成观察报告，也只是手工观察和手工执行参考。
+
+详细说明见：
+
+- `docs/combined_v2_rc_acceptance.md`
+- `docs/manual_observation_protocol.md`
+- `docs/data_freshness_and_runbook.md`
+
 ## 对账与可复现
 
 - `scripts/run_demo.sh` 使用 `fixtures/demo_case/` 的固定输入，重建一致的 `config/universe.yml`、`reports/daily/orders_latest.json` 和 `data/curated/run_manifest.json`。

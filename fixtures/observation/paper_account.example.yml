@@ -1,0 +1,7 @@
+paper_account:
+  initial_capital: 200000
+  current_cash: 200000
+  total_equity: 200000
+  mode: paper_observation_only
+  broker_connected: false
+  auto_order_enabled: false

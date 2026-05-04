@@ -1,7 +1,7 @@
 # combined_v2 总审计结论
 
 - 最终评级: PASS
-- 评级含义: 旧 9.14%/83 笔已被 PIT 严格口径废弃；当前审计不再要求复现 legacy 指标。
+- 评级含义: LEGACY_SUPERSEDED: 9.14% / 83 笔属于 pre-PIT 旧记录；当前审计只复现 PIT next_bar 严格主口径。
 
 ## 1. baseline vs combined_v2 主结果
 

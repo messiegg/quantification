@@ -1,0 +1,31 @@
+observation:
+  primary_profile: combined_v2
+  conservative_profile: combined_v2_1_risk_guard
+  execution_mode: next_bar
+  mode: paper_observation_only
+  allow_broker_connection: false
+  allow_auto_order: false
+  allow_llm_decision: false
+  max_stale_calendar_days_for_daily_report: 3
+  require_data_max_date_ge_as_of_date: true
+  require_rc_verify_pass: true
+  require_lookahead_pass: true
+  require_report_consistency_pass: true
+  generate_manual_order_list: true
+  generate_paper_orders: true
+  generate_real_orders: false
+
+manual_observation:
+  initial_paper_capital: 200000
+  paper_account_path: data/observation/paper_account.yml
+  paper_trades_path: data/observation/paper_trades.csv
+  paper_positions_path: data/observation/paper_positions.yml
+  observation_report_dir: reports/observation
+  compare_v2_1_risk_guard: true
+
+risk_notes:
+  max_single_day_manual_actions: 5
+  require_human_review_before_any_real_trade: true
+  stale_data_action: BLOCK_DAILY_REPORT
+  rc_verify_fail_action: BLOCK_DAILY_REPORT
+  data_quality_fail_action: BLOCK_DAILY_REPORT

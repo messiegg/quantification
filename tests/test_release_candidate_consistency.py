@@ -7,6 +7,8 @@ import pandas as pd
 
 from scripts.audit_backtest_lookahead import build_valuation_field_resolution
 from scripts.build_combined_v2_release_candidate import build_release_manifest, build_report_consistency_check
+from scripts.check_report_freshness import build_report_freshness_check
+from scripts.verify_combined_v2_rc import verify_release_candidate
 from src.strategy.valuation_resolution import resolve_industry_valuation_quantile, resolve_stock_valuation_quantile
 from src.utils.config import load_yaml, resolve_path
 
@@ -77,11 +79,11 @@ def test_lookahead_field_resolution_checks_resolver_source_fields() -> None:
     assert row["max_source_date_used"] == "2024-01-02"
 
 
-def test_report_consistency_and_manifest_do_not_mutate_trades_detailed() -> None:
+def test_report_consistency_and_manifest_do_not_mutate_trades_detailed(tmp_path: Path) -> None:
     trades_path = resolve_path("reports/backtest/combined_v2_trades_detailed.csv")
     before = _sha256(trades_path)
     build_report_consistency_check()
-    build_release_manifest()
+    build_release_manifest(json_path=tmp_path / "manifest.json", md_path=tmp_path / "manifest.md")
     after = _sha256(trades_path)
     assert after == before
 
@@ -95,8 +97,8 @@ def test_current_combined_v2_next_bar_strict_metrics_match_rc() -> None:
     assert int(row["total_trades"]) == 76
 
 
-def test_release_manifest_matches_current_trade_and_nav_artifacts() -> None:
-    manifest = build_release_manifest()
+def test_release_manifest_matches_current_trade_and_nav_artifacts(tmp_path: Path) -> None:
+    manifest = build_release_manifest(json_path=tmp_path / "manifest.json", md_path=tmp_path / "manifest.md")
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
     expected_final_nav = 200000.0 * (1.0 + float(row["cumulative_return"]))
@@ -105,6 +107,44 @@ def test_release_manifest_matches_current_trade_and_nav_artifacts() -> None:
     trade_hash = next(item for item in manifest["key_output_file_hashes"] if item["path"] == "reports/backtest/combined_v2_trades_detailed.csv")
     assert trade_hash["exists"]
     assert trade_hash["sha256"] == _sha256(resolve_path("reports/backtest/combined_v2_trades_detailed.csv"))
+
+
+def test_verify_combined_v2_rc_passes_current_manifest() -> None:
+    verify = verify_release_candidate(rerun_backtest=False, write_report=False)
+    assert verify[verify["status"] == "FAIL"].empty
+    metrics = verify[verify["check_id"].astype(str).str.startswith("MET-")]
+    assert set(metrics["status"]) == {"PASS"}
+
+
+def test_verify_combined_v2_rc_fails_on_strategy_hash_drift() -> None:
+    path = resolve_path("config/strategy_v2.yml")
+    original = path.read_bytes()
+    try:
+        path.write_bytes(original + b"\n# test hash drift\n")
+        verify = verify_release_candidate(rerun_backtest=False, write_report=False)
+        row = verify[verify["check_name"] == "config/strategy_v2.yml sha256 matches RC manifest"].iloc[0]
+        assert row["status"] == "FAIL"
+    finally:
+        path.write_bytes(original)
+
+
+def test_check_report_freshness_detects_legacy_attribution_line(tmp_path: Path) -> None:
+    report = tmp_path / "combined_v2_attribution_report.md"
+    report.write_text("signal BUY_1: 成交 39，已实现 0.00\n", encoding="utf-8")
+    frame = build_report_freshness_check(
+        scan_globs=[str(tmp_path / "*.md")],
+        output_csv=tmp_path / "check.csv",
+        output_md=tmp_path / "check.md",
+    )
+    matched = frame[frame["check_name"] == "old_attribution_residue"]
+    assert not matched.empty
+    assert set(matched["status"]) == {"FAIL"}
+
+
+def test_current_reports_have_no_unmarked_legacy_attribution_lines() -> None:
+    frame = build_report_freshness_check(write_report=False)
+    failures = frame[(frame["status"] == "FAIL") & (frame["check_name"].str.contains("old_attribution", regex=False))]
+    assert failures.empty
 
 
 def test_report_diagnostics_keep_nav_and_monthly_consistency() -> None:
