@@ -230,16 +230,27 @@ def build_observation_sync_check(
                 lines.append(f"- {action}: {count}")
         lines.extend(["", "## 明细", ""])
         for row in frame.to_dict(orient="records"):
-            lines.append(
-                "- {action} | {file_path} | exists={exists} | tracked={tracked} | ignored={ignored} | {reason}".format(
-                    action=row["action"],
-                    file_path=row["file_path"],
-                    exists=_bool_text(bool(row["exists_local"])),
-                    tracked=_bool_text(bool(row["tracked_by_git"])),
-                    ignored=_bool_text(bool(row["ignored_by_git"])),
-                    reason=row["reason"],
+            if row["action"] == "IGNORE_LOCAL_ONLY":
+                lines.append(
+                    "- {action} | {file_path} | exists={exists} | ignored={ignored} | {reason}".format(
+                        action=row["action"],
+                        file_path=row["file_path"],
+                        exists=_bool_text(bool(row["exists_local"])),
+                        ignored=_bool_text(bool(row["ignored_by_git"])),
+                        reason=row["reason"],
+                    )
                 )
-            )
+            else:
+                lines.append(
+                    "- {action} | {file_path} | exists={exists} | tracked={tracked} | ignored={ignored} | {reason}".format(
+                        action=row["action"],
+                        file_path=row["file_path"],
+                        exists=_bool_text(bool(row["exists_local"])),
+                        tracked=_bool_text(bool(row["tracked_by_git"])),
+                        ignored=_bool_text(bool(row["ignored_by_git"])),
+                        reason=row["reason"],
+                    )
+                )
         md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     return frame
 
@@ -403,7 +414,7 @@ def build_release_sync_consistency_check(
             f"SYNC-MD-{idx:03d}",
             "observation_sync_check.md stale phrase absent",
             "FAIL" if present else "PASS",
-            f"absent: {pattern}",
+            "stale sync phrase absent",
             "present" if present else "absent",
             pattern if present else str(sync_md_path),
             "重新生成 observation_sync_check.md，确保报告来自当前 Git 跟踪状态。",
@@ -416,7 +427,7 @@ def build_release_sync_consistency_check(
             f"SUMMARY-MD-{idx:03d}",
             "observation_release_sync_summary.md old conclusion absent",
             "FAIL" if present else "PASS",
-            f"absent: {pattern}",
+            "old pre-commit conclusion absent",
             "present" if present else "absent",
             pattern if present else str(summary_path),
             "刷新发布同步总结，避免提交前状态结论进入发布分支。",
@@ -429,8 +440,8 @@ def build_release_sync_consistency_check(
             count = int(action_counts.get(action, 0))
             _check_row(
                 rows,
-                f"SYNC-CSV-{action}",
-                f"observation_sync_check.csv {action} count",
+                f"SYNC-CSV-FORBIDDEN-ACTION-{1 if action == 'ADD_TO_GIT' else 2}",
+                "observation_sync_check.csv forbidden action count",
                 "PASS" if count == 0 else "FAIL",
                 "0",
                 str(count),

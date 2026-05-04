@@ -4,25 +4,18 @@
 
 - 当前验证目标分支: codex/combined-v2-rc-release
 - 当前本地分支: codex/combined-v2-rc-release
-- verified_target_commit_at_generation: cfce6cb5839bb30b93032cfbbb6fd535d3bf7590
+- verified_target_commit_at_generation: f52c0969c07b53075b9ab1db8bc93789d2fb49c7
 - remote_branch_hash_at_generation: REMOTE_CHECK_UNAVAILABLE
 - final_commit_after_report_commit: see final operator response
 
 ## 本地工作区状态
 
 - status_before_report_refresh:
-  - `M  README.md`
-  - ` M reports/backtest/audit/stale_report_check.csv`
-  - ` M reports/backtest/audit/stale_report_check.md`
-  - `MM reports/backtest/release/observation_release_sync_summary.md`
-  - `MM reports/backtest/release/observation_sync_check.csv`
-  - `MM reports/backtest/release/observation_sync_check.md`
-  - `AM reports/backtest/release/release_sync_consistency_check.csv`
-  - `AM reports/backtest/release/release_sync_consistency_check.md`
-  - ` M reports/observation/2026-05-04/observation_run_manifest.json`
-  - `A  scripts/check_release_sync_consistency.py`
-  - `M  scripts/check_report_freshness.py`
-  - `A  tests/test_release_sync_consistency.py`
+  - `M reports/backtest/release/observation_release_sync_summary.md`
+  - ` M reports/backtest/release/observation_sync_check.md`
+  - ` M reports/backtest/release/release_sync_consistency_check.csv`
+  - ` M reports/backtest/release/release_sync_consistency_check.md`
+  - ` M scripts/check_release_sync_consistency.py`
 - files_modified_by_this_refresh:
   - `reports/backtest/release/observation_sync_check.csv`
   - `reports/backtest/release/observation_sync_check.md`
@@ -60,7 +53,7 @@
 
 ## pytest
 
-- pytest: 137 passed, 2 warnings in 83.07s
+- pytest: 137 passed, 2 warnings in 81.48s
 
 ## 结论
 

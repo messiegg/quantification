@@ -40,6 +40,6 @@
 - KEEP_TRACKED | tests/test_observation_pipeline.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | tests/test_release_candidate_consistency.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | tests/test_release_sync_consistency.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
-- IGNORE_LOCAL_ONLY | data/observation/paper_account.yml | exists=True | tracked=False | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
-- IGNORE_LOCAL_ONLY | data/observation/paper_trades.csv | exists=True | tracked=False | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
-- IGNORE_LOCAL_ONLY | data/observation/paper_positions.yml | exists=True | tracked=False | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
+- IGNORE_LOCAL_ONLY | data/observation/paper_account.yml | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
+- IGNORE_LOCAL_ONLY | data/observation/paper_trades.csv | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
+- IGNORE_LOCAL_ONLY | data/observation/paper_positions.yml | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
