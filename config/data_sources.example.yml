@@ -1,0 +1,21 @@
+tdx:
+  enabled: false
+  local_dirs:
+    - /path/to/tdx/vipdoc
+  notes: "本地路径仅示例，不提交真实私有路径"
+
+tushare:
+  enabled: false
+  token_env: TUSHARE_TOKEN
+  notes: "token 通过环境变量读取，不写入仓库"
+
+akshare:
+  enabled: false
+  notes: "如项目使用 AKShare，在 provider readiness 中检查 import"
+
+output:
+  raw_data_dir: data/raw
+  feature_dir: data/features
+  curated_dir: data/curated
+  provider_health_dir: provider_health
+  data_quality_dir: data_quality

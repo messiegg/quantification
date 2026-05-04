@@ -8,6 +8,9 @@
 - current_feature_max_date: 2026-04-03
 - current_benchmark_max_date: 2026-04-03
 - dry_run_writes_data: false
+- local_tdx_data_source_available: false
+- network_providers_configured: true
+- provider_readiness_status: WARN
 
 ## 需要补齐的交易日
 

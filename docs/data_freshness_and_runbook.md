@@ -67,18 +67,42 @@ freshness gate 先把 `requested_as_of_date` 映射到 `target_trading_date`。�
 ./.venv/bin/python scripts/verify_combined_v2_rc.py
 ./.venv/bin/python scripts/check_release_sync_consistency.py
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
-./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
+./.venv/bin/python scripts/audit_data_update_cli.py --write-report
+./.venv/bin/python scripts/check_provider_readiness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --preflight-only --write-report
+./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/run_observation_pipeline.py --as-of-date 2026-05-04 --profile combined_v2 --mode paper --compare-conservative true
-./.venv/bin/python scripts/update_paper_observation.py --as-of-date 2026-05-04
 ```
 
 即使 freshness gate 通过，输出仍是手工观察和手工执行参考，不是自动交易。
 
 ## 安全数据更新入口
 
-`scripts/update_market_data_safe.py` 只做编排和报告，不新增抓取器。dry-run 模式只输出：
+`scripts/update_market_data_safe.py` 只做编排和报告，不新增抓取器。dry-run / preflight-only 模式只输出：
 
 - `reports/data_update/<as_of_date>/market_data_update_plan.md`
 - `reports/data_update/<as_of_date>/market_data_update_plan.json`
+- `reports/data_update/<as_of_date>/market_data_update_result.md`
+- `reports/data_update/<as_of_date>/market_data_update_result.json`
 
-非 dry-run 才调用现有 `update_market_data.py` 和 `build_features.py`。如果更新失败或质量检查失败，observation pipeline 必须继续阻断，不能生成手工订单清单。大体量 parquet、缓存、真实 paper ledger、provider token 和券商信息都不得提交。
+非 dry-run 必须显式传入 `--execute`，并且 provider readiness 不能是 FAIL；如果 provider readiness 是 WARN，必须额外传入 `--allow-provider-warn` 并在报告中保留人工 override 记录。命令生成来自 `scripts/audit_data_update_cli.py` 的真实 CLI 检查，不允许硬编码不存在的参数。
+
+provider readiness 报告只写 token 是否存在，不输出 token 原文。`config/data_sources.example.yml` 是可提交模板；真实 `config/data_sources.yml` 中不能写 token。如果更新失败或质量检查失败，observation pipeline 必须继续阻断，不能生成手工订单清单。大体量 parquet、缓存、真实 paper ledger、provider token 和券商信息都不得提交。
+
+## 数据源实战前审计
+
+```bash
+./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
+```
+
+输出：
+
+- `reports/data_update/provider_preflight/data_update_cli_audit.md`
+- `reports/data_update/provider_preflight/data_update_cli_audit.csv`
+- `reports/data_update/provider_preflight/provider_readiness_report.md`
+- `reports/data_update/provider_preflight/provider_readiness_report.json`
+- `reports/data_update/provider_preflight/provider_readiness_check.csv`
+- `reports/data_update/provider_preflight/data_update_preflight_summary.md`
+- `reports/data_update/provider_preflight/data_update_preflight_summary.json`
+
+总报告会回答当前是否可以尝试非 dry-run 更新、阻断在哪一层、需要补充哪类数据源配置，以及下一条安全命令。即使报告给出可执行命令，该命令也只更新本地数据，不自动下单、不连接券商。

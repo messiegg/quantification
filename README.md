@@ -296,6 +296,7 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 
 ```bash
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
 ```
 
@@ -313,6 +314,9 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `reports/backtest/release/release_sync_consistency_check.md`
 - `reports/data_update/2026-05-04/market_data_update_plan.md`
 - `reports/data_update/2026-05-04/market_data_update_plan.json`
+- `reports/data_update/provider_preflight/data_update_cli_audit.md`
+- `reports/data_update/provider_preflight/provider_readiness_report.md`
+- `reports/data_update/provider_preflight/data_update_preflight_summary.md`
 
 ### 数据新鲜度守门
 
@@ -320,7 +324,6 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
 ```
 
-当前数据截止 `2026-04-03` 时，不能生成 `2026-05-04` 的实盘观察日报。只有当数据真实更新到目标 `as_of_date`，并且 `data_max_date >= as_of_date`、feature snapshot、benchmark 和 freshness gate 都通过后，才能生成当天观察报告。
 `2026-05-04` 是 A 股劳动节休市期间，交易日感知 gate 会先映射到最近目标交易日 `2026-04-30`。当前数据截止 `2026-04-03` 时仍然阻断；只有当数据真实覆盖到 `target_trading_date`，并且 feature snapshot、benchmark、数据质量检查和 freshness gate 都通过后，才能生成节假日期间观察报告。
 
 数据 stale 时正确动作：
@@ -389,6 +392,19 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `JQData` 仅在环境变量存在时启用。
 - 数据源失败时必须显式降级，不允许静默填假数据。
 - `scripts/update_market_data.py` 每次运行都会先清理请求级缓存目录，避免历史缓存无限堆积；正式主表仍保留在 `data/raw/*.parquet`。
+
+### 数据源 preflight
+
+实际写数据前必须先跑：
+
+```bash
+./.venv/bin/python scripts/audit_data_update_cli.py --write-report
+./.venv/bin/python scripts/check_provider_readiness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --preflight-only --write-report
+./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
+```
+
+`update_market_data_safe.py` 不带 `--execute` 时不会写行情、特征或缓存数据。provider readiness 只记录 token 是否存在，不输出 token 原文。只有 CLI audit 可生成合法命令、provider readiness 通过、输出路径可写，并且人工确认后，才允许使用 `--execute` 进入真实数据更新；该命令仍然不连接券商、不自动下单。
 
 ## 存储约定
 

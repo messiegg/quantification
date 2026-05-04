@@ -8,14 +8,135 @@ from scripts import update_market_data_safe as safe_update
 from src.utils.config import resolve_path
 
 
+def _target_info() -> dict:
+    return {
+        "requested_as_of_date": "2026-05-04",
+        "requested_as_of_is_trading_day": False,
+        "target_trading_date": "2026-04-30",
+        "target_trading_date_is_valid": True,
+        "calendar_source": "fixture",
+        "calendar_min_date": "2026-04-01",
+        "calendar_max_date": "2026-04-30",
+        "calendar_market": "A_SHARE",
+    }
+
+
+def _cli_frame(status: str = "PASS") -> pd.DataFrame:
+    return pd.DataFrame(
+        [
+            {
+                "script_path": "scripts/update_market_data.py",
+                "status": status,
+                "supports_as_of_date": True,
+                "supports_start_date": True,
+                "supports_end_date": True,
+                "supports_all_stocks": True,
+            },
+            {
+                "script_path": "scripts/build_features.py",
+                "status": status,
+                "supports_as_of_date": True,
+                "supports_start_date": False,
+                "supports_end_date": False,
+                "supports_all_stocks": False,
+            },
+        ]
+    )
+
+
+def _patch_safe_update(monkeypatch, provider_status: str = "PASS", cli_status: str = "PASS") -> None:
+    monkeypatch.setattr(
+        safe_update,
+        "load_yaml_optional",
+        lambda path: {
+            "observation": {
+                "calendar_market": "A_SHARE",
+                "max_stale_trading_days_for_daily_report": 0,
+            },
+            "tdx": {"local_dirs": []},
+        },
+    )
+    monkeypatch.setattr(safe_update, "resolve_target_trading_date", lambda *args, **kwargs: _target_info())
+    monkeypatch.setattr(
+        safe_update,
+        "build_data_freshness_report",
+        lambda *args, **kwargs: {
+            "data_max_date": "2026-04-03",
+            "feature_max_date": "2026-04-03",
+            "benchmark_max_date": "2026-04-03",
+            "allowed_actions": "historical_review_only",
+        },
+    )
+    monkeypatch.setattr(safe_update, "trading_dates_between", lambda *args, **kwargs: ["2026-04-07", "2026-04-08"])
+    monkeypatch.setattr(
+        safe_update,
+        "check_provider_readiness",
+        lambda *args, **kwargs: {
+            "status": provider_status,
+            "network_providers_available": provider_status != "FAIL",
+            "output_dirs_writable": True,
+        },
+    )
+    monkeypatch.setattr(safe_update, "audit_data_update_cli", lambda write_report=False: _cli_frame(cli_status))
+    monkeypatch.setattr(
+        safe_update,
+        "build_update_commands",
+        lambda *args, **kwargs: (
+            [
+                ["python", "scripts/update_market_data.py", "--as-of-date", "2026-04-30", "--all-stocks"],
+                ["python", "scripts/build_features.py", "--as-of-date", "2026-04-30"],
+            ],
+            "OK",
+        ),
+    )
+
+
 def test_update_market_data_safe_dry_run_does_not_run_update_commands(monkeypatch, tmp_path: Path) -> None:
+    _patch_safe_update(monkeypatch)
+
     def fail_run(*args, **kwargs):
         raise AssertionError("dry-run must not execute data update commands")
 
-    monkeypatch.setattr(safe_update.subprocess, "run", fail_run)
+    monkeypatch.setattr(safe_update, "_run_command", fail_run)
     result = safe_update.run_safe_update("2026-05-04", dry_run=True, write_report=False)
     assert result["status"] == "DRY_RUN"
     assert result["wrote_data"] is False
+    assert result["will_write_data"] is False
+
+
+def test_update_market_data_safe_preflight_only_does_not_run_update_commands(monkeypatch) -> None:
+    _patch_safe_update(monkeypatch)
+    monkeypatch.setattr(safe_update, "_run_command", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("preflight-only must not execute")))
+    result = safe_update.run_safe_update("2026-05-04", preflight_only=True, write_report=False)
+    assert result["status"] == "PREFLIGHT"
+    assert result["wrote_data"] is False
+    assert result["skipped_reason"] == "PREFLIGHT_ONLY"
+
+
+def test_update_market_data_safe_requires_execute_flag(monkeypatch) -> None:
+    _patch_safe_update(monkeypatch)
+    result = safe_update.run_safe_update("2026-05-04", dry_run=False, write_report=False)
+    assert result["status"] == "PREFLIGHT"
+    assert result["will_write_data"] is False
+    assert result["skipped_reason"] == "EXECUTE_FLAG_REQUIRED"
+
+
+def test_update_market_data_safe_blocks_when_provider_readiness_fails(monkeypatch) -> None:
+    _patch_safe_update(monkeypatch, provider_status="FAIL")
+    monkeypatch.setattr(safe_update, "_run_command", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("provider FAIL must not execute")))
+    result = safe_update.run_safe_update("2026-05-04", execute=True, write_report=False)
+    assert result["status"] == "FAIL"
+    assert result["will_write_data"] is False
+    assert result["skipped_reason"] == "PROVIDER_READINESS_FAIL"
+
+
+def test_update_market_data_safe_blocks_when_cli_audit_fails(monkeypatch) -> None:
+    _patch_safe_update(monkeypatch, provider_status="PASS", cli_status="FAIL")
+    monkeypatch.setattr(safe_update, "_run_command", lambda *args, **kwargs: (_ for _ in ()).throw(AssertionError("CLI FAIL must not execute")))
+    result = safe_update.run_safe_update("2026-05-04", execute=True, write_report=False)
+    assert result["status"] == "FAIL"
+    assert result["will_write_data"] is False
+    assert result["skipped_reason"] == "CLI_AUDIT_FAIL"
 
 
 def test_update_market_data_safe_plan_lists_gap_trading_days(monkeypatch) -> None:
@@ -47,9 +168,19 @@ def test_update_market_data_safe_plan_lists_gap_trading_days(monkeypatch) -> Non
         "trading_dates_between",
         lambda *args, **kwargs: ["2026-04-29", "2026-04-30"],
     )
+    monkeypatch.setattr(
+        safe_update,
+        "check_provider_readiness",
+        lambda *args, **kwargs: {
+            "status": "PASS",
+            "network_providers_available": False,
+            "output_dirs_writable": True,
+        },
+    )
     plan = safe_update.build_update_plan("2026-05-04")
     assert plan["gap_trading_dates"] == ["2026-04-29", "2026-04-30"]
     assert "daily行情" in plan["update_types"]
+    assert plan["network_providers_configured"] is False
 
 
 def test_real_paper_ledger_is_gitignored() -> None:

@@ -1,0 +1,24 @@
+check_id,check_name,provider,status,expected,actual,evidence,recommendation,secret_redacted
+TDX-001,tdx local dirs configured,tdx,NOT_APPLICABLE,configured local dir,none,config/data_sources.yml,未配置本地 TDX 路径。,True
+IMPORT-akshare,akshare import,akshare,PASS,importable,True,akshare,缺少 provider 依赖时相关数据源不可用。,True
+IMPORT-pytdx,pytdx import,pytdx,PASS,importable,True,pytdx,缺少 provider 依赖时相关数据源不可用。,True
+IMPORT-py_mini_racer,py_mini_racer import,py_mini_racer,PASS,importable,True,py_mini_racer,缺少 provider 依赖时相关数据源不可用。,True
+IMPORT-efinance,efinance import,efinance,PASS,importable,True,efinance,缺少 provider 依赖时相关数据源不可用。,True
+IMPORT-baostock,baostock import,baostock,PASS,importable,True,baostock,缺少 provider 依赖时相关数据源不可用。,True
+IMPORT-adata,adata import,adata,PASS,importable,True,adata,缺少 provider 依赖时相关数据源不可用。,True
+TOKEN-tushare,TUSHARE_TOKEN present,tushare,WARN,present if provider required,False,TUSHARE_TOKEN,报告只记录 token_present，不输出 token 原文。,True
+TOKEN-jqdata_username,JQDATA_USERNAME present,jqdata_username,WARN,present if provider required,False,JQDATA_USERNAME,报告只记录 token_present，不输出 token 原文。,True
+TOKEN-jqdata_password,JQDATA_PASSWORD present,jqdata_password,WARN,present if provider required,False,JQDATA_PASSWORD,报告只记录 token_present，不输出 token 原文。,True
+HEALTH-001,provider_health exists,provider_health,PASS,exists,True,provider_health/latest.json,缺少 provider health 时不能确认上一轮 provider 状态。,True
+HEALTH-002,provider_health date,provider_health,WARN,>= 2026-04-30,2026-04-03,provider_health/latest.json,provider health 过期时需要先做 provider 验证。,True
+HEALTH-003,provider failures,provider_health,PASS,0,0,provider_health/latest.json,存在失败 provider 时需审阅失败原因。,True
+QUALITY-001,data_quality exists,data_quality,PASS,exists,True,data_quality/latest.json,缺少 data quality 时需要重新生成。,True
+QUALITY-002,data_quality date,data_quality,WARN,>= 2026-04-30,2026-04-03,data_quality/latest.json,data quality 过期时不能直接信任当前覆盖。,True
+WRITE-001,output directory writable,filesystem,PASS,writable,True,data/raw,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-002,output directory writable,filesystem,PASS,writable,True,data/features,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-003,output directory writable,filesystem,PASS,writable,True,data/curated,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-004,output directory writable,filesystem,PASS,writable,True,provider_health,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-005,output directory writable,filesystem,PASS,writable,True,data_quality,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-006,output directory writable,filesystem,PASS,writable,True,reports/data_update,输出目录不可写时禁止非 dry-run 更新。,False
+WRITE-007,output directory writable,filesystem,PASS,writable,True,reports/observation,输出目录不可写时禁止非 dry-run 更新。,False
+SOURCE-001,at least one usable source,source,PASS,usable source available,True,imports/config,没有可用数据源时禁止非 dry-run 更新。,True

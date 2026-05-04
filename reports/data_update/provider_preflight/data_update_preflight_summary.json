@@ -1,0 +1,100 @@
+{
+  "created_at": "2026-05-04T12:06:35.600374+00:00",
+  "as_of_date": "2026-05-04",
+  "target_trading_date": "2026-04-30",
+  "no_network": false,
+  "can_attempt_non_dry_run": false,
+  "blocking_layers": [
+    "PROVIDER_READINESS_WARN"
+  ],
+  "next_safe_command": "./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report",
+  "next_safe_command_note": "当前只建议继续修复并重跑 preflight；该命令不写行情数据、不生成订单。",
+  "statuses": {
+    "stale_report_check": "PASS",
+    "verify_combined_v2_rc": "PASS",
+    "release_sync_consistency": "PASS",
+    "data_freshness_allowed_actions": "historical_review_only",
+    "data_update_cli_audit": "WARN",
+    "provider_readiness": "WARN",
+    "safe_update_preflight": "WARN"
+  },
+  "provider_requirements": [
+    "如需离线更新，配置可读的本地 TDX vipdoc 路径。",
+    "如需 Tushare，设置 TUSHARE_TOKEN 环境变量或 .env 条目。",
+    "如需 JQData，设置 JQDATA_USERNAME / JQDATA_PASSWORD。",
+    "重新运行 provider health 验证，确认数据源当前可用。",
+    "数据更新后重新运行 observation 数据质量检查。"
+  ],
+  "freshness": {
+    "requested_as_of_date": "2026-05-04",
+    "requested_as_of_is_trading_day": false,
+    "target_trading_date": "2026-04-30",
+    "target_trading_date_is_valid": true,
+    "calendar_source": "project_trade_calendar+a_share_weekday_holiday_overrides",
+    "calendar_min_date": "2015-01-05",
+    "calendar_max_date": "2026-04-30",
+    "calendar_market": "A_SHARE",
+    "data_max_date": "2026-04-03",
+    "feature_max_date": "2026-04-03",
+    "feature_source": "data/features/latest_feature_snapshot.parquet",
+    "benchmark_max_date": "2026-04-03",
+    "universe_max_effective_date": "2026-05-01",
+    "provider_health_date": "2026-04-03",
+    "data_quality_date": "2026-04-03",
+    "rc_manifest_data_max_date": "2026-04-03",
+    "stale_calendar_days": 31,
+    "stale_trading_days": 18,
+    "missing_trading_dates": [
+      "2026-04-07",
+      "2026-04-08",
+      "2026-04-09",
+      "2026-04-10",
+      "2026-04-13",
+      "2026-04-14",
+      "2026-04-15",
+      "2026-04-16",
+      "2026-04-17",
+      "2026-04-20",
+      "2026-04-21",
+      "2026-04-22",
+      "2026-04-23",
+      "2026-04-24",
+      "2026-04-27",
+      "2026-04-28",
+      "2026-04-29",
+      "2026-04-30"
+    ],
+    "max_stale_calendar_days": 3,
+    "max_stale_trading_days": 0,
+    "require_data_max_date_ge_target_trading_date": true,
+    "is_data_current_for_target_trading_date": false,
+    "is_data_current": false,
+    "blocking_reason": "DATA_MAX_DATE_BEFORE_TARGET_TRADING_DATE|FEATURE_MAX_DATE_BEFORE_TARGET_TRADING_DATE|BENCHMARK_MAX_DATE_BEFORE_TARGET_TRADING_DATE|STALE_CALENDAR_DAYS_EXCEED_LIMIT|STALE_TRADING_DAYS_EXCEED_LIMIT",
+    "warnings": [],
+    "allowed_actions": "historical_review_only",
+    "market_closed_as_of_date": true,
+    "non_trading_day_action": "OBSERVATION_ONLY_NEXT_TRADING_DAY_REVIEW"
+  },
+  "provider_readiness": {
+    "local_tdx_available": false,
+    "network_providers_available": true,
+    "token_present": {
+      "tushare": false,
+      "jqdata_username": false,
+      "jqdata_password": false
+    },
+    "provider_health_date": "2026-04-03",
+    "provider_health_stale": true,
+    "data_quality_date": "2026-04-03",
+    "data_quality_stale": true
+  },
+  "safe_update_preflight": {
+    "will_write_data": false,
+    "wrote_data": false,
+    "skipped_reason": "PREFLIGHT_ONLY",
+    "commands_planned": [
+      "/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/update_market_data.py --as-of-date 2026-04-30 --all-stocks",
+      "/Users/meseg/shu/stocks/quantile/.venv/bin/python scripts/build_features.py --as-of-date 2026-04-30"
+    ]
+  }
+}
