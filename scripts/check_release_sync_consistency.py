@@ -98,6 +98,15 @@ SUMMARY_REQUIRED = [
     "不涉及策略变更",
     "不允许生成 2026-05-04 手工订单",
 ]
+OBSERVATION_FORBIDDEN_ACTIVE_PHRASES = [
+    "今日实盘执行",
+    "今日下单",
+    "允许自动下单",
+    "自动下单: 允许",
+    "自动下单：允许",
+    "auto_order_allowed: true",
+    "真实订单已生成",
+]
 
 
 def _git(args: list[str], check: bool = False) -> subprocess.CompletedProcess[str]:
@@ -164,6 +173,13 @@ def _status_from_csv(path_like: str) -> str:
 
 def _bool_text(value: bool) -> str:
     return "True" if value else "False"
+
+
+def _legacy_superseded(path: Path) -> bool:
+    if not path.exists():
+        return False
+    header = "\n".join(path.read_text(encoding="utf-8").splitlines()[:8])
+    return "LEGACY_SUPERSEDED" in header
 
 
 def _sync_row(file_path: str, should_track: bool, should_ignore: bool) -> dict:
@@ -412,6 +428,7 @@ def build_release_sync_consistency_check(
     output_csv: str | Path = CONSISTENCY_CSV,
     output_md: str | Path = CONSISTENCY_MD,
     write_report: bool = True,
+    include_observation_gate: bool = True,
 ) -> pd.DataFrame:
     rows: list[dict] = []
     sync_md_path = resolve_path(SYNC_MD)
@@ -502,7 +519,9 @@ def build_release_sync_consistency_check(
             "先生成 observation_sync_check.csv。",
         )
 
-    for idx, pattern in enumerate(SUMMARY_REQUIRED, start=1):
+    current_freshness = _read_json("reports/observation/2026-05-04/data_freshness_report.json")
+    summary_required = ["RC verify: PASS", "不涉及策略变更"] if current_freshness.get("allowed_actions") == "observation_report_allowed" else SUMMARY_REQUIRED
+    for idx, pattern in enumerate(summary_required, start=1):
         present = pattern in summary
         _check_row(
             rows,
@@ -512,7 +531,82 @@ def build_release_sync_consistency_check(
             f"present: {pattern}",
             "present" if present else "missing",
             pattern if present else str(summary_path),
-            "发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。",
+            "发布同步总结必须保留 RC PASS、策略未变更等当前结论。",
+        )
+
+    obs_dir = resolve_path("reports/observation/2026-05-04")
+    freshness = current_freshness if include_observation_gate else {}
+    manifest = _read_json("reports/observation/2026-05-04/observation_run_manifest.json") if include_observation_gate else {}
+    observation_summary_path = obs_dir / "observation_summary.md"
+    observation_blocked_path = obs_dir / "observation_blocked.md"
+    manual_order_path = obs_dir / "combined_v2_manual_order_list.csv"
+    observation_summary = observation_summary_path.read_text(encoding="utf-8") if include_observation_gate and observation_summary_path.exists() else ""
+    allowed = freshness.get("allowed_actions") == "observation_report_allowed"
+    if include_observation_gate and allowed:
+        blocked_current = observation_blocked_path.exists() and not _legacy_superseded(observation_blocked_path)
+        _check_row(
+            rows,
+            "OBS-GATE-001",
+            "allowed observation has no current blocked report",
+            "PASS" if not blocked_current else "FAIL",
+            "observation_blocked.md absent or LEGACY_SUPERSEDED",
+            "current" if blocked_current else "absent_or_legacy",
+            str(observation_blocked_path),
+            "freshness 允许观察时，不能保留当前有效的 STALE_DATA_BLOCKED 主报告。",
+        )
+        _check_row(
+            rows,
+            "OBS-GATE-002",
+            "allowed observation summary exists",
+            "PASS" if observation_summary_path.exists() else "FAIL",
+            "exists",
+            "exists" if observation_summary_path.exists() else "missing",
+            str(observation_summary_path),
+            "freshness 允许观察时必须生成 observation_summary.md。",
+        )
+        _check_row(
+            rows,
+            "OBS-GATE-003",
+            "allowed observation manifest action_allowed",
+            "PASS" if manifest.get("action_allowed") is True else "FAIL",
+            "true",
+            str(manifest.get("action_allowed")),
+            str(obs_dir / "observation_run_manifest.json"),
+            "manifest 必须反映本次 gate 已允许观察。",
+        )
+    if include_observation_gate and observation_summary_path.exists() and freshness.get("market_closed_as_of_date"):
+        _check_row(
+            rows,
+            "OBS-SUMMARY-001",
+            "holiday observation summary marker",
+            "PASS" if "MARKET_CLOSED_AS_OF_DATE" in observation_summary else "FAIL",
+            "MARKET_CLOSED_AS_OF_DATE",
+            "present" if "MARKET_CLOSED_AS_OF_DATE" in observation_summary else "missing",
+            str(observation_summary_path),
+            "非交易日 summary 必须标记市场关闭。",
+        )
+        forbidden = [phrase for phrase in OBSERVATION_FORBIDDEN_ACTIVE_PHRASES if phrase in observation_summary]
+        _check_row(
+            rows,
+            "OBS-SUMMARY-002",
+            "holiday observation summary execution wording",
+            "PASS" if not forbidden else "FAIL",
+            "no active execution wording",
+            "|".join(forbidden) if forbidden else "none",
+            str(observation_summary_path),
+            "非交易日 summary 只能作为下一交易日人工复核。",
+        )
+    if include_observation_gate and manual_order_path.exists():
+        ignored = _ignored_by_git("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
+        _check_row(
+            rows,
+            "OBS-MANUAL-001",
+            "manual order list remains gitignored",
+            "PASS" if ignored else "FAIL",
+            "gitignored",
+            "gitignored" if ignored else "not_ignored",
+            str(manual_order_path),
+            "手工清单是本地人工复核产物，不应要求 git add。",
         )
 
     frame = pd.DataFrame(rows, columns=["check_id", "check_name", "status", "expected", "actual", "evidence", "recommendation"])
@@ -545,6 +639,7 @@ def build_release_sync_consistency_check(
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Refresh and check observation release sync reports.")
+    parser.add_argument("--refresh-source-reports", action="store_true")
     parser.add_argument("--no-refresh-source-reports", action="store_true")
     parser.add_argument("--pytest-result", default=None)
     return parser.parse_args()
@@ -553,7 +648,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     sync_frame = None
-    if not args.no_refresh_source_reports:
+    if args.refresh_source_reports and not args.no_refresh_source_reports:
         refresh_files = [SYNC_CSV, SYNC_MD, SUMMARY_MD]
         sync_frame = build_observation_sync_check()
         build_release_sync_summary(

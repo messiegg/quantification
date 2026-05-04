@@ -137,8 +137,13 @@ def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str, non
         "next_bar_price",
         "amount",
         "human_required",
+        "requires_human_review",
         "review_scope",
+        "execution_scope",
         "next_trading_day_manual_review_only",
+        "market_closed_as_of_date",
+        "auto_order_allowed",
+        "broker_connected",
         "source",
         "notes",
     ]
@@ -161,8 +166,13 @@ def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str, non
                 "next_bar_price": row.get("price", 0),
                 "amount": row.get("amount", 0),
                 "human_required": True,
+                "requires_human_review": True,
                 "review_scope": "next_trading_day_manual_review_only" if non_trading_day else "manual_review_only",
+                "execution_scope": "NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY" if non_trading_day else "MANUAL_REVIEW_ONLY",
                 "next_trading_day_manual_review_only": bool(non_trading_day),
+                "market_closed_as_of_date": bool(non_trading_day),
+                "auto_order_allowed": False,
+                "broker_connected": False,
                 "source": "paper_observation_only",
                 "notes": "MARKET_CLOSED_AS_OF_DATE；仅作为下一交易日人工复盘，不连接券商、不自动下单。"
                 if non_trading_day
@@ -246,6 +256,11 @@ def _generate_allowed_outputs(
 
     cash, holdings_count, paper_market_value = _paper_state()
     blocked_summary = blocked_counts.to_dict(orient="records")
+    quality_warnings = [
+        row
+        for row in data_quality.get("checks", [])
+        if isinstance(row, dict) and str(row.get("status", "")).upper() == "WARN"
+    ]
     summary = {
         "as_of_date": as_of_date,
         "profile": profile,
@@ -266,6 +281,8 @@ def _generate_allowed_outputs(
         "raw_sell_signals": latest.get("raw_sell_signal_count", ""),
         "executable_actions": len(actions),
         "blocked_reasons": blocked_summary,
+        "data_quality_warning_count": len(quality_warnings),
+        "data_quality_warnings": quality_warnings,
         "manual_order_list": str(manual_path) if allow_manual_order_list else "",
     }
     (out_dir / "observation_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
@@ -283,7 +300,9 @@ def _generate_allowed_outputs(
         "- release sync consistency: PASS。",
         "- data freshness: PASS。",
         f"- data quality: {data_quality.get('status', '')}。",
-        "- 自动下单: 禁止。",
+        "- 禁止自动下单。",
+        "- broker_connected: false。",
+        "- auto_order_allowed: false。",
     ]
     if non_trading_day:
         lines.extend(
@@ -316,6 +335,19 @@ def _generate_allowed_outputs(
             "",
         ]
     )
+    if quality_warnings:
+        lines.extend(
+            [
+                "### 数据质量 WARN 摘要",
+                "",
+                "- WARN 不等于禁止观察；本报告仍要求人工复核。",
+            ]
+        )
+        for row in quality_warnings:
+            lines.append(
+                f"- {row.get('check_id', '')} | {row.get('check_name', '')} | actual={row.get('actual', '')} | {row.get('recommendation', '')}"
+            )
+        lines.append("")
     lines.extend(
         [
         "## combined_v2 当前状态",
@@ -334,9 +366,13 @@ def _generate_allowed_outputs(
         "## 手工动作清单",
         "",
         "- 只输出建议，需要人工判断和人工执行。",
-        "- 不连接券商，不自动下单，不生成真实订单。",
+        "- 不连接券商，禁止自动下单，不生成实盘委托。",
         f"- 文件: {manual_path if allow_manual_order_list else '未生成'}",
+        "- auto_order_allowed: false。",
+        "- broker_connected: false。",
+        "- requires_human_review: true。",
         "- review_scope: next_trading_day_manual_review_only。" if non_trading_day else "- review_scope: manual_review_only。",
+        "- execution_scope: NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY。" if non_trading_day else "- execution_scope: MANUAL_REVIEW_ONLY。",
         "",
         "## combined_v2_1_risk_guard 对照",
         "",
@@ -377,9 +413,9 @@ def run_observation_pipeline(
 
     rc = verify_release_candidate(rerun_backtest=rerun_rc_verify)
     rc_status = _status_from_frame(rc)
-    stale = build_report_freshness_check()
+    stale = build_report_freshness_check(include_observation_gate=False)
     stale_status = _status_from_frame(stale)
-    release_sync = build_release_sync_consistency_check(write_report=False)
+    release_sync = build_release_sync_consistency_check(write_report=False, include_observation_gate=False)
     release_sync_status = _status_from_frame(release_sync)
     freshness = build_data_freshness_report(as_of_date, write_report=True)
     data_status = _blocking_status(freshness)
@@ -413,6 +449,9 @@ def run_observation_pipeline(
         _write_blocked(out_dir, as_of_date, blocking_reason, freshness, data_quality)
         generated.append(str(out_dir / "observation_blocked.md"))
     else:
+        blocked_path = out_dir / "observation_blocked.md"
+        if blocked_path.exists():
+            blocked_path.unlink()
         allow_manual_order_list = bool(
             obs.get("generate_manual_order_list", True)
             and obs.get("generate_manual_order_list_only_when_market_data_current", True)

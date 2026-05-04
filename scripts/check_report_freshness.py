@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import json
 import sys
 from pathlib import Path
 
@@ -56,6 +57,15 @@ RELEASE_SYNC_STALE_PATTERNS = [
     "存在未暂存修改: True",
     "当前 HEAD commit: 6d16a186",
 ]
+OBSERVATION_FORBIDDEN_ACTIVE_PHRASES = [
+    "今日实盘执行",
+    "今日下单",
+    "允许自动下单",
+    "自动下单: 允许",
+    "自动下单：允许",
+    "auto_order_allowed: true",
+    "真实订单已生成",
+]
 
 
 def _relative(path: Path) -> str:
@@ -80,6 +90,21 @@ def _row(file_path: str, check_name: str, status: str, matched_text: str, recomm
     }
 
 
+def _json_optional(path_like: str | Path) -> dict:
+    path = resolve_path(path_like)
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _git_ignored(path_like: str | Path) -> bool:
+    rel = _relative(resolve_path(path_like))
+    import subprocess
+
+    result = subprocess.run(["git", "check-ignore", "--quiet", "--", rel], cwd=resolve_path("."), check=False)
+    return result.returncode == 0
+
+
 def _scan_files(scan_globs: list[str]) -> list[Path]:
     files: list[Path] = []
     for pattern in scan_globs:
@@ -98,6 +123,7 @@ def build_report_freshness_check(
     output_csv: str | Path = DEFAULT_CSV,
     output_md: str | Path = DEFAULT_MD,
     write_report: bool = True,
+    include_observation_gate: bool = True,
 ) -> pd.DataFrame:
     globs = scan_globs or DEFAULT_SCAN_GLOBS
     rows: list[dict] = []
@@ -158,6 +184,114 @@ def build_report_freshness_check(
         rows.append(_row("", "old_attribution_residue_absent", "PASS", "", "未发现旧 signal/regime attribution 行。"))
     if release_sync_matches == 0:
         rows.append(_row("", "release_sync_stale_residue_absent", "PASS", "", "未发现 release sync 提交前状态残留。"))
+
+    if include_observation_gate:
+        obs_dir = resolve_path("reports/observation/2026-05-04")
+        freshness = _json_optional(obs_dir / "data_freshness_report.json")
+        manifest = _json_optional(obs_dir / "observation_run_manifest.json")
+        summary_path = obs_dir / "observation_summary.md"
+        blocked_path = obs_dir / "observation_blocked.md"
+        manual_path = obs_dir / "combined_v2_manual_order_list.csv"
+    else:
+        freshness = {}
+        manifest = {}
+        summary_path = resolve_path("reports/observation/2026-05-04/observation_summary.md")
+        blocked_path = resolve_path("reports/observation/2026-05-04/observation_blocked.md")
+        manual_path = resolve_path("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
+    if include_observation_gate and freshness:
+        allowed = freshness.get("allowed_actions") == "observation_report_allowed"
+        historical_only = freshness.get("allowed_actions") == "historical_review_only"
+        blocked_current = blocked_path.exists() and not _is_legacy_superseded(blocked_path.read_text(encoding="utf-8"))
+        if allowed:
+            rows.append(
+                _row(
+                    _relative(blocked_path),
+                    "observation_gate_allowed_no_current_blocked",
+                    "FAIL" if blocked_current else "PASS",
+                    "observation_blocked.md current" if blocked_current else "",
+                    "freshness 允许观察时，不得保留未标记 legacy 的 STALE_DATA_BLOCKED 主报告。",
+                )
+            )
+            rows.append(
+                _row(
+                    _relative(summary_path),
+                    "observation_gate_allowed_summary_exists",
+                    "PASS" if summary_path.exists() else "FAIL",
+                    "summary missing" if not summary_path.exists() else "",
+                    "freshness 允许观察时必须生成 observation_summary.md。",
+                )
+            )
+            rows.append(
+                _row(
+                    _relative(obs_dir / "observation_run_manifest.json"),
+                    "observation_gate_allowed_manifest",
+                    "PASS" if manifest.get("action_allowed") is True else "FAIL",
+                    str(manifest.get("action_allowed")),
+                    "manifest 必须以本次允许观察结果为准。",
+                )
+            )
+        elif historical_only:
+            rows.append(
+                _row(
+                    _relative(summary_path),
+                    "observation_gate_blocked_summary_absent",
+                    "PASS" if not summary_path.exists() else "FAIL",
+                    "summary exists" if summary_path.exists() else "",
+                    "freshness 阻断时不得保留当前 observation_summary.md。",
+                )
+            )
+            rows.append(
+                _row(
+                    _relative(blocked_path),
+                    "observation_gate_blocked_report_exists",
+                    "PASS" if blocked_path.exists() else "FAIL",
+                    "blocked missing" if not blocked_path.exists() else "",
+                    "freshness 阻断时必须生成 observation_blocked.md。",
+                )
+            )
+            rows.append(
+                _row(
+                    _relative(manual_path),
+                    "observation_gate_blocked_manual_absent",
+                    "PASS" if not manual_path.exists() else "FAIL",
+                    "manual exists" if manual_path.exists() else "",
+                    "freshness 阻断时不得生成手工清单。",
+                )
+            )
+    if include_observation_gate and summary_path.exists():
+        summary = summary_path.read_text(encoding="utf-8")
+        market_closed = bool(freshness.get("market_closed_as_of_date")) if freshness else False
+        if market_closed:
+            rows.append(
+                _row(
+                    _relative(summary_path),
+                    "observation_summary_market_closed_marker",
+                    "PASS" if "MARKET_CLOSED_AS_OF_DATE" in summary else "FAIL",
+                    "MARKET_CLOSED_AS_OF_DATE" if "MARKET_CLOSED_AS_OF_DATE" in summary else "",
+                    "非交易日 observation_summary.md 必须显式标记市场关闭。",
+                )
+            )
+        for phrase in OBSERVATION_FORBIDDEN_ACTIVE_PHRASES:
+            if phrase in summary:
+                rows.append(
+                    _row(
+                        _relative(summary_path),
+                        "observation_summary_active_execution_phrase",
+                        "FAIL",
+                        phrase,
+                        "观察报告不得包含实盘执行或自动执行措辞。",
+                    )
+                )
+    if include_observation_gate and manual_path.exists():
+        rows.append(
+            _row(
+                _relative(manual_path),
+                "observation_manual_list_gitignored",
+                "PASS" if _git_ignored(manual_path) else "FAIL",
+                "" if _git_ignored(manual_path) else "not ignored",
+                "manual_order_list 是本地人工复核产物，必须保持 gitignored。",
+            )
+        )
 
     attribution_path = resolve_path("reports/backtest/attribution/combined_v2_attribution_report.md")
     if attribution_path.exists():

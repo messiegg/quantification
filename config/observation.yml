@@ -14,6 +14,7 @@ observation:
   require_data_max_date_ge_target_trading_date: true
   allow_non_trading_day_observation: true
   non_trading_day_action: OBSERVATION_ONLY_NEXT_TRADING_DAY_REVIEW
+  calendar_staleness_policy: WARN_ONLY_WHEN_MARKET_CLOSED_AND_TARGET_CURRENT
   generate_manual_order_list_only_when_market_data_current: true
   require_rc_verify_pass: true
   require_lookahead_pass: true

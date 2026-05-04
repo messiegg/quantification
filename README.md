@@ -298,6 +298,7 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
+./.venv/bin/python scripts/check_observation_gate_consistency.py --as-of-date 2026-05-04
 ```
 
 关键输出：
@@ -317,6 +318,7 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `reports/data_update/provider_preflight/data_update_cli_audit.md`
 - `reports/data_update/provider_preflight/provider_readiness_report.md`
 - `reports/data_update/provider_preflight/data_update_preflight_summary.md`
+- `reports/observation/2026-05-04/observation_gate_consistency_check.md`
 
 ### 数据新鲜度守门
 
@@ -324,7 +326,15 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
 ```
 
-`2026-05-04` 是 A 股劳动节休市期间，交易日感知 gate 会先映射到最近目标交易日 `2026-04-30`。当前数据截止 `2026-04-03` 时仍然阻断；只有当数据真实覆盖到 `target_trading_date`，并且 feature snapshot、benchmark、数据质量检查和 freshness gate 都通过后，才能生成节假日期间观察报告。
+`2026-05-04` 是 A 股劳动节休市期间，交易日感知 gate 会先映射到最近目标交易日 `2026-04-30`。如果 `data_max_date`、`feature_max_date` 和 `benchmark_max_date` 都已经覆盖到 `target_trading_date`，则非交易日自然增加的 `stale_calendar_days` 只作为 warning，不作为硬阻断；硬门槛是目标交易日覆盖和 `stale_trading_days`。
+
+数据覆盖目标交易日时正确动作：
+
+- `allowed_actions: observation_report_allowed`。
+- `blocking_reason: NONE`。
+- `calendar_staleness_blocking: false`。
+- 输出 `reports/observation/<as_of_date>/observation_summary.md`。
+- 非交易日 summary 必须包含 `MARKET_CLOSED_AS_OF_DATE`，并明确只允许下一交易日人工复核，不自动下单。
 
 数据 stale 时正确动作：
 
@@ -343,7 +353,7 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
   --compare-conservative true
 ```
 
-全流程会先验证 RC，再检查报告 freshness，再检查数据 freshness。任何 `RC_VERIFY_FAIL`、`REPORT_STALE_OR_CONFLICTING` 或 `STALE_DATA_BLOCKED` 都会阻断日度动作输出。通过时才生成：
+全流程会先验证 RC，再检查报告 freshness、release sync、一致性和数据 freshness。任何 `RC_VERIFY_FAIL`、`REPORT_STALE_OR_CONFLICTING`、`RELEASE_SYNC_CONSISTENCY_FAIL`、`STALE_DATA_BLOCKED` 或 `DATA_QUALITY_FAIL` 都会阻断日度动作输出。数据质量为 `WARN` 时可以生成观察报告，但报告必须列出 WARN 摘要并保留人工复核标记。通过时才生成：
 
 - `reports/observation/<as_of_date>/observation_summary.md`
 - `reports/observation/<as_of_date>/combined_v2_actions.csv`
@@ -354,6 +364,8 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `reports/observation/<as_of_date>/observation_run_manifest.json`
 
 `combined_v2_1_risk_guard` 只作为 conservative profile 并行观察，不替换 `combined_v2`。
+
+非交易日如果生成 `combined_v2_manual_order_list.csv`，它仍是本地人工复核产物，不是真实订单；每行必须标记 `NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY`、`auto_order_allowed=false`、`broker_connected=false`、`requires_human_review=true`，并继续由 `.gitignore` 保护。
 
 ### paper ledger
 

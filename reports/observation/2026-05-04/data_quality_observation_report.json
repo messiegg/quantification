@@ -1,0 +1,271 @@
+{
+  "requested_as_of_date": "2026-05-04",
+  "requested_as_of_is_trading_day": false,
+  "target_trading_date": "2026-04-30",
+  "target_trading_date_is_valid": true,
+  "calendar_source": "project_trade_calendar",
+  "calendar_min_date": "2015-01-05",
+  "calendar_max_date": "2026-04-30",
+  "calendar_market": "A_SHARE",
+  "status": "WARN",
+  "total_a_share_count": 5201,
+  "active_a_share_count": 5201,
+  "feature_rows_on_target_date": 5151,
+  "unique_stocks_on_target_date": 5151,
+  "core_field_missing_rates": {
+    "close": 0.0,
+    "ma20": 0.0,
+    "ma60": 0.0,
+    "ma120": 0.0,
+    "ma200": 0.0,
+    "ma250": 0.0,
+    "atr20": 0.0,
+    "pb": 0.002524,
+    "pe_ttm": 0.27451,
+    "roe": 0.007571,
+    "cfo_ttm": 0.011454,
+    "net_profit_ttm": 0.001941,
+    "dividend_yield_ttm": 0.0
+  },
+  "benchmark_row_exists_on_target_trading_date": true,
+  "benchmark_ma60_available": true,
+  "benchmark_ma200_available": true,
+  "stock_valuation_source_fields_exist": true,
+  "industry_valuation_source_fields_exist": true,
+  "effective_universe_file": "/Users/meseg/shu/stocks/quantile/data/curated/universe_history/2026-04-06.json",
+  "provider_health_date": "2026-04-30",
+  "provider_failure_count": 0,
+  "checks": [
+    {
+      "check_id": "STOCK-001",
+      "check_name": "total_a_share_count",
+      "status": "PASS",
+      "expected": "> 0",
+      "actual": 5201,
+      "evidence": "data/raw/stock_list.parquet",
+      "recommendation": "缺少股票列表时不能生成观察报告。"
+    },
+    {
+      "check_id": "STOCK-002",
+      "check_name": "active_a_share_count",
+      "status": "PASS",
+      "expected": "> 0",
+      "actual": 5201,
+      "evidence": "data/raw/stock_list.parquet",
+      "recommendation": "缺少活跃 A 股范围时不能生成观察报告。"
+    },
+    {
+      "check_id": "FEATURE-001",
+      "check_name": "feature_rows_on_target_date",
+      "status": "PASS",
+      "expected": "> 0",
+      "actual": 5151,
+      "evidence": "2026-04-30",
+      "recommendation": "目标交易日必须有特征行。"
+    },
+    {
+      "check_id": "FEATURE-002",
+      "check_name": "unique_stocks_on_target_date",
+      "status": "PASS",
+      "expected": "> 0",
+      "actual": 5151,
+      "evidence": "2026-04-30",
+      "recommendation": "目标交易日必须覆盖可交易股票。"
+    },
+    {
+      "check_id": "CORE-close",
+      "check_name": "close completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "close",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-ma20",
+      "check_name": "ma20 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "ma20",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-ma60",
+      "check_name": "ma60 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "ma60",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-ma120",
+      "check_name": "ma120 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "ma120",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-ma200",
+      "check_name": "ma200 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "ma200",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-ma250",
+      "check_name": "ma250 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "ma250",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-atr20",
+      "check_name": "atr20 completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "atr20",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-pb",
+      "check_name": "pb completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.002524,
+      "evidence": "stock_pb",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-pe_ttm",
+      "check_name": "pe_ttm completeness",
+      "status": "WARN",
+      "expected": "missing_rate within rule",
+      "actual": 0.27451,
+      "evidence": "stock_pe_ttm",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-roe",
+      "check_name": "roe completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.007571,
+      "evidence": "roe",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-cfo_ttm",
+      "check_name": "cfo_ttm completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.011454,
+      "evidence": "cfo_ttm",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-net_profit_ttm",
+      "check_name": "net_profit_ttm completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.001941,
+      "evidence": "net_profit_ttm_effective",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "CORE-dividend_yield_ttm",
+      "check_name": "dividend_yield_ttm completeness",
+      "status": "PASS",
+      "expected": "missing_rate within rule",
+      "actual": 0.0,
+      "evidence": "dv_ttm",
+      "recommendation": "核心字段缺失超过规则时阻断或降级观察。"
+    },
+    {
+      "check_id": "BENCH-001",
+      "check_name": "benchmark row exists on target_trading_date",
+      "status": "PASS",
+      "expected": "exists",
+      "actual": true,
+      "evidence": "2026-04-30",
+      "recommendation": "目标交易日必须有 benchmark 行。"
+    },
+    {
+      "check_id": "BENCH-002",
+      "check_name": "benchmark ma60 available",
+      "status": "PASS",
+      "expected": "available",
+      "actual": true,
+      "evidence": "2026-04-30",
+      "recommendation": "benchmark ma60 缺失时 market regime 不可靠。"
+    },
+    {
+      "check_id": "BENCH-003",
+      "check_name": "benchmark ma200 available",
+      "status": "PASS",
+      "expected": "available",
+      "actual": true,
+      "evidence": "2026-04-30",
+      "recommendation": "benchmark ma200 缺失时 market regime 不可靠。"
+    },
+    {
+      "check_id": "VAL-001",
+      "check_name": "stock valuation source fields exist",
+      "status": "PASS",
+      "expected": [
+        "stock_pb_q_blended",
+        "stock_pe_ttm_q_blended"
+      ],
+      "actual": true,
+      "evidence": "2026-04-30",
+      "recommendation": "估值 resolver 需要 stock source fields。"
+    },
+    {
+      "check_id": "VAL-002",
+      "check_name": "industry valuation source fields exist",
+      "status": "PASS",
+      "expected": [
+        "industry_pb_q_blended",
+        "industry_pe_ttm_q_blended"
+      ],
+      "actual": true,
+      "evidence": "2026-04-30",
+      "recommendation": "估值 resolver 需要 industry source fields。"
+    },
+    {
+      "check_id": "UNIVERSE-001",
+      "check_name": "effective universe available for target_trading_date",
+      "status": "PASS",
+      "expected": "available",
+      "actual": "/Users/meseg/shu/stocks/quantile/data/curated/universe_history/2026-04-06.json",
+      "evidence": "2026-04-30",
+      "recommendation": "目标交易日必须能找到有效股票池。"
+    },
+    {
+      "check_id": "PROVIDER-001",
+      "check_name": "latest provider health date",
+      "status": "PASS",
+      "expected": "present",
+      "actual": "2026-04-30",
+      "evidence": "provider_health/latest.json",
+      "recommendation": "provider health 缺失时降级为 WARN 并显式记录。"
+    },
+    {
+      "check_id": "PROVIDER-002",
+      "check_name": "provider failures",
+      "status": "PASS",
+      "expected": "0",
+      "actual": 0,
+      "evidence": "provider_health/latest.json",
+      "recommendation": "存在 provider 失败时继续人工审阅数据质量。"
+    }
+  ]
+}

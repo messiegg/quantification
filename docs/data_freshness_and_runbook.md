@@ -25,10 +25,19 @@
 - `data_quality_date`
 - `stale_calendar_days`
 - `stale_trading_days`
+- `max_stale_calendar_days`
+- `max_stale_trading_days`
+- `calendar_staleness_policy`
+- `calendar_staleness_blocking`
+- `calendar_staleness_warning`
 - `require_data_max_date_ge_target_trading_date`
 - `is_data_current_for_target_trading_date`
+- `is_data_current`
 - `blocking_reason`
+- `warnings`
 - `allowed_actions`
+- `market_closed_as_of_date`
+- `non_trading_day_action`
 
 ## 阻断规则
 
@@ -47,18 +56,22 @@ freshness gate 先把 `requested_as_of_date` 映射到 `target_trading_date`。�
 
 如果 `feature_max_date` 或 `benchmark_max_date` 早于目标交易日，也会阻断。`stale_trading_days > max_stale_trading_days_for_daily_report` 时会输出 `STALE_TRADING_DAYS_EXCEED_LIMIT`。缺少 provider health 或 data quality 是 `WARN`，报告必须显式说明。
 
-非交易日请求在数据覆盖到目标交易日且质量检查通过时，可以生成节假日期间观察报告；报告必须标记 `MARKET_CLOSED_AS_OF_DATE`，所有动作只能作为下一交易日人工复盘，不能写成当日实盘执行。
+非交易日请求在数据覆盖到目标交易日，且 `stale_trading_days <= max_stale_trading_days_for_daily_report` 时，以交易日新鲜度作为硬门槛。休市期间自然增加的 `stale_calendar_days` 只写入 `warnings`，例如 `STALE_CALENDAR_DAYS_EXCEED_LIMIT_NON_TRADING_DAY_WARN`，不得单独阻断观察报告。报告必须标记 `MARKET_CLOSED_AS_OF_DATE`，所有动作只能作为下一交易日人工复盘，不能写成当日实盘执行。
 
 ## 当前 2026-05-04 状态
 
-2026-05-04 是劳动节休市期间，`target_trading_date` 应解析为 `2026-04-30`。当前 RC 历史数据截止 `2026-04-03`。在数据没有真实更新到 `2026-04-30` 并通过 freshness / quality gate 前，不能生成 `2026-05-04` 的观察日报，也不能生成手工执行清单。
+2026-05-04 是劳动节休市期间，`target_trading_date` 应解析为 `2026-04-30`。当 `data_max_date`、`feature_max_date`、`benchmark_max_date` 都已经覆盖到 `2026-04-30` 时，freshness gate 应输出：
 
 正确行为是：
 
 - 生成 `reports/observation/2026-05-04/data_freshness_report.md`
-- 生成 `reports/observation/2026-05-04/observation_blocked.md`
+- `allowed_actions: observation_report_allowed`
+- `blocking_reason: NONE`
+- `calendar_staleness_blocking: false`
+- `warnings` 包含非交易日 calendar staleness 提示
+- 生成 `reports/observation/2026-05-04/observation_summary.md`
 - 生成 `reports/observation/2026-05-04/observation_run_manifest.json`
-- 不生成 `combined_v2_manual_order_list.csv`
+- 如果生成 `combined_v2_manual_order_list.csv`，只能作为下一交易日人工复核清单，且必须标记 `NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY`、`auto_order_allowed=false`、`requires_human_review=true`
 
 ## 全流程
 
@@ -72,6 +85,7 @@ freshness gate 先把 `requested_as_of_date` 映射到 `target_trading_date`。�
 ./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --preflight-only --write-report
 ./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/run_observation_pipeline.py --as-of-date 2026-05-04 --profile combined_v2 --mode paper --compare-conservative true
+./.venv/bin/python scripts/check_observation_gate_consistency.py --as-of-date 2026-05-04
 ```
 
 即使 freshness gate 通过，输出仍是手工观察和手工执行参考，不是自动交易。

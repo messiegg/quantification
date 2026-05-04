@@ -263,6 +263,12 @@ def build_data_freshness_report(
         if max_stale_trading_days is not None
         else obs_cfg.get("max_stale_trading_days_for_daily_report", 0)
     )
+    calendar_policy = str(
+        obs_cfg.get(
+            "calendar_staleness_policy",
+            "WARN_ONLY_WHEN_MARKET_CLOSED_AND_TARGET_CURRENT",
+        )
+    )
     require_target_ge = bool(obs_cfg.get("require_data_max_date_ge_target_trading_date", obs_cfg.get("require_data_max_date_ge_as_of_date", True)))
     market = str(obs_cfg.get("calendar_market", "A_SHARE"))
     target_info = resolve_target_trading_date(
@@ -285,36 +291,53 @@ def build_data_freshness_report(
 
     critical_dates = [date for date in (feature_date, benchmark_date) if date is not None]
     data_max_date = min(critical_dates) if critical_dates else manifest_data_date
-    blocking: list[str] = []
+    target_coverage_blocking: list[str] = []
+    trading_day_blocking: list[str] = []
+    calendar_day_blocking: list[str] = []
     warnings: list[str] = []
     if feature_date is None:
-        blocking.append("MISSING_FEATURE_SNAPSHOT")
+        target_coverage_blocking.append("MISSING_FEATURE_SNAPSHOT")
     if benchmark_date is None:
-        blocking.append("MISSING_BENCHMARK")
+        target_coverage_blocking.append("MISSING_BENCHMARK")
     if provider_date is None:
         warnings.append("MISSING_PROVIDER_HEALTH")
     if quality_date is None:
         warnings.append("MISSING_DATA_QUALITY")
     if target_date is None:
-        blocking.append("TARGET_TRADING_DATE_UNRESOLVED")
+        target_coverage_blocking.append("TARGET_TRADING_DATE_UNRESOLVED")
     elif not bool(target_info.get("target_trading_date_is_valid", bool(target_info.get("target_trading_date")))):
-        blocking.append("TARGET_TRADING_DATE_UNRESOLVED")
+        target_coverage_blocking.append("TARGET_TRADING_DATE_UNRESOLVED")
     if data_max_date is None:
-        blocking.append("MISSING_DATA_MAX_DATE")
+        target_coverage_blocking.append("MISSING_DATA_MAX_DATE")
     elif require_target_ge and target_date is not None and data_max_date < target_date:
-        blocking.append("DATA_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
+        target_coverage_blocking.append("DATA_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
     if feature_date is not None and require_target_ge and target_date is not None and feature_date < target_date:
-        blocking.append("FEATURE_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
+        target_coverage_blocking.append("FEATURE_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
     if benchmark_date is not None and require_target_ge and target_date is not None and benchmark_date < target_date:
-        blocking.append("BENCHMARK_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
+        target_coverage_blocking.append("BENCHMARK_MAX_DATE_BEFORE_TARGET_TRADING_DATE")
     stale_days = None if data_max_date is None else int((requested - data_max_date).days)
     gap_trading_dates = trading_dates_between(data_max_date, target_date, market=market, observation_config=obs_cfg)
     stale_trading_days = None if data_max_date is None or target_date is None else len(gap_trading_dates)
-    if stale_days is not None and stale_days > max_stale:
-        blocking.append("STALE_CALENDAR_DAYS_EXCEED_LIMIT")
     if stale_trading_days is not None and stale_trading_days > max_stale_trading:
-        blocking.append("STALE_TRADING_DAYS_EXCEED_LIMIT")
+        trading_day_blocking.append("STALE_TRADING_DAYS_EXCEED_LIMIT")
 
+    market_closed = not bool(target_info.get("requested_as_of_is_trading_day"))
+    target_current = not target_coverage_blocking and not trading_day_blocking
+    calendar_exceeded = bool(stale_days is not None and stale_days > max_stale)
+    calendar_warn_only = bool(
+        calendar_policy == "WARN_ONLY_WHEN_MARKET_CLOSED_AND_TARGET_CURRENT"
+        and market_closed
+        and target_current
+    )
+    calendar_staleness_warning = False
+    if calendar_exceeded:
+        if calendar_warn_only:
+            calendar_staleness_warning = True
+            warnings.append("STALE_CALENDAR_DAYS_EXCEED_LIMIT_NON_TRADING_DAY_WARN")
+        else:
+            calendar_day_blocking.append("STALE_CALENDAR_DAYS_EXCEED_LIMIT")
+
+    blocking = target_coverage_blocking + trading_day_blocking + calendar_day_blocking
     is_current = not blocking
     allowed = "observation_report_allowed" if is_current else "historical_review_only"
     report = {
@@ -332,15 +355,18 @@ def build_data_freshness_report(
         "missing_trading_dates": gap_trading_dates,
         "max_stale_calendar_days": max_stale,
         "max_stale_trading_days": max_stale_trading,
+        "calendar_staleness_policy": calendar_policy,
+        "calendar_staleness_blocking": bool(calendar_day_blocking),
+        "calendar_staleness_warning": calendar_staleness_warning,
         "require_data_max_date_ge_target_trading_date": require_target_ge,
-        "is_data_current_for_target_trading_date": is_current,
+        "is_data_current_for_target_trading_date": target_current,
         "is_data_current": is_current,
         "blocking_reason": "NONE" if is_current else "|".join(dict.fromkeys(blocking)),
         "warnings": warnings,
         "allowed_actions": allowed,
-        "market_closed_as_of_date": not bool(target_info.get("requested_as_of_is_trading_day")),
+        "market_closed_as_of_date": market_closed,
         "non_trading_day_action": obs_cfg.get("non_trading_day_action", "OBSERVATION_ONLY_NEXT_TRADING_DAY_REVIEW")
-        if not bool(target_info.get("requested_as_of_is_trading_day"))
+        if market_closed
         else "",
     }
     if write_report:
@@ -362,6 +388,11 @@ def build_data_freshness_report(
             f"- data_quality_date: {report['data_quality_date'] or '缺失'}",
             f"- stale_calendar_days: {report['stale_calendar_days']}",
             f"- stale_trading_days: {report['stale_trading_days']}",
+            f"- max_stale_calendar_days: {report['max_stale_calendar_days']}",
+            f"- max_stale_trading_days: {report['max_stale_trading_days']}",
+            f"- calendar_staleness_policy: {report['calendar_staleness_policy']}",
+            f"- calendar_staleness_blocking: {str(report['calendar_staleness_blocking']).lower()}",
+            f"- calendar_staleness_warning: {str(report['calendar_staleness_warning']).lower()}",
             f"- require_data_max_date_ge_target_trading_date: {str(report['require_data_max_date_ge_target_trading_date']).lower()}",
             f"- is_data_current_for_target_trading_date: {str(report['is_data_current_for_target_trading_date']).lower()}",
             f"- blocking_reason: {report['blocking_reason']}",
