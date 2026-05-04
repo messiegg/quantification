@@ -1,6 +1,7 @@
 file_path,check_name,status,matched_text,recommendation
 ,old_rating_residue_absent,PASS,,未发现未隔离的旧 WARN 或旧评级句子。
 ,old_attribution_residue_absent,PASS,,未发现旧 signal/regime attribution 行。
+,release_sync_stale_residue_absent,PASS,,未发现 release sync 提交前状态残留。
 reports/backtest/attribution/combined_v2_attribution_report.md,required_section:entry signal attribution,PASS,entry signal attribution,combined_v2_attribution_report.md 必须保留新版归因章节。
 reports/backtest/attribution/combined_v2_attribution_report.md,required_section:exit signal attribution,PASS,exit signal attribution,combined_v2_attribution_report.md 必须保留新版归因章节。
 reports/backtest/attribution/combined_v2_attribution_report.md,required_section:entry-exit pair attribution,PASS,entry-exit pair attribution,combined_v2_attribution_report.md 必须保留新版归因章节。

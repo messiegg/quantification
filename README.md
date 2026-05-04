@@ -286,6 +286,12 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/check_report_freshness.py
 ```
 
+检查 observation 发布同步报告是否仍含提交前状态残留：
+
+```bash
+./.venv/bin/python scripts/check_release_sync_consistency.py
+```
+
 关键输出：
 
 - `reports/backtest/release/combined_v2_rc_verify.csv`
@@ -293,6 +299,11 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `reports/backtest/release/combined_v2_rc_code_manifest.json`
 - `reports/backtest/audit/stale_report_check.csv`
 - `reports/backtest/audit/stale_report_check.md`
+- `reports/backtest/release/observation_sync_check.csv`
+- `reports/backtest/release/observation_sync_check.md`
+- `reports/backtest/release/observation_release_sync_summary.md`
+- `reports/backtest/release/release_sync_consistency_check.csv`
+- `reports/backtest/release/release_sync_consistency_check.md`
 
 ### 数据新鲜度守门
 

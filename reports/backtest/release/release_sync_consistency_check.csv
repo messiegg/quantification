@@ -1,0 +1,25 @@
+check_id,check_name,status,expected,actual,evidence,recommendation
+SYNC-MD-001,observation_sync_check.md stale phrase absent,PASS,absent: ADD_TO_GIT: 25,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.md,重新生成 observation_sync_check.md，确保报告来自当前 Git 跟踪状态。
+SYNC-MD-002,observation_sync_check.md stale phrase absent,PASS,absent: tracked=False | 发布和复现所需文件,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.md,重新生成 observation_sync_check.md，确保报告来自当前 Git 跟踪状态。
+SYNC-MD-003,observation_sync_check.md stale phrase absent,PASS,absent: 当前未跟踪，需要 git add,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.md,重新生成 observation_sync_check.md，确保报告来自当前 Git 跟踪状态。
+SYNC-MD-004,observation_sync_check.md stale phrase absent,PASS,absent: INVESTIGATE,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.md,重新生成 observation_sync_check.md，确保报告来自当前 Git 跟踪状态。
+SUMMARY-MD-001,observation_release_sync_summary.md old conclusion absent,PASS,absent: 报告生成时尚未提交,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SUMMARY-MD-002,observation_release_sync_summary.md old conclusion absent,PASS,absent: 报告生成时尚未 push,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SUMMARY-MD-003,observation_release_sync_summary.md old conclusion absent,PASS,absent: 存在 untracked 文件: True,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SUMMARY-MD-004,observation_release_sync_summary.md old conclusion absent,PASS,absent: 存在未暂存修改: True,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SUMMARY-MD-005,observation_release_sync_summary.md old conclusion absent,PASS,absent: 当前 HEAD commit: 6d16a186,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SUMMARY-MD-006,observation_release_sync_summary.md old conclusion absent,PASS,absent: 需要执行: git push origin codex/combined-v2-rc-release,absent,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_release_sync_summary.md,刷新发布同步总结，避免提交前状态结论进入发布分支。
+SYNC-CSV-ADD_TO_GIT,observation_sync_check.csv ADD_TO_GIT count,PASS,0,0,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.csv,当前发布同步报告不得要求补 git add 或人工调查。
+SYNC-CSV-INVESTIGATE,observation_sync_check.csv INVESTIGATE count,PASS,0,0,/Users/meseg/shu/stocks/quantile/reports/backtest/release/observation_sync_check.csv,当前发布同步报告不得要求补 git add 或人工调查。
+SYNC-CSV-LEDGER-paper_account,data/observation/paper_account.yml action,PASS,IGNORE_LOCAL_ONLY,IGNORE_LOCAL_ONLY,data/observation/paper_account.yml,真实 paper ledger 必须保持本地忽略，不进入公开提交。
+SYNC-CSV-LEDGER-paper_trades,data/observation/paper_trades.csv action,PASS,IGNORE_LOCAL_ONLY,IGNORE_LOCAL_ONLY,data/observation/paper_trades.csv,真实 paper ledger 必须保持本地忽略，不进入公开提交。
+SYNC-CSV-LEDGER-paper_positions,data/observation/paper_positions.yml action,PASS,IGNORE_LOCAL_ONLY,IGNORE_LOCAL_ONLY,data/observation/paper_positions.yml,真实 paper ledger 必须保持本地忽略，不进入公开提交。
+SYNC-CSV-TRACKED-observation.yml,config/observation.yml action,PASS,KEEP_TRACKED,KEEP_TRACKED,config/observation.yml,发布和复现所需文件必须保持 Git 跟踪。
+SYNC-CSV-TRACKED-verify_combined_v2_rc.py,scripts/verify_combined_v2_rc.py action,PASS,KEEP_TRACKED,KEEP_TRACKED,scripts/verify_combined_v2_rc.py,发布和复现所需文件必须保持 Git 跟踪。
+SYNC-CSV-TRACKED-run_observation_pipeline.py,scripts/run_observation_pipeline.py action,PASS,KEEP_TRACKED,KEEP_TRACKED,scripts/run_observation_pipeline.py,发布和复现所需文件必须保持 Git 跟踪。
+SYNC-CSV-TRACKED-manual_observation_protocol.md,docs/manual_observation_protocol.md action,PASS,KEEP_TRACKED,KEEP_TRACKED,docs/manual_observation_protocol.md,发布和复现所需文件必须保持 Git 跟踪。
+SUMMARY-REQ-001,observation_release_sync_summary.md required current conclusion,PASS,present: STALE_DATA_BLOCKED,present,STALE_DATA_BLOCKED,发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。
+SUMMARY-REQ-002,observation_release_sync_summary.md required current conclusion,PASS,present: manual_order_list 未生成,present,manual_order_list 未生成,发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。
+SUMMARY-REQ-003,observation_release_sync_summary.md required current conclusion,PASS,present: RC verify: PASS,present,RC verify: PASS,发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。
+SUMMARY-REQ-004,observation_release_sync_summary.md required current conclusion,PASS,present: 不涉及策略变更,present,不涉及策略变更,发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。
+SUMMARY-REQ-005,observation_release_sync_summary.md required current conclusion,PASS,present: 不允许生成 2026-05-04 手工订单,present,不允许生成 2026-05-04 手工订单,发布同步总结必须保留 stale data 阻断、RC PASS 和禁止手工订单结论。

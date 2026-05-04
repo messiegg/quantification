@@ -1,32 +1,37 @@
 file_path,exists_local,tracked_by_git,ignored_by_git,should_track,should_ignore,action,reason
 .gitignore,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 README.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
-config/observation.yml,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-data/observation/.gitkeep,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-data/observation/paper_account.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
-data/observation/paper_positions.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
-data/observation/paper_trades.csv,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
-docs/combined_v2_rc_acceptance.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-docs/data_freshness_and_runbook.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-docs/manual_observation_protocol.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-fixtures/observation/paper_account.example.yml,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-fixtures/observation/paper_positions.example.yml,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-fixtures/observation/paper_trades.example.csv,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/audit/stale_report_check.csv,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/audit/stale_report_check.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/release/combined_v2_rc_code_manifest.json,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/release/combined_v2_rc_verify.csv,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/release/combined_v2_rc_verify.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/release/observation_sync_check.csv,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/backtest/release/observation_sync_check.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/observation/2026-05-04/data_freshness_report.json,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/observation/2026-05-04/data_freshness_report.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/observation/2026-05-04/observation_blocked.md,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-reports/observation/2026-05-04/observation_run_manifest.json,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-scripts/check_data_freshness.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-scripts/check_report_freshness.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-scripts/run_observation_pipeline.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-scripts/update_paper_observation.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-scripts/verify_combined_v2_rc.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
-tests/test_observation_pipeline.py,True,False,False,True,False,ADD_TO_GIT,发布和复现所需文件，当前未跟踪，需要 git add。
+config/observation.yml,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+data/observation/.gitkeep,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+docs/combined_v2_rc_acceptance.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+docs/data_freshness_and_runbook.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+docs/manual_observation_protocol.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+fixtures/observation/paper_account.example.yml,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+fixtures/observation/paper_positions.example.yml,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+fixtures/observation/paper_trades.example.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/audit/stale_report_check.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/audit/stale_report_check.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/combined_v2_rc_code_manifest.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/combined_v2_rc_verify.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/combined_v2_rc_verify.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/observation_release_sync_summary.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/observation_sync_check.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/observation_sync_check.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/release_sync_consistency_check.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/backtest/release/release_sync_consistency_check.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/data_freshness_report.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/data_freshness_report.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_blocked.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_run_manifest.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/check_data_freshness.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/check_release_sync_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/check_report_freshness.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/run_observation_pipeline.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/update_paper_observation.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/verify_combined_v2_rc.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+tests/test_observation_pipeline.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 tests/test_release_candidate_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+tests/test_release_sync_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+data/observation/paper_account.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
+data/observation/paper_trades.csv,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
+data/observation/paper_positions.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。

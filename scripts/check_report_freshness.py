@@ -24,7 +24,7 @@ DEFAULT_SCAN_GLOBS = [
 ]
 DEFAULT_CSV = "reports/backtest/audit/stale_report_check.csv"
 DEFAULT_MD = "reports/backtest/audit/stale_report_check.md"
-EXCLUDED_NAMES = {"stale_report_check.md"}
+EXCLUDED_NAMES = {"stale_report_check.md", "release_sync_consistency_check.md"}
 
 OLD_RATING_PATTERNS = [
     "最终评级: WARN",
@@ -45,6 +45,16 @@ REQUIRED_ATTRIBUTION_SECTIONS = [
     "entry-exit pair attribution",
     "trade realization regime attribution",
     "daily MTM regime attribution",
+]
+RELEASE_SYNC_STALE_PATTERNS = [
+    "ADD_TO_GIT: 25",
+    "tracked=False | 发布和复现所需文件",
+    "当前未跟踪，需要 git add",
+    "报告生成时尚未提交",
+    "报告生成时尚未 push",
+    "存在 untracked 文件: True",
+    "存在未暂存修改: True",
+    "当前 HEAD commit: 6d16a186",
 ]
 
 
@@ -93,6 +103,7 @@ def build_report_freshness_check(
     rows: list[dict] = []
     rating_matches = 0
     attribution_matches = 0
+    release_sync_matches = 0
     files = _scan_files(globs)
 
     for path in files:
@@ -127,11 +138,26 @@ def build_report_freshness_check(
                         else "刷新归因报告，使用 entry/exit/pair 和 daily MTM regime 口径。",
                     )
                 )
+        if path.name in {"observation_sync_check.md", "observation_release_sync_summary.md"}:
+            for pattern in RELEASE_SYNC_STALE_PATTERNS:
+                if pattern in text:
+                    release_sync_matches += 1
+                    rows.append(
+                        _row(
+                            rel,
+                            "release_sync_stale_residue",
+                            "FAIL",
+                            pattern,
+                            "刷新 release sync 报告，禁止把提交前 tracked/untracked/push 状态作为发布结论。",
+                        )
+                    )
 
     if rating_matches == 0:
         rows.append(_row("", "old_rating_residue_absent", "PASS", "", "未发现未隔离的旧 WARN 或旧评级句子。"))
     if attribution_matches == 0:
         rows.append(_row("", "old_attribution_residue_absent", "PASS", "", "未发现旧 signal/regime attribution 行。"))
+    if release_sync_matches == 0:
+        rows.append(_row("", "release_sync_stale_residue_absent", "PASS", "", "未发现 release sync 提交前状态残留。"))
 
     attribution_path = resolve_path("reports/backtest/attribution/combined_v2_attribution_report.md")
     if attribution_path.exists():
