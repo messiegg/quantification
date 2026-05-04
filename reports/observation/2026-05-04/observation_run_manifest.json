@@ -1,13 +1,17 @@
 {
   "as_of_date": "2026-05-04",
-  "run_time": "2026-05-04T10:25:02.452353+00:00",
+  "run_time": "2026-05-04T11:32:09.953873+00:00",
   "profile": "combined_v2",
   "mode": "paper",
   "conservative_profile": "combined_v2_1_risk_guard",
   "data_freshness_status": "FAIL",
   "rc_verify_status": "PASS",
   "stale_report_check_status": "PASS",
+  "release_sync_consistency_status": "PASS",
+  "data_quality_status": "SKIPPED",
   "action_allowed": false,
+  "target_trading_date": "2026-04-30",
+  "requested_as_of_is_trading_day": false,
   "generated_files": [
     "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md",
     "/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/data_freshness_report.md"

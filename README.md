@@ -292,6 +292,13 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/check_release_sync_consistency.py
 ```
 
+交易日感知数据新鲜度与安全更新计划：
+
+```bash
+./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
+```
+
 关键输出：
 
 - `reports/backtest/release/combined_v2_rc_verify.csv`
@@ -304,6 +311,8 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - `reports/backtest/release/observation_release_sync_summary.md`
 - `reports/backtest/release/release_sync_consistency_check.csv`
 - `reports/backtest/release/release_sync_consistency_check.md`
+- `reports/data_update/2026-05-04/market_data_update_plan.md`
+- `reports/data_update/2026-05-04/market_data_update_plan.json`
 
 ### 数据新鲜度守门
 
@@ -312,6 +321,7 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ```
 
 当前数据截止 `2026-04-03` 时，不能生成 `2026-05-04` 的实盘观察日报。只有当数据真实更新到目标 `as_of_date`，并且 `data_max_date >= as_of_date`、feature snapshot、benchmark 和 freshness gate 都通过后，才能生成当天观察报告。
+`2026-05-04` 是 A 股劳动节休市期间，交易日感知 gate 会先映射到最近目标交易日 `2026-04-30`。当前数据截止 `2026-04-03` 时仍然阻断；只有当数据真实覆盖到 `target_trading_date`，并且 feature snapshot、benchmark、数据质量检查和 freshness gate 都通过后，才能生成节假日期间观察报告。
 
 数据 stale 时正确动作：
 

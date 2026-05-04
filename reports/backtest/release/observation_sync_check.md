@@ -2,7 +2,7 @@
 
 ## 摘要
 
-- KEEP_TRACKED: 33
+- KEEP_TRACKED: 39
 - IGNORE_LOCAL_ONLY: 3
 
 ## 明细
@@ -31,15 +31,21 @@
 - KEEP_TRACKED | reports/observation/2026-05-04/data_freshness_report.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/observation/2026-05-04/observation_blocked.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/observation/2026-05-04/observation_run_manifest.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/data_update/2026-05-04/market_data_update_plan.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/data_update/2026-05-04/market_data_update_plan.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | scripts/check_data_quality_for_observation.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/check_data_freshness.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/check_release_sync_consistency.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/check_report_freshness.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/run_observation_pipeline.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | scripts/update_market_data_safe.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/update_paper_observation.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/verify_combined_v2_rc.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | tests/test_data_freshness_trading_calendar.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | tests/test_observation_pipeline.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | tests/test_release_candidate_consistency.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | tests/test_release_sync_consistency.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | tests/test_safe_data_update.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - IGNORE_LOCAL_ONLY | data/observation/paper_account.yml | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
 - IGNORE_LOCAL_ONLY | data/observation/paper_trades.csv | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。
 - IGNORE_LOCAL_ONLY | data/observation/paper_positions.yml | exists=True | ignored=True | 真实纸面账本是本地持续变化产物，不提交公开仓库。

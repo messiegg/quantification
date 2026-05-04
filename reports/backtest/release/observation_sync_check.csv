@@ -23,15 +23,21 @@ reports/observation/2026-05-04/data_freshness_report.json,True,True,False,True,F
 reports/observation/2026-05-04/data_freshness_report.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/observation/2026-05-04/observation_blocked.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/observation/2026-05-04/observation_run_manifest.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/data_update/2026-05-04/market_data_update_plan.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/data_update/2026-05-04/market_data_update_plan.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/check_data_quality_for_observation.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/check_data_freshness.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/check_release_sync_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/check_report_freshness.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/run_observation_pipeline.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+scripts/update_market_data_safe.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/update_paper_observation.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/verify_combined_v2_rc.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+tests/test_data_freshness_trading_calendar.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 tests/test_observation_pipeline.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 tests/test_release_candidate_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 tests/test_release_sync_consistency.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+tests/test_safe_data_update.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 data/observation/paper_account.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
 data/observation/paper_trades.csv,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。
 data/observation/paper_positions.yml,True,False,True,False,True,IGNORE_LOCAL_ONLY,真实纸面账本是本地持续变化产物，不提交公开仓库。

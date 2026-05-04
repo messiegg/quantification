@@ -1,7 +1,7 @@
 # release sync consistency check
 
 - overall_status: PASS
-- generated_at: 2026-05-04T10:30:50.307083+00:00
+- generated_at: 2026-05-04T11:36:49.869073+00:00
 - fail_count: 0
 - warn_count: 0
 

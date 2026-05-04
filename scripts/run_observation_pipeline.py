@@ -14,6 +14,8 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.check_data_freshness import build_data_freshness_report
+from scripts.check_data_quality_for_observation import build_data_quality_observation_report
+from scripts.check_release_sync_consistency import build_release_sync_consistency_check
 from scripts.check_report_freshness import build_report_freshness_check
 from scripts.update_paper_observation import ensure_paper_observation_files
 from scripts.verify_combined_v2_rc import verify_release_candidate
@@ -83,14 +85,20 @@ def _remove_action_outputs(out_dir: Path) -> None:
             path.unlink()
 
 
-def _write_blocked(out_dir: Path, as_of_date: str, reason: str, freshness: dict | None = None) -> None:
+def _write_blocked(
+    out_dir: Path,
+    as_of_date: str,
+    reason: str,
+    freshness: dict | None = None,
+    data_quality: dict | None = None,
+) -> None:
     lines = [
         "# 观察期运行被阻断",
         "",
         f"- as_of_date: {as_of_date}",
         f"- blocking_reason: {reason}",
         "- action_allowed: false",
-        "- 只允许历史复盘，不允许生成当日实盘观察日报或手工订单清单。",
+        "- 只允许历史复盘，不允许生成实盘观察日报或手工订单清单。",
         "- 禁止自动下单，禁止连接券商，禁止把 LLM 输出用于 action_enum。",
     ]
     if freshness:
@@ -99,19 +107,25 @@ def _write_blocked(out_dir: Path, as_of_date: str, reason: str, freshness: dict 
                 "",
                 "## 数据状态",
                 "",
+                f"- target_trading_date: {freshness.get('target_trading_date', '')}",
+                f"- requested_as_of_is_trading_day: {str(freshness.get('requested_as_of_is_trading_day', '')).lower()}",
                 f"- data_max_date: {freshness.get('data_max_date', '')}",
                 f"- feature_max_date: {freshness.get('feature_max_date', '')}",
                 f"- benchmark_max_date: {freshness.get('benchmark_max_date', '')}",
                 f"- stale_calendar_days: {freshness.get('stale_calendar_days', '')}",
+                f"- stale_trading_days: {freshness.get('stale_trading_days', '')}",
                 f"- freshness_blocking_reason: {freshness.get('blocking_reason', '')}",
             ]
         )
+    if data_quality:
+        lines.extend(["", "## 数据质量", "", f"- data_quality_status: {data_quality.get('status', '')}"])
     (out_dir / "observation_blocked.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
-def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str) -> pd.DataFrame:
+def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str, non_trading_day: bool) -> pd.DataFrame:
     columns = [
         "date",
+        "as_of_date",
         "profile",
         "ts_code",
         "name",
@@ -123,6 +137,8 @@ def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str) -> 
         "next_bar_price",
         "amount",
         "human_required",
+        "review_scope",
+        "next_trading_day_manual_review_only",
         "source",
         "notes",
     ]
@@ -132,7 +148,8 @@ def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str) -> 
     for row in actions.to_dict(orient="records"):
         rows.append(
             {
-                "date": as_of_date,
+                "date": row.get("date", as_of_date),
+                "as_of_date": as_of_date,
                 "profile": profile,
                 "ts_code": row.get("ts_code", ""),
                 "name": row.get("name", ""),
@@ -144,8 +161,12 @@ def _manual_order_list(actions: pd.DataFrame, as_of_date: str, profile: str) -> 
                 "next_bar_price": row.get("price", 0),
                 "amount": row.get("amount", 0),
                 "human_required": True,
+                "review_scope": "next_trading_day_manual_review_only" if non_trading_day else "manual_review_only",
+                "next_trading_day_manual_review_only": bool(non_trading_day),
                 "source": "paper_observation_only",
-                "notes": "需要人工判断和人工执行；本仓库不连接券商、不自动下单。",
+                "notes": "MARKET_CLOSED_AS_OF_DATE；仅作为下一交易日人工复盘，不连接券商、不自动下单。"
+                if non_trading_day
+                else "需要人工检查和人工执行；本仓库不连接券商、不自动下单。",
             }
         )
     return pd.DataFrame(rows, columns=columns)
@@ -164,20 +185,31 @@ def _paper_state() -> tuple[float, int, float]:
     return cash, len(paper_positions), market_value
 
 
-def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, conservative_profile: str, compare_conservative: bool, freshness: dict) -> list[str]:
+def _generate_allowed_outputs(
+    out_dir: Path,
+    as_of_date: str,
+    profile: str,
+    conservative_profile: str,
+    compare_conservative: bool,
+    freshness: dict,
+    data_quality: dict,
+    allow_manual_order_list: bool,
+) -> list[str]:
     generated: list[str] = []
+    target_trading_date = str(freshness.get("target_trading_date") or as_of_date)
+    non_trading_day = not bool(freshness.get("requested_as_of_is_trading_day", True))
     funnel = _read_csv_optional("reports/backtest/combined_v2_signal_funnel.csv")
     blocked = _read_csv_optional("reports/backtest/combined_v2_blocked_signals.csv")
-    actions = _date_rows(_read_csv_optional("reports/backtest/combined_v2_trades_detailed.csv"), as_of_date)
-    guard_actions = _date_rows(_read_csv_optional("reports/backtest/v2_1/combined_v2_1_risk_guard_trades_detailed.csv"), as_of_date)
-    latest = _latest_row(funnel, as_of_date)
-    blocked_day = _date_rows(blocked, as_of_date)
+    actions = _date_rows(_read_csv_optional("reports/backtest/combined_v2_trades_detailed.csv"), target_trading_date)
+    guard_actions = _date_rows(_read_csv_optional("reports/backtest/v2_1/combined_v2_1_risk_guard_trades_detailed.csv"), target_trading_date)
+    latest = _latest_row(funnel, target_trading_date)
+    blocked_day = _date_rows(blocked, target_trading_date)
     blocked_counts = (
         blocked_day["reason_code"].value_counts().rename_axis("reason_code").reset_index(name="count")
         if not blocked_day.empty and "reason_code" in blocked_day.columns
         else pd.DataFrame(columns=["reason_code", "count"])
     )
-    manual_orders = _manual_order_list(actions, as_of_date, profile)
+    manual_orders = _manual_order_list(actions, as_of_date, profile, non_trading_day)
 
     action_path = out_dir / f"{profile}_actions.csv"
     blocked_path = out_dir / f"{profile}_blocked_signals.csv"
@@ -185,8 +217,10 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
     guard_path = out_dir / f"{conservative_profile}_actions.csv"
     actions.to_csv(action_path, index=False)
     blocked_day.to_csv(blocked_path, index=False)
-    manual_orders.to_csv(manual_path, index=False)
-    generated.extend([str(action_path), str(blocked_path), str(manual_path)])
+    generated.extend([str(action_path), str(blocked_path)])
+    if allow_manual_order_list:
+        manual_orders.to_csv(manual_path, index=False)
+        generated.append(str(manual_path))
     if compare_conservative:
         guard_actions.to_csv(guard_path, index=False)
         generated.append(str(guard_path))
@@ -219,6 +253,9 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
         "action_allowed": True,
         "auto_order_allowed": False,
         "data": freshness,
+        "data_quality": data_quality,
+        "target_trading_date": target_trading_date,
+        "market_closed_as_of_date": non_trading_day,
         "market_regime": latest.get("market_regime", ""),
         "max_total_exposure": latest.get("max_total_exposure", ""),
         "current_paper_exposure": paper_market_value / max(cash + paper_market_value, 1e-9),
@@ -229,7 +266,7 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
         "raw_sell_signals": latest.get("raw_sell_signal_count", ""),
         "executable_actions": len(actions),
         "blocked_reasons": blocked_summary,
-        "manual_order_list": str(manual_path),
+        "manual_order_list": str(manual_path) if allow_manual_order_list else "",
     }
     (out_dir / "observation_summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     generated.append(str(out_dir / "observation_summary.json"))
@@ -243,18 +280,44 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
         "- 数据 stale 阻断: 否。",
         "- RC verify: PASS。",
         "- report freshness: PASS。",
+        "- release sync consistency: PASS。",
         "- data freshness: PASS。",
+        f"- data quality: {data_quality.get('status', '')}。",
         "- 自动下单: 禁止。",
-        "",
-        "## 数据状态",
-        "",
-        f"- requested_as_of_date: {freshness.get('requested_as_of_date')}",
-        f"- data_max_date: {freshness.get('data_max_date')}",
-        f"- feature_max_date: {freshness.get('feature_max_date')}",
-        f"- benchmark_max_date: {freshness.get('benchmark_max_date')}",
-        f"- stale_calendar_days: {freshness.get('stale_calendar_days')}",
-        f"- blocking_reason: {freshness.get('blocking_reason')}",
-        "",
+    ]
+    if non_trading_day:
+        lines.extend(
+            [
+                "- MARKET_CLOSED_AS_OF_DATE。",
+                "- 所有动作只作为 next trading day manual review。",
+            ]
+        )
+    lines.extend(
+        [
+            "",
+            "## 数据状态",
+            "",
+            f"- requested_as_of_date: {freshness.get('requested_as_of_date')}",
+            f"- requested_as_of_is_trading_day: {str(freshness.get('requested_as_of_is_trading_day')).lower()}",
+            f"- target_trading_date: {freshness.get('target_trading_date')}",
+            f"- data_max_date: {freshness.get('data_max_date')}",
+            f"- feature_max_date: {freshness.get('feature_max_date')}",
+            f"- benchmark_max_date: {freshness.get('benchmark_max_date')}",
+            f"- stale_calendar_days: {freshness.get('stale_calendar_days')}",
+            f"- stale_trading_days: {freshness.get('stale_trading_days')}",
+            f"- blocking_reason: {freshness.get('blocking_reason')}",
+            "",
+            "## 数据质量",
+            "",
+            f"- data_quality_status: {data_quality.get('status', '')}",
+            f"- feature_rows_on_target_date: {data_quality.get('feature_rows_on_target_date', '')}",
+            f"- unique_stocks_on_target_date: {data_quality.get('unique_stocks_on_target_date', '')}",
+            f"- benchmark_row_exists_on_target_trading_date: {data_quality.get('benchmark_row_exists_on_target_trading_date', '')}",
+            "",
+        ]
+    )
+    lines.extend(
+        [
         "## combined_v2 当前状态",
         "",
         f"- market_regime: {summary['market_regime']}",
@@ -272,7 +335,8 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
         "",
         "- 只输出建议，需要人工判断和人工执行。",
         "- 不连接券商，不自动下单，不生成真实订单。",
-        f"- 文件: {manual_path}",
+        f"- 文件: {manual_path if allow_manual_order_list else '未生成'}",
+        "- review_scope: next_trading_day_manual_review_only。" if non_trading_day else "- review_scope: manual_review_only。",
         "",
         "## combined_v2_1_risk_guard 对照",
         "",
@@ -287,7 +351,8 @@ def _generate_allowed_outputs(out_dir: Path, as_of_date: str, profile: str, cons
         "- risk_off daily MTM 损失仍明显。",
         "- A 股风格切换可能削弱当前估值和 bucket 逻辑。",
         "- 手工观察期不得扩大仓位。",
-    ]
+        ]
+    )
     summary_path = out_dir / "observation_summary.md"
     summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
     generated.append(str(summary_path))
@@ -314,8 +379,15 @@ def run_observation_pipeline(
     rc_status = _status_from_frame(rc)
     stale = build_report_freshness_check()
     stale_status = _status_from_frame(stale)
+    release_sync = build_release_sync_consistency_check(write_report=False)
+    release_sync_status = _status_from_frame(release_sync)
     freshness = build_data_freshness_report(as_of_date, write_report=True)
     data_status = _blocking_status(freshness)
+    data_quality: dict = {}
+    data_quality_status = "SKIPPED"
+    if data_status == "PASS":
+        data_quality = build_data_quality_observation_report(as_of_date, write_report=True)
+        data_quality_status = str(data_quality.get("status", "FAIL"))
 
     generated: list[str] = []
     blocking_reason = "NONE"
@@ -326,16 +398,39 @@ def run_observation_pipeline(
     elif stale_status == "FAIL":
         blocking_reason = "REPORT_STALE_OR_CONFLICTING"
         action_allowed = False
+    elif release_sync_status == "FAIL":
+        blocking_reason = "RELEASE_SYNC_CONSISTENCY_FAIL"
+        action_allowed = False
     elif data_status == "FAIL" and not force_historical_review:
         blocking_reason = "STALE_DATA_BLOCKED"
+        action_allowed = False
+    elif data_quality_status == "FAIL":
+        blocking_reason = "DATA_QUALITY_FAIL"
         action_allowed = False
 
     if not action_allowed:
         _remove_action_outputs(out_dir)
-        _write_blocked(out_dir, as_of_date, blocking_reason, freshness)
+        _write_blocked(out_dir, as_of_date, blocking_reason, freshness, data_quality)
         generated.append(str(out_dir / "observation_blocked.md"))
     else:
-        generated.extend(_generate_allowed_outputs(out_dir, as_of_date, profile, conservative_profile, compare_conservative, freshness))
+        allow_manual_order_list = bool(
+            obs.get("generate_manual_order_list", True)
+            and obs.get("generate_manual_order_list_only_when_market_data_current", True)
+            and data_status == "PASS"
+            and data_quality_status in {"PASS", "WARN"}
+        )
+        generated.extend(
+            _generate_allowed_outputs(
+                out_dir,
+                as_of_date,
+                profile,
+                conservative_profile,
+                compare_conservative,
+                freshness,
+                data_quality,
+                allow_manual_order_list,
+            )
+        )
 
     manifest = {
         "as_of_date": as_of_date,
@@ -346,7 +441,11 @@ def run_observation_pipeline(
         "data_freshness_status": data_status,
         "rc_verify_status": rc_status,
         "stale_report_check_status": stale_status,
+        "release_sync_consistency_status": release_sync_status,
+        "data_quality_status": data_quality_status,
         "action_allowed": action_allowed,
+        "target_trading_date": freshness.get("target_trading_date", ""),
+        "requested_as_of_is_trading_day": freshness.get("requested_as_of_is_trading_day", None),
         "generated_files": generated + [str(out_dir / "data_freshness_report.md")],
         "blocking_reason": blocking_reason,
         "broker_connected": False,

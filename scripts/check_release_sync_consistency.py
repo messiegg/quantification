@@ -52,15 +52,21 @@ TRACKED_RELEASE_FILES = [
     "reports/observation/2026-05-04/data_freshness_report.md",
     "reports/observation/2026-05-04/observation_blocked.md",
     "reports/observation/2026-05-04/observation_run_manifest.json",
+    "reports/data_update/2026-05-04/market_data_update_plan.json",
+    "reports/data_update/2026-05-04/market_data_update_plan.md",
+    "scripts/check_data_quality_for_observation.py",
     "scripts/check_data_freshness.py",
     "scripts/check_release_sync_consistency.py",
     "scripts/check_report_freshness.py",
     "scripts/run_observation_pipeline.py",
+    "scripts/update_market_data_safe.py",
     "scripts/update_paper_observation.py",
     "scripts/verify_combined_v2_rc.py",
+    "tests/test_data_freshness_trading_calendar.py",
     "tests/test_observation_pipeline.py",
     "tests/test_release_candidate_consistency.py",
     "tests/test_release_sync_consistency.py",
+    "tests/test_safe_data_update.py",
 ]
 
 PAPER_LEDGER_FILES = [
@@ -297,6 +303,13 @@ def build_release_sync_summary(
     rc_status, metrics = _rc_verify_summary()
     manual_order_path = resolve_path("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
     modified = files_modified_by_refresh or [str(output_md)]
+    if pytest_result is None:
+        existing = resolve_path(output_md)
+        if existing.exists():
+            for line in existing.read_text(encoding="utf-8").splitlines():
+                if line.startswith("- pytest: ") and "待本轮" not in line:
+                    pytest_result = line.removeprefix("- pytest: ").strip()
+                    break
 
     lines = [
         "# observation 发布同步总结",

@@ -6,14 +6,27 @@ observation:
   allow_broker_connection: false
   allow_auto_order: false
   allow_llm_decision: false
+  calendar_market: A_SHARE
+  trading_calendar_source: auto
   max_stale_calendar_days_for_daily_report: 3
+  max_stale_trading_days_for_daily_report: 0
   require_data_max_date_ge_as_of_date: true
+  require_data_max_date_ge_target_trading_date: true
+  allow_non_trading_day_observation: true
+  non_trading_day_action: OBSERVATION_ONLY_NEXT_TRADING_DAY_REVIEW
+  generate_manual_order_list_only_when_market_data_current: true
   require_rc_verify_pass: true
   require_lookahead_pass: true
   require_report_consistency_pass: true
   generate_manual_order_list: true
   generate_paper_orders: true
   generate_real_orders: false
+  a_share_known_closed_dates:
+    - 2026-04-06
+    - 2026-05-01
+    - 2026-05-04
+    - 2026-05-05
+    - 2026-05-09
 
 manual_observation:
   initial_paper_capital: 200000
