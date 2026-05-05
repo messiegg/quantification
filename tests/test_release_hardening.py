@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 
 import pandas as pd
@@ -8,8 +9,10 @@ import pandas as pd
 from scripts import audit_config_consistency as config_audit
 from scripts import audit_data_freshness as freshness_audit
 from scripts import audit_universe_integrity as universe_audit
+from scripts import refresh_universe
 from scripts import run_release_guard as release_guard
 from scripts.run_backtest_sensitivity import classify_parameter_binding
+from src.pipeline.strict_data import build_market_cap_daily
 
 
 def _rules() -> dict:
@@ -66,6 +69,75 @@ def test_universe_market_cap_violation_fails() -> None:
     assert any(item["code"] == "HARD_FILTER_VIOLATION" for item in report["violations"])
 
 
+def test_universe_feature_enrichment_populates_hard_filter_results() -> None:
+    rules = _rules()
+    rules["floor_size"] = 1
+    rules["target_size"] = 1
+    rules["ceiling_size"] = 2
+    rules["core_required_fields"] = ["industry", "market_cap_billion", "avg_amount_60d_million", "pb"]
+    feature_frame = pd.DataFrame(
+        [
+            {
+                "symbol": "600000.sh",
+                "date": "2026-04-30",
+                "industry": "银行",
+                "market_cap_billion": 400.0,
+                "avg_amount_60d_million": 100.0,
+                "pb": 0.8,
+                "dv_ttm": 0.03,
+                "listed_days": 2000,
+                "is_a_share": True,
+                "is_st": False,
+            }
+        ]
+    )
+    report = universe_audit.build_universe_integrity_report(
+        write_report=False,
+        universe_payload={"as_of_date": "2026-04-30", "stocks": [_stock()]},
+        rules_payload=rules,
+        feature_frame=feature_frame,
+    )
+
+    assert report["status"] == "PASS"
+    constituent = report["constituents"][0]
+    assert constituent["pb"] == 0.8
+    assert constituent["missing_fields"] == []
+    assert any(item["field"] == "pb" and item["status"] == "PASS" for item in constituent["hard_filter_results"]["checks"])
+
+
+def test_universe_missing_feature_field_enters_missing_fields() -> None:
+    rules = _rules()
+    rules["floor_size"] = 1
+    rules["target_size"] = 1
+    rules["ceiling_size"] = 2
+    rules["core_required_fields"] = ["industry", "market_cap_billion", "avg_amount_60d_million", "pb"]
+    feature_frame = pd.DataFrame(
+        [
+            {
+                "symbol": "600000.sh",
+                "date": "2026-04-30",
+                "industry": "银行",
+                "market_cap_billion": 400.0,
+                "avg_amount_60d_million": 100.0,
+                "dv_ttm": 0.03,
+                "listed_days": 2000,
+                "is_a_share": True,
+                "is_st": False,
+            }
+        ]
+    )
+    report = universe_audit.build_universe_integrity_report(
+        write_report=False,
+        universe_payload={"as_of_date": "2026-04-30", "stocks": [_stock()]},
+        rules_payload=rules,
+        feature_frame=feature_frame,
+    )
+
+    assert report["status"] == "FAIL"
+    assert "pb" in report["constituents"][0]["missing_fields"]
+    assert "missing_pb" in report["constituents"][0]["failed_filters"]
+
+
 def test_manual_override_without_basis_fails() -> None:
     report = universe_audit.build_universe_integrity_report(
         write_report=False,
@@ -74,6 +146,25 @@ def test_manual_override_without_basis_fails() -> None:
     )
     assert report["status"] == "FAIL"
     assert any(item["code"] == "MANUAL_OVERRIDE_WITHOUT_BASIS" for item in report["violations"])
+
+
+def test_market_cap_daily_uses_100m_unit_conversion() -> None:
+    price = pd.DataFrame(
+        [{"code": "600000.sh", "date": "2026-04-30", "open": 10.0, "high": 10.0, "low": 10.0, "close": 20.0, "volume": 1, "amount": 1}]
+    )
+    shares = pd.DataFrame([{"symbol": "600000.sh", "date": "2026-04-30", "total_shares": 20_000_000_000, "float_shares": 10_000_000_000}])
+
+    frame = build_market_cap_daily(price, shares)
+
+    assert frame.loc[0, "market_cap_billion"] == 4000.0
+
+
+def test_refresh_universe_defaults_to_combined_v2_rules(monkeypatch) -> None:
+    monkeypatch.setattr(sys, "argv", ["refresh_universe.py"])
+
+    args = refresh_universe.parse_args()
+
+    assert args.universe_rules_config == "config/universe_rules_v2.yml"
 
 
 def test_runtime_stamp_tax_conflict_fails(monkeypatch) -> None:
@@ -184,3 +275,19 @@ def test_release_manifest_never_allows_auto_trading(monkeypatch, tmp_path: Path)
     assert payload["auto_trading_approved"] is False
     assert payload["broker_integration_enabled"] is False
     assert payload["llm_decision_allowed"] is False
+
+
+def test_release_guard_requires_ci_sensitivity_report(monkeypatch, tmp_path: Path) -> None:
+    report_path = tmp_path / "reports/backtest/robustness/sensitivity_report.json"
+    report_path.parent.mkdir(parents=True)
+    report_path.write_text(json.dumps({"status": "PASS", "mode": "full", "variants": []}), encoding="utf-8")
+
+    def fake_resolve(path: str | Path) -> Path:
+        candidate = Path(path)
+        return candidate if candidate.is_absolute() else tmp_path / candidate
+
+    monkeypatch.setattr(release_guard, "resolve_path", fake_resolve)
+    rows: list[dict] = []
+    release_guard._check_sensitivity(rows)
+
+    assert rows[0]["status"] == "FAIL"

@@ -57,10 +57,18 @@ def _write_json(path: Path, payload: dict) -> None:
     path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
 
 
-def test_run_release_guard_current_state_fails_closed_on_invalid_universe() -> None:
+def test_run_release_guard_fails_closed_on_invalid_universe(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    _patch_base_guard(monkeypatch, tmp_path)
+    monkeypatch.setattr(
+        guard,
+        "build_universe_integrity_report",
+        lambda *args, **kwargs: {"status": "FAIL", "violations": [{"code": "UNIVERSE_UNDER_FLOOR"}]},
+    )
+
     frame = guard.build_release_guard_report(ci=True, as_of_date="2026-05-04", write_report=False)
     universe = frame[frame["check_id"] == "RG-UNIVERSE-001"].iloc[0]
     assert universe["status"] == "FAIL"
+    assert guard._release_status_from_rows(frame) == "FAIL"
 
 
 def test_run_release_guard_fails_allowed_and_blocked_conflict(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:

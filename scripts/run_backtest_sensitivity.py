@@ -3,7 +3,10 @@ from __future__ import annotations
 
 import copy
 import argparse
+import signal
 import sys
+import time
+from contextlib import contextmanager
 from pathlib import Path
 
 import pandas as pd
@@ -30,6 +33,45 @@ from scripts.audit_common import (
 from scripts.run_backtest_compare import _generate_v2_history, _history_generation_start
 from scripts.report_metadata import metadata_header, stable_hash, status_from_children, write_json
 from src.utils.config import resolve_path
+
+
+CI_VARIANT_IDS = {
+    "current_v2",
+    "universe_large",
+    "defensive_valuation_strict",
+    "cyclical_pb_strict",
+    "holding_shorter",
+    "grid_tighter",
+    "position_conservative",
+}
+MODE_WINDOWS = {
+    "ci": ("2025-04-03", DEFAULT_END_DATE),
+    "full": (DEFAULT_START_DATE, DEFAULT_END_DATE),
+}
+MODE_TIMEOUT_SECONDS = {"ci": 240, "full": 1800}
+
+
+class VariantTimeoutError(TimeoutError):
+    pass
+
+
+@contextmanager
+def _variant_timeout(seconds: int):
+    if seconds <= 0:
+        yield
+        return
+    previous_handler = signal.getsignal(signal.SIGALRM)
+
+    def _handle_timeout(signum, frame):  # noqa: ANN001
+        raise VariantTimeoutError(f"variant exceeded timeout_seconds={seconds}")
+
+    signal.signal(signal.SIGALRM, _handle_timeout)
+    signal.alarm(int(seconds))
+    try:
+        yield
+    finally:
+        signal.alarm(0)
+        signal.signal(signal.SIGALRM, previous_handler)
 
 
 def _history_dir_has_json(path_like: str | Path) -> bool:
@@ -110,6 +152,17 @@ def _variants(configs: dict) -> list[dict]:
         strategy = copy.deepcopy(base_strategy)
         _set_positions(strategy, defensive, cyclical)
         variants.append({"variant_id": variant_id, "variant_group": "position_sizing", "changed_parameter": f"defensive={defensive}, cyclical={cyclical}", "strategy": strategy, "universe": copy.deepcopy(base_universe), "history_dir": V2_HISTORY_DIR, "regenerate_universe": False})
+    return variants
+
+
+def _select_variants(variants: list[dict], mode: str) -> list[dict]:
+    if mode == "ci":
+        selected = [variant for variant in variants if variant["variant_id"] in CI_VARIANT_IDS]
+        selected_ids = {variant["variant_id"] for variant in selected}
+        missing = sorted(CI_VARIANT_IDS - selected_ids)
+        if missing:
+            raise ValueError(f"CI sensitivity variant set missing variants: {missing}")
+        return selected
     return variants
 
 
@@ -246,8 +299,128 @@ def classify_parameter_binding(
     return "NON_BINDING", "UNKNOWN"
 
 
+def _output_paths(mode: str) -> dict[str, str]:
+    suffix = "" if mode == "ci" else "_full"
+    return {
+        "csv": f"reports/backtest/robustness/sensitivity_metrics{suffix}.csv",
+        "json": f"reports/backtest/robustness/sensitivity_report{suffix}.json",
+        "md": f"reports/backtest/robustness/sensitivity_report{suffix}.md",
+        "partial_json": f"reports/backtest/robustness/sensitivity_report{suffix}.partial.json",
+    }
+
+
+def _variant_config_hash(variant: dict, configs: dict) -> str:
+    return stable_hash(
+        {
+            "strategy": variant["strategy"],
+            "universe": variant["universe"],
+            "account": configs["account"],
+        }
+    )
+
+
+def _error_row(variant: dict, configs: dict, base_config_hash: str, error: str, elapsed_seconds: float) -> dict:
+    changed_params = [] if variant["variant_id"] == "current_v2" else [variant["changed_parameter"]]
+    variant_config_hash = _variant_config_hash(variant, configs)
+    return {
+        "variant_id": variant["variant_id"],
+        "variant_group": variant["variant_group"],
+        "changed_parameter": variant["changed_parameter"],
+        "changed_params": changed_params,
+        "base_config_hash": base_config_hash,
+        "variant_config_hash": variant_config_hash,
+        "candidate_count": 0,
+        "universe_count": 0,
+        "raw_buy_signal_count": 0,
+        "raw_sell_signal_count": 0,
+        "executable_buy_count": 0,
+        "executable_sell_count": 0,
+        "blocked_signal_count": 0,
+        "annual_return": None,
+        "cumulative_return": None,
+        "max_drawdown": None,
+        "sharpe": None,
+        "total_trades": 0,
+        "avg_daily_exposure": None,
+        "turnover": None,
+        "average_exposure": None,
+        "action_path_hash": "",
+        "position_path_hash": "",
+        "equity_curve_hash": "",
+        "changed_action_days_count": 0,
+        "changed_position_days_count": 0,
+        "changed_universe_days_count": 0,
+        "parameter_binding_status": "ERROR",
+        "non_binding_reason": "ERROR",
+        "variant_run_status": "ERROR",
+        "error": error,
+        "elapsed_seconds": round(elapsed_seconds, 3),
+    }
+
+
+def _write_partial_report(rows: list[dict], mode: str, start_date: str, end_date: str, timeout_seconds: int) -> None:
+    paths = _output_paths(mode)
+    frame = pd.DataFrame(rows)
+    if not frame.empty:
+        frame.to_csv(ensure_parent(paths["csv"]), index=False)
+    write_json(
+        paths["partial_json"],
+        {
+            **metadata_header(),
+            "status": "RUNNING",
+            "mode": mode,
+            "start_date": start_date,
+            "end_date": end_date,
+            "variant_timeout_seconds": timeout_seconds,
+            "completed_variant_count": len(rows),
+            "variants": rows,
+        },
+    )
+
+
+def _pct_or_missing(value: object) -> str:
+    try:
+        if pd.isna(value):
+            return "missing"
+        return pct(float(value))
+    except (TypeError, ValueError):
+        return "missing"
+
+
+def _float_or_none(value: object) -> float | None:
+    try:
+        if pd.isna(value):
+            return None
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _int_or_zero(value: object) -> int:
+    try:
+        if pd.isna(value):
+            return 0
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run combined_v2 parameter sensitivity checks.")
+    parser.add_argument(
+        "--mode",
+        choices=["ci", "full"],
+        default="full",
+        help="Sensitivity scope. ci runs a bounded core subset for release guard; full runs all variants.",
+    )
+    parser.add_argument("--start-date", default="", help="Override the mode's default backtest start date.")
+    parser.add_argument("--end-date", default="", help="Override the mode's default backtest end date.")
+    parser.add_argument(
+        "--variant-timeout-seconds",
+        type=int,
+        default=0,
+        help="Per-variant timeout. Defaults are mode-specific; 0 means use the mode default.",
+    )
     parser.add_argument(
         "--refresh-universe-history",
         action="store_true",
@@ -259,12 +432,18 @@ def main(argv: list[str] | None = None) -> int:
         help="Write a fail-closed sensitivity report for an attempted run that did not complete.",
     )
     args = parser.parse_args(argv)
+    paths = _output_paths(args.mode)
+    default_start, default_end = MODE_WINDOWS[args.mode]
+    start_date = args.start_date or default_start
+    end_date = args.end_date or default_end
+    timeout_seconds = args.variant_timeout_seconds or MODE_TIMEOUT_SECONDS[args.mode]
 
     if args.record_failed_run:
         baseline_annual, baseline_annual_source = _load_baseline_annual_return()
         payload = {
             **metadata_header(),
             "status": "FAIL",
+            "mode": args.mode,
             "failure_reason": args.record_failed_run,
             "base_config_hash": "",
             "baseline_annual_return": baseline_annual,
@@ -274,13 +453,14 @@ def main(argv: list[str] | None = None) -> int:
             "unknown_non_binding_count": 0,
             "variants": [],
         }
-        write_json("reports/backtest/robustness/sensitivity_report.json", payload)
-        ensure_parent("reports/backtest/robustness/sensitivity_report.md").write_text(
+        write_json(paths["json"], payload)
+        ensure_parent(paths["md"]).write_text(
             "\n".join(
                 [
                     "# 参数敏感性测试",
                     "",
                     "- sensitivity_status: FAIL",
+                    f"- mode: {args.mode}",
                     f"- failure_reason: {args.record_failed_run}",
                     "- full sensitivity run did not complete locally; release guard must fail closed.",
                     f"- baseline next_bar 年化: {pct(baseline_annual) if baseline_annual is not None else 'missing'}",
@@ -294,45 +474,68 @@ def main(argv: list[str] | None = None) -> int:
 
     configs = load_audit_configs()
     if args.refresh_universe_history or not _history_dir_has_json(V2_HISTORY_DIR):
-        prepare_v2_history(configs)
-    features = load_feature_window(DEFAULT_START_DATE, DEFAULT_END_DATE)
-    benchmark = load_benchmark_window(DEFAULT_START_DATE, DEFAULT_END_DATE)
-    variants = _variants(configs)
+        prepare_v2_history(configs, end_date=end_date, start_date=start_date)
+    features = load_feature_window(start_date, end_date)
+    benchmark = load_benchmark_window(start_date, end_date)
+    variants = _select_variants(_variants(configs), args.mode)
     needs_generation_features = any(
         variant["regenerate_universe"] and (args.refresh_universe_history or not _history_dir_has_json(variant["history_dir"]))
         for variant in variants
     )
     generation_features = None
     if needs_generation_features:
-        generation_start = _history_generation_start(BASELINE_HISTORY_DIR, DEFAULT_START_DATE, DEFAULT_END_DATE)
-        generation_features = load_feature_window(generation_start, DEFAULT_END_DATE, DEFAULT_FEATURES_FILE)
+        generation_start = _history_generation_start(BASELINE_HISTORY_DIR, start_date, end_date)
+        generation_features = load_feature_window(generation_start, end_date, DEFAULT_FEATURES_FILE)
 
     baseline_annual, baseline_annual_source = _load_baseline_annual_return()
-    rows = []
+    rows: list[dict] = []
     base_trace: dict | None = None
-    base_config_hash = ""
+    base_config_hash = _variant_config_hash(variants[0], configs) if variants else ""
     for variant in variants:
-        if variant["regenerate_universe"] and (args.refresh_universe_history or not _history_dir_has_json(variant["history_dir"])):
-            assert generation_features is not None
-            _generate_v2_history(generation_features, BASELINE_HISTORY_DIR, variant["history_dir"], variant["universe"], configs["metric_map"])
-        result = run_profile(
-            "combined_v2",
-            features,
-            benchmark,
-            configs,
-            execution_mode="next_bar",
-            historical_universe_dir=variant["history_dir"],
-            strategy_cfg=variant["strategy"],
-            universe_cfg=variant["universe"],
-        )
+        started = time.monotonic()
+        print(f"[sensitivity:{args.mode}] start {variant['variant_id']}", flush=True)
+        if variant["variant_id"] != "current_v2" and base_trace is None:
+            row = _error_row(
+                variant,
+                configs,
+                base_config_hash,
+                "base_trace_missing_after_current_v2_failure",
+                time.monotonic() - started,
+            )
+            rows.append(row)
+            _write_partial_report(rows, args.mode, start_date, end_date, timeout_seconds)
+            print(f"[sensitivity:{args.mode}] error {variant['variant_id']} base_trace_missing", flush=True)
+            continue
+        try:
+            with _variant_timeout(timeout_seconds):
+                if variant["regenerate_universe"] and (args.refresh_universe_history or not _history_dir_has_json(variant["history_dir"])):
+                    assert generation_features is not None
+                    _generate_v2_history(
+                        generation_features,
+                        BASELINE_HISTORY_DIR,
+                        variant["history_dir"],
+                        variant["universe"],
+                        configs["metric_map"],
+                    )
+                result = run_profile(
+                    "combined_v2",
+                    features,
+                    benchmark,
+                    configs,
+                    execution_mode="next_bar",
+                    historical_universe_dir=variant["history_dir"],
+                    strategy_cfg=variant["strategy"],
+                    universe_cfg=variant["universe"],
+                )
+        except Exception as exc:
+            row = _error_row(variant, configs, base_config_hash, f"{type(exc).__name__}: {exc}", time.monotonic() - started)
+            rows.append(row)
+            _write_partial_report(rows, args.mode, start_date, end_date, timeout_seconds)
+            print(f"[sensitivity:{args.mode}] error {variant['variant_id']} {type(exc).__name__}: {exc}", flush=True)
+            continue
+
         changed_params = [] if variant["variant_id"] == "current_v2" else [variant["changed_parameter"]]
-        variant_config_hash = stable_hash(
-            {
-                "strategy": variant["strategy"],
-                "universe": variant["universe"],
-                "account": configs["account"],
-            }
-        )
+        variant_config_hash = _variant_config_hash(variant, configs)
         trace = _result_trace(result, variant["history_dir"])
         if variant["variant_id"] == "current_v2":
             base_trace = trace
@@ -379,11 +582,16 @@ def main(argv: list[str] | None = None) -> int:
                 "changed_universe_days_count": changed_universe_days_count,
                 "parameter_binding_status": binding_status,
                 "non_binding_reason": binding_reason,
+                "variant_run_status": "PASS",
+                "error": "",
+                "elapsed_seconds": round(time.monotonic() - started, 3),
                 "baseline_annual_return": baseline_annual,
                 "baseline_annual_return_source": baseline_annual_source,
             }
         )
         rows.append(row)
+        _write_partial_report(rows, args.mode, start_date, end_date, timeout_seconds)
+        print(f"[sensitivity:{args.mode}] done {variant['variant_id']} binding={binding_status}", flush=True)
     frame = pd.DataFrame(rows)
     columns = [
         "variant_id",
@@ -415,32 +623,44 @@ def main(argv: list[str] | None = None) -> int:
         "changed_universe_days_count",
         "parameter_binding_status",
         "non_binding_reason",
+        "variant_run_status",
+        "error",
+        "elapsed_seconds",
         "benchmark_annual_return",
         "excess_annual_return",
         "defensive_pnl",
         "cyclical_pnl",
         "baseline_annual_return",
+        "baseline_annual_return_source",
     ]
     frame = frame.reindex(columns=columns)
-    frame.to_csv(ensure_parent("reports/backtest/robustness/sensitivity_metrics.csv"), index=False)
+    frame.to_csv(ensure_parent(paths["csv"]), index=False)
 
     non_current = frame[frame["variant_id"] != "current_v2"].copy()
-    positive_after_tighten = non_current[non_current["variant_id"].str.contains("strict|conservative|tighter")]["annual_return"].gt(0).all()
-    loose_drawdown_ok = non_current[non_current["variant_id"].str.contains("loose|aggressive|wider")]["max_drawdown"].ge(-0.18).all()
-    near_zero_count = int((non_current["annual_return"].abs() < 0.01).sum())
-    under_baseline_count = int((non_current["annual_return"] <= baseline_annual).sum()) if baseline_annual is not None else 0
+    annual_numeric = pd.to_numeric(non_current.get("annual_return", pd.Series(dtype=float)), errors="coerce")
+    drawdown_numeric = pd.to_numeric(non_current.get("max_drawdown", pd.Series(dtype=float)), errors="coerce")
+    positive_after_tighten = annual_numeric[non_current["variant_id"].str.contains("strict|conservative|tighter", na=False)].gt(0).all()
+    loose_drawdown_ok = drawdown_numeric[non_current["variant_id"].str.contains("loose|aggressive|wider", na=False)].ge(-0.18).all()
+    near_zero_count = int((annual_numeric.abs() < 0.01).sum())
+    under_baseline_count = int((annual_numeric <= baseline_annual).sum()) if baseline_annual is not None else 0
     overfit_risk = near_zero_count > len(non_current) / 2 or (baseline_annual is not None and under_baseline_count > len(non_current) / 2)
-    non_binding = non_current[non_current["parameter_binding_status"].isin(["NON_BINDING", "FAIL"])].copy()
+    non_binding = non_current[non_current["parameter_binding_status"].isin(["NON_BINDING", "FAIL", "ERROR"])].copy()
     unknown = non_current[non_current["non_binding_reason"] == "UNKNOWN"].copy()
+    errors = non_current[non_current["parameter_binding_status"] == "ERROR"].copy()
     all_core_non_binding = bool(
         not non_current.empty
-        and non_current["parameter_binding_status"].isin(["NON_BINDING", "FAIL"]).all()
+        and non_current["parameter_binding_status"].isin(["NON_BINDING", "FAIL", "ERROR"]).all()
     )
-    overall_status = "FAIL" if all_core_non_binding or not unknown.empty else "WARN" if not non_binding.empty else "PASS"
+    overall_status = "FAIL" if all_core_non_binding or not unknown.empty or not errors.empty else "WARN" if not non_binding.empty else "PASS"
     non_binding_parameters = sorted(set(non_binding["variant_group"].astype(str)))
     payload = {
         **metadata_header(),
         "status": overall_status,
+        "mode": args.mode,
+        "start_date": start_date,
+        "end_date": end_date,
+        "variant_timeout_seconds": timeout_seconds,
+        "ci_core_variant_ids": sorted(CI_VARIANT_IDS),
         "universe_history_refresh": bool(args.refresh_universe_history),
         "baseline_annual_return": baseline_annual,
         "baseline_annual_return_source": baseline_annual_source,
@@ -448,18 +668,22 @@ def main(argv: list[str] | None = None) -> int:
         "non_binding_parameters": non_binding_parameters,
         "all_core_parameters_non_binding": all_core_non_binding,
         "unknown_non_binding_count": int(len(unknown)),
+        "error_variant_count": int(len(errors)),
         "variants": frame.to_dict(orient="records"),
     }
-    write_json("reports/backtest/robustness/sensitivity_report.json", payload)
+    write_json(paths["json"], payload)
 
     lines = [
         "# 参数敏感性测试",
         "",
-        "- 口径: combined_v2 next_bar，固定 2023-04-03 到 2026-04-03。",
+        f"- 口径: combined_v2 next_bar，固定 {start_date} 到 {end_date}。",
+        f"- mode: {args.mode}",
+        f"- variant_timeout_seconds: {timeout_seconds}",
         "- 这是 one-at-a-time 扰动，不做参数优化，不输出最佳参数，不写回正式配置。",
         f"- sensitivity_status: {overall_status}",
         f"- non_binding_parameters: {', '.join(non_binding_parameters) if non_binding_parameters else 'none'}",
         f"- unknown_non_binding_count: {len(unknown)}",
+        f"- error_variant_count: {len(errors)}",
         f"- baseline next_bar 年化: {pct(baseline_annual) if baseline_annual is not None else 'missing'}",
         f"- baseline 年化来源: {baseline_annual_source}",
         f"- 小幅收紧后是否仍有正收益: {'是' if positive_after_tighten else '否'}",
@@ -472,10 +696,12 @@ def main(argv: list[str] | None = None) -> int:
         "",
     ]
     for row in frame.to_dict(orient="records"):
+        sharpe = _float_or_none(row.get("sharpe"))
+        sharpe_text = f"{sharpe:.2f}" if sharpe is not None else "missing"
         lines.append(
-            f"- {row['variant_id']}: 年化 {pct(row['annual_return'])}，累计 {pct(row['cumulative_return'])}，回撤 {pct(row['max_drawdown'])}，夏普 {row['sharpe']:.2f}，成交 {int(row['total_trades'])}，平均仓位 {pct(row['avg_daily_exposure'])}，binding={row['parameter_binding_status']}，reason={row['non_binding_reason'] or 'n/a'}，changed_action_days={int(row['changed_action_days_count'])}"
+            f"- {row['variant_id']}: 年化 {_pct_or_missing(row.get('annual_return'))}，累计 {_pct_or_missing(row.get('cumulative_return'))}，回撤 {_pct_or_missing(row.get('max_drawdown'))}，夏普 {sharpe_text}，成交 {_int_or_zero(row.get('total_trades'))}，平均仓位 {_pct_or_missing(row.get('avg_daily_exposure'))}，binding={row['parameter_binding_status']}，reason={row['non_binding_reason'] or 'n/a'}，changed_action_days={_int_or_zero(row.get('changed_action_days_count'))}，run_status={row.get('variant_run_status') or 'PASS'}"
         )
-    ensure_parent("reports/backtest/robustness/sensitivity_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    ensure_parent(paths["md"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
     return 1 if overall_status == "FAIL" else 0
 
 

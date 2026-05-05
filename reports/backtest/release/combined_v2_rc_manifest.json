@@ -1,7 +1,7 @@
 {
   "run_id": "combined_v2_rc_2023-04-03_2026-04-03_next_bar",
   "created_at": "2026-05-05T08:57:40.644926+00:00",
-  "git_commit": "f0cd73e15a915b7af4373421dbb57797de0dea83",
+  "git_commit": "ceafa39e41a279d9f40b97e4004aa86c2f80cad9",
   "python_version": "3.14.3",
   "start_date": "2023-04-03",
   "end_date": "2026-04-03",
@@ -119,45 +119,45 @@
     },
     {
       "path": "reports/audit/config_consistency.json",
-      "sha256": "edfe54885acbe08279fd0b5058375ec53d98cf90c20530b9a6d4e86efd5b4cf6",
+      "sha256": "8f1815371d273f5d911bda46cb443b20f157d590b281663e1b80eaf859229885",
       "exists": true
     },
     {
       "path": "reports/audit/universe_integrity.json",
-      "sha256": "1f1fb85baf8ab7cb3dcf1ae4b30fe110869c04628c9df950ac04c0777850ec98",
+      "sha256": "ed1897ca0ea7d4bc0ed3cfee94308531c997f803768bc3df7a6e66781e704b86",
       "exists": true
     },
     {
       "path": "reports/audit/data_freshness.json",
-      "sha256": "968fa3d5c92bbabce3a08ae027f1b969cc65af23feb19dfcc92749d3241d9436",
+      "sha256": "139f5465eae07c3534cd632e07c79703024673d919850cc10975f2a8cbc22a2f",
       "exists": true
     },
     {
       "path": "reports/observation/2026-05-04/evidence_chain.json",
-      "sha256": "ec409a5c27e9b6a593db903bffd07a3fc378bf61bc67c8deb8d80eb2ab2b6b46",
+      "sha256": "0d7e4757b39d1a98076794b1655c449d145bd4a751ee05c4dcc2cb7d974925ec",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_report.json",
-      "sha256": "6f858f5d011cc179c5258601a06c021a3a51d3a816d04f59ab40a019fbb58f62",
+      "sha256": "3acff0e05d3bb988497bff973fc78c1fc7c820a4f71e27154bc5842b612cb672",
       "exists": true
     },
     {
       "path": "reports/backtest/account_constraints_report.json",
-      "sha256": "4db3f780eca212d3c4cca9edf708745fc1551de6f26e14216f1deaba2829c656",
+      "sha256": "ea1b24f2574686bfb70c9db6625f96d88036575a443aa6f168a06322cb3d4832",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/baseline_comparison.json",
-      "sha256": "b8cc433715313112afe9158e1783d2a9ae3b5d1810bf61dba0ce866e6c49548b",
+      "sha256": "018fea1522dc26e60fedd58881c1d95c884b811e66593b82009ceccf0d39d181",
       "exists": true
     }
   ],
-  "status": "FAIL",
+  "status": "WARN",
   "branch": "codex/combined-v2-rc-release",
-  "generated_at": "2026-05-05T09:09:37.143764+00:00",
+  "generated_at": "2026-05-05T11:31:26.279353+00:00",
   "config_hash": "f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616",
-  "data_hash": "b51fa02fe73514c8b49ebb4f7697840fecaa3a75f648afab04beb1c7d98106bf",
+  "data_hash": "9082113047c9cd5e3e97dc07b412555ae4ec202765def37dbc1baae647320eb3",
   "requested_date": "2026-05-04",
   "target_trade_date": "2026-04-30",
   "target_trading_date": "2026-04-30",
@@ -173,10 +173,10 @@
   "release_scope": "small_capital_manual_strict_review_observation_candidate",
   "audit_statuses": {
     "config_consistency": "PASS",
-    "universe_integrity": "FAIL",
+    "universe_integrity": "WARN",
     "data_freshness": "PASS",
     "account_constraints": "WARN",
-    "evidence_chain": "FAIL"
+    "evidence_chain": "WARN"
   },
   "release_guard_checks": [
     {
@@ -200,9 +200,9 @@
     {
       "check_id": "RG-UNIVERSE-001",
       "check_name": "universe integrity audit",
-      "status": "FAIL",
+      "status": "WARN",
       "expected": "PASS/WARN without FAIL",
-      "actual": "FAIL",
+      "actual": "WARN",
       "evidence": "scripts/audit_universe_integrity.py",
       "recommendation": "股票池低于 floor、突破硬过滤或 override 无依据时必须 FAIL。"
     },
@@ -227,9 +227,9 @@
     {
       "check_id": "RG-EVIDENCE-001",
       "check_name": "observation evidence chain",
-      "status": "FAIL",
+      "status": "WARN",
       "expected": "PASS/WARN without FAIL",
-      "actual": "FAIL",
+      "actual": "WARN",
       "evidence": "scripts/build_observation_evidence_chain.py",
       "recommendation": "若 observation/release 声称可执行，必须同时存在 evidence_chain。"
     },
@@ -245,18 +245,18 @@
     {
       "check_id": "RG-SENS-001",
       "check_name": "sensitivity report binds or classifies core parameters",
-      "status": "FAIL",
-      "expected": "no all-core NON_BINDING and no UNKNOWN PASS",
-      "actual": "status=FAIL; non_binding=0; unknown=0",
+      "status": "WARN",
+      "expected": "ci mode report with no all-core NON_BINDING, ERROR, or UNKNOWN PASS",
+      "actual": "status=WARN; mode=ci; non_binding=4; unknown=0; errors=0",
       "evidence": "reports/backtest/robustness/sensitivity_report.json",
-      "recommendation": "参数变化未绑定或原因 UNKNOWN 不能计入鲁棒性 PASS。"
+      "recommendation": "release guard 只认可 --mode ci 结果；参数变化未绑定、计算 ERROR 或原因 UNKNOWN 不能计入鲁棒性 PASS。"
     },
     {
       "check_id": "RG-BASELINE-001",
       "check_name": "baseline comparison report exists and is not failing",
-      "status": "FAIL",
+      "status": "WARN",
       "expected": "baseline comparison PASS/WARN",
-      "actual": "FAIL",
+      "actual": "WARN",
       "evidence": "reports/backtest/controls/baseline_comparison.json",
       "recommendation": "必须区分 documented dianjinshu-like baseline、combined_v2 和模块消融。"
     },
@@ -272,9 +272,9 @@
     {
       "check_id": "RG-001",
       "check_name": "report freshness check",
-      "status": "FAIL",
+      "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=8 WARN=0 FAIL=5",
+      "actual": "PASS=14 WARN=0 FAIL=0",
       "evidence": "scripts/check_report_freshness.py",
       "recommendation": "刷新有旧口径或自相矛盾的报告。"
     },
@@ -283,7 +283,7 @@
       "check_name": "release sync consistency check",
       "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=27 WARN=0 FAIL=0",
+      "actual": "PASS=31 WARN=0 FAIL=0",
       "evidence": "scripts/check_release_sync_consistency.py",
       "recommendation": "发布同步报告不得含过期结论。"
     },
@@ -292,16 +292,16 @@
       "check_name": "report path sanitization check",
       "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=37 WARN=0 FAIL=0",
+      "actual": "PASS=40 WARN=0 FAIL=0",
       "evidence": "scripts/check_report_path_sanitization.py",
       "recommendation": "公开报告不得包含本机路径或 secret。"
     },
     {
       "check_id": "RG-004",
       "check_name": "observation gate consistency check",
-      "status": "FAIL",
+      "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=3 WARN=0 FAIL=4",
+      "actual": "PASS=13 WARN=0 FAIL=0",
       "evidence": "scripts/check_observation_gate_consistency.py",
       "recommendation": "observation allowed/blocked 状态必须一致。"
     },
@@ -346,7 +346,7 @@
       "check_name": "observation report does not keep allowed and blocked current reports together",
       "status": "PASS",
       "expected": "allowed summary without current observation_blocked.md",
-      "actual": "allowed=True; summary_exists=False; blocked_current=True",
+      "actual": "allowed=True; summary_exists=True; blocked_current=False",
       "evidence": "reports/observation/2026-05-04",
       "recommendation": "freshness 允许观察时，当前主路径不得同时保留 blocked 报告。"
     },

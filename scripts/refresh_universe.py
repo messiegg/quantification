@@ -23,7 +23,7 @@ from src.strategy.universe import (
     universe_report_payload,
     write_universe_outputs,
 )
-from src.utils.config import load_project_configs, resolve_path
+from src.utils.config import load_project_configs, load_yaml, resolve_path
 from src.utils.storage import read_dataset_flex
 
 
@@ -31,6 +31,11 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Generate the effective universe from rule-based candidate screening.")
     parser.add_argument("--as-of-date", default="", help="As-of date; defaults to latest available feature date.")
     parser.add_argument("--features-file", default="data/features/daily_features", help="Daily feature parquet file or partitioned directory.")
+    parser.add_argument(
+        "--universe-rules-config",
+        default="config/universe_rules_v2.yml",
+        help="Universe rule config used for the generated effective universe.",
+    )
     parser.add_argument("--apply", action="store_true", help="Write the generated effective universe back to config/universe.yml.")
     parser.add_argument("--frequency", choices=["monthly", "quarterly"], default="", help="Override rebalance frequency for this run.")
     parser.add_argument("--preview-only", action="store_true", help="Preview the generated universe without applying it.")
@@ -49,7 +54,7 @@ def main() -> int:
     configs = load_project_configs()
     metric_map_cfg = configs["metric_map"]
     universe_cfg = configs["universe"]
-    universe_rules_cfg = configs["universe_rules"].copy()
+    universe_rules_cfg = load_yaml(args.universe_rules_config).copy()
     positions_cfg = configs["positions"]
     features = read_dataset_flex(args.features_file)
     as_of_date = args.as_of_date or str(features["date"].max())

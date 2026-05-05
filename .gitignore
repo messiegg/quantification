@@ -12,6 +12,8 @@ reports/daily/latest.json
 reports/daily/codex_decision.md
 reports/backtests/*.json
 reports/backtests/*.md
+reports/backtest/robustness/*.partial.json
+reports/backtest/controls/*_universe_history/
 data/raw/**/*.parquet
 data/curated/**/*.parquet
 data/features/**/*.parquet

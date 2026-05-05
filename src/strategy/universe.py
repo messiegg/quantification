@@ -73,6 +73,40 @@ def _safe_float(value: object, default: float = 0.0) -> float:
     return numeric
 
 
+def _safe_round(value: object, digits: int = 4) -> float | None:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return None
+    if pd.isna(numeric):
+        return None
+    return round(numeric, digits)
+
+
+def _safe_bool(value: object) -> bool | None:
+    if value in {None, ""}:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    return bool(value)
+
+
+def _safe_str(value: object) -> str | None:
+    if value in {None, ""}:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except (TypeError, ValueError):
+        pass
+    if isinstance(value, pd.Timestamp):
+        return value.strftime("%Y-%m-%d")
+    return str(value)
+
+
 def _is_v2_rules(universe_rules_cfg: dict) -> bool:
     return str(universe_rules_cfg.get("profile", universe_rules_cfg.get("methodology_version", ""))).startswith("combined_v2")
 
@@ -777,26 +811,42 @@ def serialize_universe_payload(
             "industry_l1": row.get("industry"),
             "main_metric": row.get("main_metric"),
             "final_score": round(_safe_float(row.get("final_score")), 4),
-            "stock_q_blended": round(_safe_float(row.get("stock_q_blended")), 4),
-            "industry_q_blended": round(_safe_float(row.get("industry_q_blended")), 4),
-            "roe": round(_safe_float(row.get("roe")), 4),
-            "dv_ttm": round(_safe_float(row.get("dv_ttm")), 4),
-            "market_cap_billion": round(_safe_float(row.get("market_cap_billion")), 4),
-            "avg_amount_60d_million": round(_safe_float(row.get("avg_amount_60d_million")), 4),
+            "stock_q_blended": _safe_round(row.get("stock_q_blended")),
+            "industry_q_blended": _safe_round(row.get("industry_q_blended")),
+            "stock_pb_q_blended": _safe_round(row.get("stock_pb_q_blended")),
+            "industry_pb_q_blended": _safe_round(row.get("industry_pb_q_blended")),
+            "stock_pe_ttm_q_blended": _safe_round(row.get("stock_pe_ttm_q_blended")),
+            "industry_pe_ttm_q_blended": _safe_round(row.get("industry_pe_ttm_q_blended")),
+            "pb": _safe_round(row.get("pb")),
+            "pe_ttm": _safe_round(row.get("pe_ttm")),
+            "roe": _safe_round(row.get("roe")),
+            "dv_ttm": _safe_round(row.get("dv_ttm")),
+            "latest_net_profit": _safe_round(row.get("latest_net_profit")),
+            "debt_to_assets": _safe_round(row.get("debt_to_assets")),
+            "cfo_ttm": _safe_round(row.get("cfo_ttm")),
+            "market_cap_billion": _safe_round(row.get("market_cap_billion")),
+            "avg_amount_60d_million": _safe_round(row.get("avg_amount_60d_million")),
+            "listed_days": _safe_round(row.get("listed_days"), 0),
+            "industry_market_cap_rank": _safe_round(row.get("industry_market_cap_rank"), 0),
+            "industry_market_cap_percentile": _safe_round(row.get("industry_market_cap_percentile")),
+            "is_a_share": _safe_bool(row.get("is_a_share")),
+            "is_st": _safe_bool(row.get("is_st")),
+            "data_asof": as_of_date,
+            "financial_effective_date": _safe_str(row.get("effective_date")),
             "industry_rank": int(_safe_float(row.get("industry_rank"), default=0)),
             "selected_as": row.get("selected_as", "new_entry"),
-            "cycle_trap": bool(row.get("cycle_peak_trap", False)),
+            "cycle_trap": bool(_safe_bool(row.get("cycle_peak_trap")) or False),
             "force_exit_reasons": force_exit_reasons(row, {"force_exit_rules": [], "prolonged_data_failure_days": 10, "long_suspension_days": 20}),
         }
         if str(methodology_version).startswith("combined_v2"):
             item.update(
                 {
-                    "alternate_bucket": row.get("alternate_bucket"),
-                    "valuation_score": round(_safe_float(row.get("valuation_score")), 4),
-                    "quality_score": round(_safe_float(row.get("quality_score")), 4),
-                    "leader_score": round(_safe_float(row.get("leader_score")), 4),
-                    "dividend_score": round(_safe_float(row.get("dividend_score")), 4),
-                    "cycle_safety_score": round(_safe_float(row.get("cycle_safety_score")), 4),
+                    "alternate_bucket": _safe_str(row.get("alternate_bucket")),
+                    "valuation_score": _safe_round(row.get("valuation_score")),
+                    "quality_score": _safe_round(row.get("quality_score")),
+                    "leader_score": _safe_round(row.get("leader_score")),
+                    "dividend_score": _safe_round(row.get("dividend_score")),
+                    "cycle_safety_score": _safe_round(row.get("cycle_safety_score")),
                 }
             )
         stocks.append(item)

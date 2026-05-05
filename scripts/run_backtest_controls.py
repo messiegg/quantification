@@ -2,10 +2,12 @@
 from __future__ import annotations
 
 import copy
+import argparse
 import json
 import math
 import random
 import sys
+import time
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -17,6 +19,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.audit_common import (
     DEFAULT_END_DATE,
+    DEFAULT_FEATURES_FILE,
     DEFAULT_START_DATE,
     V2_HISTORY_DIR,
     ensure_parent,
@@ -48,6 +51,57 @@ class SimpleResult:
 class MonthlyMarketData:
     dates: list[str]
     by_date: dict[str, pd.DataFrame]
+
+
+CONTROL_IDS = [
+    "baseline_combined_next_bar",
+    "combined_v2_next_bar",
+    "v2_universe_equal_weight_monthly",
+    "v2_top_score_monthly",
+    "v2_defensive_only",
+    "v2_cyclical_only",
+    "v2_no_high_dividend_supplement",
+    "v2_no_grid",
+    "v2_no_trend_stop",
+    "v2_risk_off_no_new_buy",
+    "v2_no_market_state_filter",
+    "v2_no_industry_cap",
+    "v2_relaxed_account_constraints_research_only",
+]
+
+
+def _history_dir_has_json(path_like: str | Path) -> bool:
+    path = Path(resolve_path(path_like))
+    return path.exists() and any(path.glob("*.json"))
+
+
+def _load_existing_metrics(path: Path, refresh_all: bool) -> pd.DataFrame:
+    if refresh_all or not path.exists():
+        return pd.DataFrame()
+    try:
+        frame = pd.read_csv(path)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+    if "control_id" not in frame.columns:
+        return pd.DataFrame()
+    return frame
+
+
+def _load_existing_trades(path: Path, refresh_all: bool) -> pd.DataFrame:
+    if refresh_all or not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path)
+    except pd.errors.EmptyDataError:
+        return pd.DataFrame()
+
+
+def _run_step(control_id: str, fn):
+    started = time.monotonic()
+    print(f"[controls] start {control_id}", flush=True)
+    result = fn()
+    print(f"[controls] done {control_id} elapsed={time.monotonic() - started:.1f}s", flush=True)
+    return result
 
 
 def _build_monthly_market_data(features: pd.DataFrame) -> MonthlyMarketData:
@@ -394,75 +448,145 @@ def _percentile(values: list[float], observed: float) -> float:
     return sum(1 for value in values if value <= observed) / len(values) * 100.0
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description="Run combined_v2 control baselines and module ablations.")
+    parser.add_argument("--refresh-all", action="store_true", help="Recompute every control result instead of reusing existing true results.")
+    parser.add_argument("--refresh-placebo", action="store_true", help="Recompute random placebo metrics.")
+    parser.add_argument("--placebo-seeds", type=int, default=100, help="Number of random placebo seeds when placebo is recomputed.")
+    args = parser.parse_args(argv)
+
     configs = load_audit_configs()
     before_strategy = copy.deepcopy(configs["v2_strategy"])
-    prepare_v2_history(configs)
+    if args.refresh_all or not _history_dir_has_json(V2_HISTORY_DIR):
+        prepare_v2_history(configs)
     features = load_feature_window(DEFAULT_START_DATE, DEFAULT_END_DATE)
     benchmark = load_benchmark_window(DEFAULT_START_DATE, DEFAULT_END_DATE)
-    market_data = _build_monthly_market_data(features)
     bm = _benchmark_metrics(benchmark)
     output_dir = ensure_parent("reports/backtest/controls/control_baselines_metrics.csv").parent
+    metrics_path = output_dir / "control_baselines_metrics.csv"
+    trades_path = output_dir / "control_baselines_trades.csv"
+    existing_metrics = _load_existing_metrics(metrics_path, args.refresh_all)
+    existing_ids = set(existing_metrics["control_id"].astype(str)) if not existing_metrics.empty else set()
+    needed_ids = set(CONTROL_IDS) - existing_ids
+    if args.refresh_all or existing_metrics.empty:
+        needed_ids = set(CONTROL_IDS)
+    print(f"[controls] needed={sorted(needed_ids) if needed_ids else 'none'}", flush=True)
 
     results: dict[str, object] = {}
-    results["baseline_combined_next_bar"] = run_profile("baseline", features, benchmark, configs, execution_mode="next_bar")
-    results["combined_v2_next_bar"] = run_profile("combined_v2", features, benchmark, configs, execution_mode="next_bar")
-    history = _history_selections(V2_HISTORY_DIR)
-    candidates = _candidate_score_selections(features, configs)
+    if "baseline_combined_next_bar" in needed_ids:
+        results["baseline_combined_next_bar"] = _run_step(
+            "baseline_combined_next_bar",
+            lambda: run_profile("baseline", features, benchmark, configs, execution_mode="next_bar"),
+        )
+    if "combined_v2_next_bar" in needed_ids:
+        results["combined_v2_next_bar"] = _run_step(
+            "combined_v2_next_bar",
+            lambda: run_profile("combined_v2", features, benchmark, configs, execution_mode="next_bar"),
+        )
+
+    needs_monthly = bool(
+        needed_ids
+        & {
+            "v2_universe_equal_weight_monthly",
+            "v2_top_score_monthly",
+        }
+    )
+    needs_candidates = bool(needed_ids & {"v2_top_score_monthly"}) or args.refresh_placebo
+    needs_history = needs_monthly or args.refresh_placebo
+    market_data = _build_monthly_market_data(features) if needs_monthly or args.refresh_placebo else None
+    history = _history_selections(V2_HISTORY_DIR) if needs_history else {}
+    candidates = _candidate_score_selections(features, configs) if needs_candidates else {}
     top_score = {date: items[: min(20, len(items))] for date, items in candidates.items()}
     holdings_counts = {}
-    v2_nav = results["combined_v2_next_bar"].nav
-    avg_positions = max(1, int(round(float(results["combined_v2_next_bar"].metrics.get("avg_positions", 1)))))
-    for date in history:
-        future_nav = v2_nav[v2_nav["date"] >= date]
-        holdings_counts[date] = int(future_nav["holdings_count"].iloc[0]) if not future_nav.empty else avg_positions
-    results["v2_universe_equal_weight_monthly"] = _monthly_rebalance_backtest("v2_universe_equal_weight_monthly", features, benchmark, history, configs, market_data=market_data)
-    results["v2_top_score_monthly"] = _monthly_rebalance_backtest("v2_top_score_monthly", features, benchmark, top_score or history, configs, market_data=market_data)
-    results["v2_defensive_only"] = _run_v2_variant(configs, features, benchmark, "v2_defensive_only", bucket="defensive_dividend")
-    results["v2_cyclical_only"] = _run_v2_variant(configs, features, benchmark, "v2_cyclical_only", bucket="cyclical_rotation")
-    results["v2_no_high_dividend_supplement"] = _run_v2_variant(configs, features, benchmark, "v2_no_high_dividend_supplement", {"disable_high_dividend_supplement": True})
-    results["v2_no_grid"] = _run_v2_variant(configs, features, benchmark, "v2_no_grid", {"disable_grid": True})
-    results["v2_no_trend_stop"] = _run_v2_variant(configs, features, benchmark, "v2_no_trend_stop", {"disable_trend_stop": True})
-    results["v2_risk_off_no_new_buy"] = _run_v2_variant(configs, features, benchmark, "v2_risk_off_no_new_buy", {"risk_off_no_new_buy": True})
-    no_market_strategy = copy.deepcopy(configs["v2_strategy"])
-    no_market_strategy.setdefault("control_overrides", {})["research_only_no_market_state_filter"] = True
-    no_market_strategy["market_regime"]["max_total_position"] = {"risk_on": 0.95, "neutral": 0.95, "risk_off": 0.95}
-    no_market_strategy["market_regime"]["block_new_in_risk_off"] = False
-    results["v2_no_market_state_filter"] = _run_v2_custom(configs, features, benchmark, strategy=no_market_strategy)
+    if needs_monthly or args.refresh_placebo:
+        if "combined_v2_next_bar" in results:
+            v2_nav = results["combined_v2_next_bar"].nav
+            avg_positions = max(1, int(round(float(results["combined_v2_next_bar"].metrics.get("avg_positions", 1)))))
+        else:
+            existing_v2 = existing_metrics[existing_metrics["control_id"].astype(str) == "combined_v2_next_bar"]
+            avg_positions = max(1, int(round(float(existing_v2["avg_positions"].iloc[0])))) if not existing_v2.empty else 1
+            v2_nav = pd.DataFrame()
+        for date in history:
+            future_nav = v2_nav[v2_nav["date"] >= date] if not v2_nav.empty else pd.DataFrame()
+            holdings_counts[date] = int(future_nav["holdings_count"].iloc[0]) if not future_nav.empty else avg_positions
+    if "v2_universe_equal_weight_monthly" in needed_ids:
+        results["v2_universe_equal_weight_monthly"] = _run_step(
+            "v2_universe_equal_weight_monthly",
+            lambda: _monthly_rebalance_backtest("v2_universe_equal_weight_monthly", features, benchmark, history, configs, market_data=market_data),
+        )
+    if "v2_top_score_monthly" in needed_ids:
+        results["v2_top_score_monthly"] = _run_step(
+            "v2_top_score_monthly",
+            lambda: _monthly_rebalance_backtest("v2_top_score_monthly", features, benchmark, top_score or history, configs, market_data=market_data),
+        )
+    if "v2_defensive_only" in needed_ids:
+        results["v2_defensive_only"] = _run_step("v2_defensive_only", lambda: _run_v2_variant(configs, features, benchmark, "v2_defensive_only", bucket="defensive_dividend"))
+    if "v2_cyclical_only" in needed_ids:
+        results["v2_cyclical_only"] = _run_step("v2_cyclical_only", lambda: _run_v2_variant(configs, features, benchmark, "v2_cyclical_only", bucket="cyclical_rotation"))
+    if "v2_no_high_dividend_supplement" in needed_ids:
+        results["v2_no_high_dividend_supplement"] = _run_step("v2_no_high_dividend_supplement", lambda: _run_v2_variant(configs, features, benchmark, "v2_no_high_dividend_supplement", {"disable_high_dividend_supplement": True}))
+    if "v2_no_grid" in needed_ids:
+        results["v2_no_grid"] = _run_step("v2_no_grid", lambda: _run_v2_variant(configs, features, benchmark, "v2_no_grid", {"disable_grid": True}))
+    if "v2_no_trend_stop" in needed_ids:
+        results["v2_no_trend_stop"] = _run_step("v2_no_trend_stop", lambda: _run_v2_variant(configs, features, benchmark, "v2_no_trend_stop", {"disable_trend_stop": True}))
+    if "v2_risk_off_no_new_buy" in needed_ids:
+        results["v2_risk_off_no_new_buy"] = _run_step("v2_risk_off_no_new_buy", lambda: _run_v2_variant(configs, features, benchmark, "v2_risk_off_no_new_buy", {"risk_off_no_new_buy": True}))
+    if "v2_no_market_state_filter" in needed_ids:
+        no_market_strategy = copy.deepcopy(configs["v2_strategy"])
+        no_market_strategy.setdefault("control_overrides", {})["research_only_no_market_state_filter"] = True
+        no_market_strategy["market_regime"]["max_total_position"] = {"risk_on": 0.95, "neutral": 0.95, "risk_off": 0.95}
+        no_market_strategy["market_regime"]["block_new_in_risk_off"] = False
+        results["v2_no_market_state_filter"] = _run_step(
+            "v2_no_market_state_filter",
+            lambda: _run_v2_custom(configs, features, benchmark, strategy=no_market_strategy),
+        )
 
-    relaxed_account = copy.deepcopy(configs["account"])
-    relaxed_account.setdefault("position_sizing", {})["min_trade_value"] = 0
-    relaxed_account.setdefault("execution", {})["round_lot"] = 1
-    relaxed_strategy = copy.deepcopy(configs["v2_strategy"])
-    relaxed_strategy.setdefault("control_overrides", {})["research_only_relaxed_account_constraints"] = True
-    relaxed_strategy.setdefault("execution", {})["max_positions"] = 999
-    relaxed_strategy.setdefault("execution", {})["max_new_positions_per_day"] = 999
-    relaxed_strategy.setdefault("execution", {})["max_adds_per_day"] = 999
-    results["v2_relaxed_account_constraints_research_only"] = _run_v2_custom(
-        configs,
-        features,
-        benchmark,
-        strategy=relaxed_strategy,
-        account=relaxed_account,
-    )
+    if "v2_relaxed_account_constraints_research_only" in needed_ids:
+        relaxed_account = copy.deepcopy(configs["account"])
+        relaxed_account.setdefault("position_sizing", {})["min_trade_value"] = 0
+        relaxed_account.setdefault("execution", {})["round_lot"] = 1
+        relaxed_strategy = copy.deepcopy(configs["v2_strategy"])
+        relaxed_strategy.setdefault("control_overrides", {})["research_only_relaxed_account_constraints"] = True
+        relaxed_strategy.setdefault("execution", {})["max_positions"] = 999
+        relaxed_strategy.setdefault("execution", {})["max_new_positions_per_day"] = 999
+        relaxed_strategy.setdefault("execution", {})["max_adds_per_day"] = 999
+        results["v2_relaxed_account_constraints_research_only"] = _run_step(
+            "v2_relaxed_account_constraints_research_only",
+            lambda: _run_v2_custom(
+                configs,
+                features,
+                benchmark,
+                strategy=relaxed_strategy,
+                account=relaxed_account,
+            ),
+        )
 
-    no_industry_universe = copy.deepcopy(configs["v2_universe"])
-    no_industry_universe["max_per_industry"] = 999
-    no_industry_universe["max_names_per_industry"] = 999
-    no_industry_history = "reports/backtest/controls/no_industry_cap_universe_history"
-    generation_start = _history_generation_start("data/curated/universe_history", DEFAULT_START_DATE, DEFAULT_END_DATE)
-    generation_features = load_feature_window(generation_start, DEFAULT_END_DATE, DEFAULT_FEATURES_FILE)
-    _generate_v2_history(generation_features, "data/curated/universe_history", no_industry_history, no_industry_universe, configs["metric_map"])
-    results["v2_no_industry_cap"] = _run_v2_custom(
-        configs,
-        features,
-        benchmark,
-        universe=no_industry_universe,
-        history_dir=no_industry_history,
-    )
+    if "v2_no_industry_cap" in needed_ids:
+        no_industry_universe = copy.deepcopy(configs["v2_universe"])
+        no_industry_universe["max_per_industry"] = 999
+        no_industry_universe["max_names_per_industry"] = 999
+        no_industry_history = "reports/backtest/controls/no_industry_cap_universe_history"
+        generation_start = _history_generation_start("data/curated/universe_history", DEFAULT_START_DATE, DEFAULT_END_DATE)
+        generation_features = load_feature_window(generation_start, DEFAULT_END_DATE, DEFAULT_FEATURES_FILE)
+        results["v2_no_industry_cap"] = _run_step(
+            "v2_no_industry_cap",
+            lambda: (
+                _generate_v2_history(generation_features, "data/curated/universe_history", no_industry_history, no_industry_universe, configs["metric_map"]),
+                _run_v2_custom(
+                    configs,
+                    features,
+                    benchmark,
+                    universe=no_industry_universe,
+                    history_dir=no_industry_history,
+                ),
+            )[1],
+        )
 
-    rows = []
+    rows = existing_metrics[~existing_metrics["control_id"].astype(str).isin(results)] .to_dict(orient="records") if not existing_metrics.empty else []
     trades_frames = []
+    existing_trades = _load_existing_trades(trades_path, args.refresh_all)
+    if not existing_trades.empty and "control_id" in existing_trades.columns:
+        trades_frames.append(existing_trades[~existing_trades["control_id"].astype(str).isin(results)].copy())
     for control_id, result in results.items():
         profile = "baseline" if control_id == "baseline_combined_next_bar" else "combined_v2"
         row = _row_from_result(control_id, profile, result, benchmark, bm)
@@ -511,32 +635,44 @@ def main() -> int:
     else:
         pd.DataFrame().to_csv(output_dir / "control_baselines_trades.csv", index=False)
 
-    random_rows = []
-    random_source = candidates or history
-    seeds = list(range(100))
-    for seed in seeds:
-        selection = _random_selections(random_source, seed, holdings_counts)
-        random_result = _monthly_rebalance_backtest(f"random_placebo_seed_{seed}", features, benchmark, selection, configs, holdings_counts, market_data=market_data)
-        row = _row_from_result(f"random_placebo_seed_{seed}", "random_placebo_from_v2_candidate_pool", random_result, benchmark, bm)
-        row["seed"] = seed
-        row["row_type"] = "seed"
-        random_rows.append(row)
-    random_frame = pd.DataFrame(random_rows)
-    summary_stats = []
-    for stat, func in (
-        ("mean", lambda s: s.mean()),
-        ("median", lambda s: s.median()),
-        ("p5", lambda s: s.quantile(0.05)),
-        ("p25", lambda s: s.quantile(0.25)),
-        ("p75", lambda s: s.quantile(0.75)),
-        ("p95", lambda s: s.quantile(0.95)),
-    ):
-        item = {"row_type": "summary", "seed": stat, "control_id": f"random_placebo_{stat}", "profile": "random_placebo_from_v2_candidate_pool", "execution_mode": "next_bar"}
-        for column in ["annual_return", "max_drawdown", "sharpe", "cumulative_return", "total_trades", "avg_daily_exposure", "avg_positions"]:
-            item[column] = float(func(random_frame[column]))
-        summary_stats.append(item)
-    random_output = pd.concat([random_frame, pd.DataFrame(summary_stats)], ignore_index=True, sort=False)
-    random_output.to_csv(output_dir / "random_placebo_metrics.csv", index=False)
+    random_path = output_dir / "random_placebo_metrics.csv"
+    if random_path.exists() and not args.refresh_placebo and not args.refresh_all:
+        random_output = pd.read_csv(random_path)
+        random_frame = random_output[random_output.get("row_type", pd.Series(dtype=str)).astype(str) == "seed"].copy()
+        summary_stats = random_output[random_output.get("row_type", pd.Series(dtype=str)).astype(str) == "summary"].to_dict(orient="records")
+    else:
+        random_rows = []
+        if not history:
+            history = _history_selections(V2_HISTORY_DIR)
+        if not candidates:
+            candidates = _candidate_score_selections(features, configs)
+        if market_data is None:
+            market_data = _build_monthly_market_data(features)
+        random_source = candidates or history
+        seeds = list(range(args.placebo_seeds))
+        for seed in seeds:
+            selection = _random_selections(random_source, seed, holdings_counts)
+            random_result = _monthly_rebalance_backtest(f"random_placebo_seed_{seed}", features, benchmark, selection, configs, holdings_counts, market_data=market_data)
+            row = _row_from_result(f"random_placebo_seed_{seed}", "random_placebo_from_v2_candidate_pool", random_result, benchmark, bm)
+            row["seed"] = seed
+            row["row_type"] = "seed"
+            random_rows.append(row)
+        random_frame = pd.DataFrame(random_rows)
+        summary_stats = []
+        for stat, func in (
+            ("mean", lambda s: s.mean()),
+            ("median", lambda s: s.median()),
+            ("p5", lambda s: s.quantile(0.05)),
+            ("p25", lambda s: s.quantile(0.25)),
+            ("p75", lambda s: s.quantile(0.75)),
+            ("p95", lambda s: s.quantile(0.95)),
+        ):
+            item = {"row_type": "summary", "seed": stat, "control_id": f"random_placebo_{stat}", "profile": "random_placebo_from_v2_candidate_pool", "execution_mode": "next_bar"}
+            for column in ["annual_return", "max_drawdown", "sharpe", "cumulative_return", "total_trades", "avg_daily_exposure", "avg_positions"]:
+                item[column] = float(func(random_frame[column]))
+            summary_stats.append(item)
+        random_output = pd.concat([random_frame, pd.DataFrame(summary_stats)], ignore_index=True, sort=False)
+        random_output.to_csv(random_path, index=False)
 
     assert configs["v2_strategy"] == before_strategy
     v2 = metrics[metrics["control_id"] == "combined_v2_next_bar"].iloc[0]

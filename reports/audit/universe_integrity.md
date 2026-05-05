@@ -1,48 +1,54 @@
 # universe integrity audit
 
-- status: FAIL
-- checked_at: 2026-05-05T09:09:34.569168+00:00
-- git_commit: f0cd73e15a915b7af4373421dbb57797de0dea83
-- config_hash: 0e89b4d194ac999b77ad51b3f22dba53a074999d2671518ffdcea8ec0121539f
+- status: WARN
+- checked_at: 2026-05-05T11:31:22.869389+00:00
+- git_commit: ceafa39e41a279d9f40b97e4004aa86c2f80cad9
+- config_hash: 61225deb3df75f8c8d79e79ee94dff146886349addd475e2cba537c54b902606
 - universe_file: config/universe.yml
 - rules_file: config/universe_rules_v2.yml
 - active_date: 2026-04-30
-- selected_count: 8
+- selected_count: 30
 - target/floor/ceiling: 36 / 24 / 48
 - max_per_industry: 3
 - market_cap_billion_min: 300
 
 ## FAIL
 
-- UNIVERSE_UNDER_FLOOR:  selected universe count is below configured floor actual=8
-- MISSING_KEY_FIELDS: 600018.sh selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 600018.sh selected constituent violates hard filters without explicit override basis actual=['missing_pb', 'missing_pb', 'missing_latest_net_profit']
-- MISSING_KEY_FIELDS: 600011.sh selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 600011.sh selected constituent violates hard filters without explicit override basis actual=['missing_pe_ttm', 'missing_pb', 'missing_latest_net_profit', 'missing_debt_to_assets']
-- MISSING_KEY_FIELDS: 600873.sh selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 600873.sh selected constituent violates hard filters without explicit override basis actual=['market_cap_billion_below_market_cap_billion_min', 'missing_pb', 'missing_pb', 'missing_latest_net_profit']
-- MISSING_KEY_FIELDS: 600690.sh selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 600690.sh selected constituent violates hard filters without explicit override basis actual=['missing_pe_ttm', 'missing_pb', 'missing_latest_net_profit', 'missing_debt_to_assets']
-- MISSING_KEY_FIELDS: 000786.sz selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 000786.sz selected constituent violates hard filters without explicit override basis actual=['missing_pb', 'missing_pb', 'missing_latest_net_profit']
-- MISSING_KEY_FIELDS: 603799.sh selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 603799.sh selected constituent violates hard filters without explicit override basis actual=['missing_pb', 'missing_pb', 'missing_latest_net_profit']
-- MISSING_KEY_FIELDS: 300628.sz selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 300628.sz selected constituent violates hard filters without explicit override basis actual=['missing_pe_ttm', 'missing_pb', 'missing_latest_net_profit', 'missing_debt_to_assets']
-- MISSING_KEY_FIELDS: 000708.sz selected constituent misses required fields actual=['pb']
-- HARD_FILTER_VIOLATION: 000708.sz selected constituent violates hard filters without explicit override basis actual=['missing_pb', 'missing_pb', 'missing_latest_net_profit']
+- 无
 
 ## WARN
 
-- 无
+- UNIVERSE_BELOW_TARGET:  selected universe count is below configured target but above floor actual=30
 
 ## Constituents
 
-- 600018.sh 上港集团 | 交通运输 | cyclical_rotation | market_cap_billion=1163.998 | selected_reason=retained | failed_filters=missing_pb,missing_pb,missing_latest_net_profit
-- 600011.sh 华能国际 | 公用事业 | defensive_dividend | market_cap_billion=1097.2967 | selected_reason=retained | failed_filters=missing_pe_ttm,missing_pb,missing_latest_net_profit,missing_debt_to_assets
-- 600873.sh 梅花生物 | 基础化工 | cyclical_rotation | market_cap_billion=278.1808 | selected_reason=retained | failed_filters=market_cap_billion_below_market_cap_billion_min,missing_pb,missing_pb,missing_latest_net_profit
-- 600690.sh 海尔智家 | 家用电器 | defensive_dividend | market_cap_billion=2019.0037 | selected_reason=retained | failed_filters=missing_pe_ttm,missing_pb,missing_latest_net_profit,missing_debt_to_assets
-- 000786.sz 北新建材 | 建筑材料 | cyclical_rotation | market_cap_billion=441.56 | selected_reason=retained | failed_filters=missing_pb,missing_pb,missing_latest_net_profit
-- 603799.sh 华友钴业 | 有色金属 | cyclical_rotation | market_cap_billion=1263.0308 | selected_reason=retained | failed_filters=missing_pb,missing_pb,missing_latest_net_profit
-- 300628.sz 亿联网络 | 通信 | defensive_dividend | market_cap_billion=462.7427 | selected_reason=retained | failed_filters=missing_pe_ttm,missing_pb,missing_latest_net_profit,missing_debt_to_assets
-- 000708.sz 中信特钢 | 钢铁 | cyclical_rotation | market_cap_billion=769.6916 | selected_reason=retained | failed_filters=missing_pb,missing_pb,missing_latest_net_profit
+- 600018.sh 上港集团 | 交通运输 | cyclical_rotation | market_cap_billion=1163.9980252 | selected_reason=retained | failed_filters=none
+- 601021.sh 春秋航空 | 交通运输 | cyclical_rotation | market_cap_billion=461.5777089714 | selected_reason=retained | failed_filters=none
+- 600009.sh 上海机场 | 交通运输 | cyclical_rotation | market_cap_billion=677.816472096 | selected_reason=retained | failed_filters=none
+- 600309.sh 万华化学 | 基础化工 | cyclical_rotation | market_cap_billion=2803.0242939204004 | selected_reason=retained | failed_filters=none
+- 600378.sh 昊华科技 | 基础化工 | cyclical_rotation | market_cap_billion=469.55986168 | selected_reason=retained | failed_filters=none
+- 002601.sz 龙佰集团 | 基础化工 | cyclical_rotation | market_cap_billion=403.1763462696 | selected_reason=retained | failed_filters=none
+- 600585.sh 海螺水泥 | 建筑材料 | cyclical_rotation | market_cap_billion=1119.7426349426999 | selected_reason=retained | failed_filters=none
+- 000786.sz 北新建材 | 建筑材料 | cyclical_rotation | market_cap_billion=441.5600292948 | selected_reason=retained | failed_filters=none
+- 002271.sz 东方雨虹 | 建筑材料 | cyclical_rotation | market_cap_billion=357.3494999536 | selected_reason=retained | failed_filters=none
+- 603799.sh 华友钴业 | 有色金属 | cyclical_rotation | market_cap_billion=1263.0308402522999 | selected_reason=retained | failed_filters=none
+- 000983.sz 山西焦煤 | 煤炭 | cyclical_rotation | market_cap_billion=398.5324943418 | selected_reason=retained | failed_filters=none
+- 600028.sh 中国石化 | 石油石化 | cyclical_rotation | market_cap_billion=6517.8852165658 | selected_reason=retained | failed_filters=none
+- 000708.sz 中信特钢 | 钢铁 | cyclical_rotation | market_cap_billion=769.6916226025 | selected_reason=retained | failed_filters=none
+- 000932.sz 华菱钢铁 | 钢铁 | cyclical_rotation | market_cap_billion=317.961065024 | selected_reason=retained | failed_filters=none
+- 600019.sh 宝钢股份 | 钢铁 | cyclical_rotation | market_cap_billion=1374.4495476618997 | selected_reason=retained | failed_filters=none
+- 600011.sh 华能国际 | 公用事业 | defensive_dividend | market_cap_billion=1097.2967257941 | selected_reason=retained | failed_filters=none
+- 601991.sh 大唐发电 | 公用事业 | defensive_dividend | market_cap_billion=769.8791569664 | selected_reason=retained | failed_filters=none
+- 600795.sh 国电电力 | 公用事业 | defensive_dividend | market_cap_billion=845.4083444868 | selected_reason=retained | failed_filters=none
+- 600690.sh 海尔智家 | 家用电器 | defensive_dividend | market_cap_billion=2019.003663645 | selected_reason=retained | failed_filters=none
+- 000651.sz 格力电器 | 家用电器 | defensive_dividend | market_cap_billion=2243.3629992705 | selected_reason=retained | failed_filters=none
+- 000921.sz 海信家电 | 家用电器 | defensive_dividend | market_cap_billion=332.7821393913 | selected_reason=retained | failed_filters=none
+- 300628.sz 亿联网络 | 通信 | defensive_dividend | market_cap_billion=462.74272110950005 | selected_reason=retained | failed_filters=none
+- 600941.sh 中国移动 | 通信 | defensive_dividend | market_cap_billion=20927.583858423597 | selected_reason=retained | failed_filters=none
+- 601728.sh 中国电信 | 通信 | defensive_dividend | market_cap_billion=5517.8804635497 | selected_reason=retained | failed_filters=none
+- 600036.sh 招商银行 | 银行 | defensive_dividend | market_cap_billion=9651.6349115027 | selected_reason=retained | failed_filters=none
+- 000001.sz 平安银行 | 银行 | defensive_dividend | market_cap_billion=2229.7400009502 | selected_reason=retained | failed_filters=none
+- 601166.sh 兴业银行 | 银行 | defensive_dividend | market_cap_billion=3794.5003126348993 | selected_reason=retained | failed_filters=none
+- 601555.sh 东吴证券 | 非银金融 | defensive_dividend | market_cap_billion=399.48370809479997 | selected_reason=retained | failed_filters=none
+- 601318.sh 中国平安 | 非银金融 | defensive_dividend | market_cap_billion=10750.5070524315 | selected_reason=retained | failed_filters=none
+- 600999.sh 招商证券 | 非银金融 | defensive_dividend | market_cap_billion=1367.0940139032 | selected_reason=retained | failed_filters=none

@@ -1,7 +1,7 @@
 # release sync consistency check
 
 - overall_status: PASS
-- generated_at: 2026-05-05T09:09:36.826956+00:00
+- generated_at: 2026-05-05T11:31:25.904553+00:00
 - fail_count: 0
 - warn_count: 0
 
@@ -33,6 +33,10 @@
 - PASS | SYNC-CSV-TRACKED-manual_observation_protocol.md | docs/manual_observation_protocol.md action | actual=KEEP_TRACKED | 发布和复现所需文件必须保持 Git 跟踪。
 - PASS | SUMMARY-REQ-001 | observation_release_sync_summary.md required current conclusion | actual=present | 发布同步总结必须保留 RC PASS、策略未变更等当前结论。
 - PASS | SUMMARY-REQ-002 | observation_release_sync_summary.md required current conclusion | actual=present | 发布同步总结必须保留 RC PASS、策略未变更等当前结论。
-- PASS | OBS-GATE-001 | allowed freshness hard-blocked by stricter gate | actual=current | freshness 允许观察但 universe/evidence 等硬门禁 FAIL 时，必须保留当前阻断报告。
-- PASS | OBS-GATE-002 | hard-blocked observation has no executable action | actual=False | 硬门禁 FAIL 时，不允许生成可执行观察建议。
-- PASS | OBS-GATE-003 | hard-blocked observation reason recorded | actual=UNIVERSE_INTEGRITY_FAIL | 硬门禁阻断必须记录 blocking_reason。
+- PASS | OBS-GATE-001 | allowed observation has no current blocked report | actual=absent_or_legacy | freshness 允许观察时，不能保留当前有效的 STALE_DATA_BLOCKED 主报告。
+- PASS | OBS-GATE-001B | allowed observation has no stale blocked content | actual=none | freshness 允许观察时，当前主路径不得残留旧 STALE_DATA_BLOCKED 内容。
+- PASS | OBS-GATE-002 | allowed observation summary exists | actual=exists | freshness 允许观察时必须生成 observation_summary.md。
+- PASS | OBS-GATE-003 | allowed observation manifest action_allowed | actual=True | manifest 必须反映本次 gate 已允许观察。
+- PASS | OBS-SUMMARY-001 | holiday observation summary marker | actual=present | 非交易日 summary 必须标记市场关闭。
+- PASS | OBS-SUMMARY-002 | holiday observation summary execution wording | actual=none | 非交易日 summary 只能作为下一交易日人工复核。
+- PASS | OBS-MANUAL-001 | manual order list remains gitignored | actual=gitignored | 手工清单是本地人工复核产物，不应要求 git add。

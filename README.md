@@ -18,7 +18,7 @@
 
 ### effective universe
 
-当前再平衡周期允许新开仓/加仓的正式有效池，由 `scripts/refresh_universe.py --apply` 自动生成。
+当前再平衡周期允许新开仓/加仓的正式有效池，由 `scripts/refresh_universe.py --apply` 自动生成。该入口默认使用 `config/universe_rules_v2.yml` 生成 combined_v2 active universe；如需旧 baseline universe，必须显式传入 `--universe-rules-config config/universe_rules.yml`。
 
 ### current holdings scope
 
@@ -222,11 +222,12 @@ bash scripts/run_demo.sh
 ./.venv/bin/python scripts/audit_data_freshness.py --as-of-date 2026-05-04
 ./.venv/bin/python scripts/run_backtest_execution_compare.py
 ./.venv/bin/python scripts/run_backtest_walkforward.py
-./.venv/bin/python scripts/run_backtest_sensitivity.py
+./.venv/bin/python scripts/run_backtest_sensitivity.py --mode ci
 ./.venv/bin/python scripts/run_backtest_cost_stress.py
 ./.venv/bin/python scripts/build_account_constraints_report.py
 ./.venv/bin/python scripts/run_backtest_attribution.py
 ./.venv/bin/python scripts/run_backtest_controls.py
+./.venv/bin/python scripts/build_baseline_comparison_report.py
 ./.venv/bin/python scripts/run_backtest_v2_1_risk_guard.py
 ./.venv/bin/python scripts/build_combined_v2_release_candidate.py
 ./.venv/bin/python scripts/build_combined_v2_audit_summary.py
@@ -253,6 +254,8 @@ bash scripts/run_demo.sh
 - `reports/backtest/controls/control_baselines_report.md`
 - `reports/backtest/controls/baseline_comparison.md`
 - `reports/backtest/controls/random_placebo_metrics.csv`
+
+`run_backtest_sensitivity.py --mode ci` 是 release guard 使用的有界核心参数敏感性检查；`--mode full` 保留为本地完整研究口径，会写入 `sensitivity_report_full.*`。`run_backtest_controls.py` 默认复用已有真实 control/placebo 结果，只补算缺失消融；使用 `--refresh-all` 才会重跑全部 control。
 - `reports/backtest/v2_1/compare_v2_vs_v2_1_risk_guard.md`
 - `reports/backtest/audit/report_consistency_check.csv`
 - `reports/backtest/audit/lookahead_valuation_field_resolution.csv`

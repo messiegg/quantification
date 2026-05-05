@@ -179,22 +179,31 @@ def _check_lookahead_audit(rows: list[dict]) -> None:
 def _check_sensitivity(rows: list[dict]) -> None:
     payload = _read_json("reports/backtest/robustness/sensitivity_report.json")
     status = str(payload.get("status", "FAIL")).upper() if payload else "FAIL"
+    mode = str(payload.get("mode", "")).lower() if payload else ""
     non_binding = payload.get("non_binding_parameters", []) if payload else []
     unknown = [
         item
         for item in payload.get("variants", []) if str(item.get("non_binding_reason", "")).upper() == "UNKNOWN"
     ] if payload else []
+    errors = [
+        item
+        for item in payload.get("variants", []) if str(item.get("parameter_binding_status", "")).upper() == "ERROR"
+    ] if payload else []
+    if mode != "ci":
+        status = "FAIL"
     if status != "FAIL" and unknown:
+        status = "FAIL"
+    if status != "FAIL" and errors:
         status = "FAIL"
     _row(
         rows,
         "RG-SENS-001",
         "sensitivity report binds or classifies core parameters",
         status,
-        "no all-core NON_BINDING and no UNKNOWN PASS",
-        f"status={payload.get('status') if payload else 'missing'}; non_binding={len(non_binding)}; unknown={len(unknown)}",
+        "ci mode report with no all-core NON_BINDING, ERROR, or UNKNOWN PASS",
+        f"status={payload.get('status') if payload else 'missing'}; mode={mode or 'missing'}; non_binding={len(non_binding)}; unknown={len(unknown)}; errors={len(errors)}",
         "reports/backtest/robustness/sensitivity_report.json",
-        "参数变化未绑定或原因 UNKNOWN 不能计入鲁棒性 PASS。",
+        "release guard 只认可 --mode ci 结果；参数变化未绑定、计算 ERROR 或原因 UNKNOWN 不能计入鲁棒性 PASS。",
     )
 
 

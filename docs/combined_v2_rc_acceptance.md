@@ -23,6 +23,9 @@ CI / 发布保护使用 hash-only 口径，不重跑完整回测：
 ./.venv/bin/python scripts/audit_config_consistency.py
 ./.venv/bin/python scripts/audit_universe_integrity.py
 ./.venv/bin/python scripts/audit_data_freshness.py --as-of-date 2026-05-04
+./.venv/bin/python scripts/run_backtest_sensitivity.py --mode ci
+./.venv/bin/python scripts/run_backtest_controls.py
+./.venv/bin/python scripts/build_baseline_comparison_report.py
 ./.venv/bin/python scripts/run_release_guard.py --ci --as-of-date 2026-05-04
 ./.venv/bin/python scripts/check_forbidden_tracked_files.py --write-report
 ./.venv/bin/python scripts/check_report_freshness.py
@@ -32,7 +35,11 @@ CI / 发布保护使用 hash-only 口径，不重跑完整回测：
 
 ```bash
 ./.venv/bin/python scripts/verify_combined_v2_rc.py --mode full
+./.venv/bin/python scripts/run_backtest_sensitivity.py --mode full
+./.venv/bin/python scripts/run_backtest_controls.py --refresh-all
 ```
+
+`run_backtest_sensitivity.py --mode ci` 必须真实覆盖核心参数并输出 BINDING / NON_BINDING / ERROR 分类；release guard 只认可 `mode=ci` 的 sensitivity 报告。`run_backtest_controls.py` 默认增量复用已有真实 control/placebo 结果，只补齐缺失消融；不会把缺失消融跳过为 PASS。
 
 输出：
 
