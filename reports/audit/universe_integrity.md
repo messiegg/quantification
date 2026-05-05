@@ -1,9 +1,9 @@
 # universe integrity audit
 
 - status: WARN
-- checked_at: 2026-05-05T11:31:22.869389+00:00
-- git_commit: ceafa39e41a279d9f40b97e4004aa86c2f80cad9
-- config_hash: 61225deb3df75f8c8d79e79ee94dff146886349addd475e2cba537c54b902606
+- checked_at: 2026-05-05T12:45:51.304356+00:00
+- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
+- config_hash: b56f172c9ff1affb05ce9385fe456f7bdbc0401340e2db4c9f1bed793e6f2eba
 - universe_file: config/universe.yml
 - rules_file: config/universe_rules_v2.yml
 - active_date: 2026-04-30

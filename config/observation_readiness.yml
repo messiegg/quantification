@@ -1,0 +1,14 @@
+minimum_observation_trading_days: 60
+maximum_hard_fail_count: 0
+maximum_data_freshness_fail_count: 0
+maximum_universe_floor_fail_count: 0
+maximum_unknown_sensitivity_params: 0
+maximum_param_not_wired_count: 0
+minimum_executable_raw_buy_ratio: 0.25
+require_manual_review_log: true
+require_evidence_chain_every_day: true
+
+manual_review_log_path: data/observation/manual_review_log.csv
+status_values:
+  ready: READY
+  not_ready: NOT_READY

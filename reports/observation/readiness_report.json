@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-05T12:45:58.635394+00:00",
+  "generated_at": "2026-05-05T12:45:59.459618+00:00",
   "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
   "branch": "codex/combined-v2-rc-release",
   "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
@@ -47,48 +47,72 @@
   "auto_trading_approved": false,
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
-  "status": "WARN",
-  "raw_buy_signal_count": 370,
-  "raw_sell_signal_count": 91,
-  "executable_buy_count": 43,
-  "executable_sell_count": 33,
-  "blocked_buy_count": 327,
-  "blocked_sell_count": 58,
-  "blocker_counts": {
-    "MIN_TRADE_AMOUNT": 220,
-    "CASH_INSUFFICIENT": 88,
-    "TOTAL_EXPOSURE_LIMIT": 73,
-    "LOT_SIZE_ZERO": 4
-  },
-  "min_trade_amount_block_count": 220,
-  "cash_block_count": 88,
-  "exposure_block_count": 73,
-  "lot_size_block_count": 4,
-  "daily_limit_block_count": 0,
-  "executable_raw_buy_ratio": 0.11621621621621622,
-  "executable_raw_sell_ratio": 0.3626373626373626,
-  "average_cash_ratio": 0.556077501087453,
-  "average_exposure": 0.46939167840982304,
-  "max_exposure": 0.7569459961603964,
-  "turnover": 555248.6335,
-  "warnings": [
+  "status": "NOT_READY",
+  "policy_path": "config/observation_readiness.yml",
+  "manual_review_log_path": "data/observation/manual_review_log.csv",
+  "observation_trading_days": 0,
+  "checks": [
     {
-      "code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION",
-      "message": "account constraints dominate buy execution",
-      "expected": "executable/raw >= 0.25",
+      "check_id": "READY-OBS-DAYS",
+      "status": "WARN",
+      "expected": 60,
+      "actual": 0
+    },
+    {
+      "check_id": "READY-MANUAL-LOG",
+      "status": "WARN",
+      "expected": "manual review log exists",
+      "actual": "missing"
+    },
+    {
+      "check_id": "READY-HARD-FAILS",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "check_id": "READY-SENS-UNKNOWN",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "check_id": "READY-SENS-NOT-WIRED",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0
+    },
+    {
+      "check_id": "READY-EXEC-RATIO",
+      "status": "WARN",
+      "expected": 0.25,
       "actual": 0.11621621621621622
     },
     {
-      "code": "MIN_TRADE_AMOUNT_DOMINATES_EXECUTION",
-      "message": "min_trade_amount dominates execution",
-      "expected": "<=50% raw buy signals",
-      "actual": 0.5945945945945946
+      "check_id": "READY-EVIDENCE-CHAIN",
+      "status": "PASS",
+      "expected": "evidence chain present",
+      "actual": "present"
     }
   ],
-  "violations": [],
-  "source_files": [
-    "reports/backtest/combined_v2_signal_funnel.csv",
-    "reports/backtest/combined_v2_blocked_signals.csv",
-    "reports/backtest/combined_v2_trades_detailed.csv"
+  "not_ready_reasons": [
+    {
+      "check_id": "READY-OBS-DAYS",
+      "status": "WARN",
+      "expected": 60,
+      "actual": 0
+    },
+    {
+      "check_id": "READY-MANUAL-LOG",
+      "status": "WARN",
+      "expected": "manual review log exists",
+      "actual": "missing"
+    },
+    {
+      "check_id": "READY-EXEC-RATIO",
+      "status": "WARN",
+      "expected": 0.25,
+      "actual": 0.11621621621621622
+    }
   ]
 }

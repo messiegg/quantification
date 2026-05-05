@@ -13,6 +13,7 @@ reports/backtest/release/observation_release_sync_summary.md,path_and_secret_san
 reports/backtest/release/observation_sync_check.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
 reports/backtest/release/post_data_update_worktree_check.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
 reports/backtest/release/release_guard_report.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
+reports/backtest/release/release_status_consistency.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
 reports/backtest/release/release_sync_consistency_check.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
 reports/backtest/release/test_status.md,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。
 reports/data_gaps/latest.json,path_and_secret_sanitized,PASS,,未发现本地绝对路径或疑似 secret。

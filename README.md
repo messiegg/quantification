@@ -288,8 +288,17 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - total_trades: `76`
 - final_nav: `243928.8809062001`
 - release guard best possible rating: `PASS_CANDIDATE`
+- current_release_status: `WARN`
 
 `PASS_CANDIDATE` 只代表小资金、手动、严格复核观察/试运行候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。若 config consistency、universe integrity、data freshness、lookahead、sensitivity、evidence chain、baseline comparison 或 tests 任一核心审计 FAIL，release guard 必须输出 `FAIL`。
+
+当前 `WARN` 不是硬阻断，但仍不能写成 `PASS_CANDIDATE`：effective universe 当前 30 只，高于 `floor_size=24` 但低于 `target_size=36`；账户约束仍主导买入执行；sensitivity 仍有核心参数在 CI 窗口 NON_BINDING；baseline 消融里仍有模块需要人工解释风险收益权衡；观察期 readiness 尚未满足 60 个交易日人工复核日志要求。新增报告入口：
+
+- `reports/audit/universe_shortfall.md`
+- `reports/backtest/account_suitability_report.md`
+- `reports/backtest/robustness/sensitivity_trigger_coverage.md`
+- `reports/backtest/controls/module_contribution_report.md`
+- `reports/observation/readiness_report.md`
 
 2026-05-04 当前 observation 示例状态：
 
@@ -300,6 +309,10 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - universe integrity: 若当前 `config/universe.yml` 低于 `floor_size=24` 或有硬过滤违规，observation pipeline 必须生成阻断报告，不得生成可执行买卖建议。
 - data quality: `WARN`，当前主要 WARN 是 `pe_ttm` 缺失率偏高。
 - 结论：只允许下一交易日人工复核；在 universe/data/evidence 任一 gate FAIL 时，只输出阻断报告，不代表今日实盘执行。
+
+### 观察期准入规则
+
+观察期准入由 `config/observation_readiness.yml` 和 `scripts/evaluate_observation_readiness.py` 判定。当前策略即使没有硬 FAIL，也必须满足至少 60 个观察交易日、每日报告 evidence chain、人工复核日志、无数据新鲜度 FAIL、无 universe floor FAIL、无 UNKNOWN/PARAM_NOT_WIRED sensitivity 参数，并且 base case 买入 executable/raw 比例达到配置阈值，才可能从 `WARN` 进入 `PASS_CANDIDATE`。真实人工复核日志路径 `data/observation/manual_review_log.csv` 必须保持本地 ignored；仓库只提交 `fixtures/observation/manual_review_log_template.csv` 模板。
 
 验证 RC 的 CI 轻量口径：
 

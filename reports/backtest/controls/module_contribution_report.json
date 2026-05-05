@@ -1,0 +1,163 @@
+{
+  "generated_at": "2026-05-05T12:45:59.056511+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    }
+  ],
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "WARN",
+  "source_metrics_path": "reports/backtest/controls/control_baselines_metrics.csv",
+  "delta_definition": "combined_v2_enabled_minus_ablation_disabled",
+  "modules": [
+    {
+      "module": "high_dividend_supplement",
+      "ablation_control_id": "v2_no_high_dividend_supplement",
+      "research_only": false,
+      "annual_return_delta": -0.00976181784762259,
+      "cumulative_return_delta": -0.032291144306249714,
+      "max_drawdown_delta": -0.0201767280836207,
+      "sharpe_delta": -0.19741544946340916,
+      "calmar_delta": -0.3421213854937988,
+      "turnover_delta": 0.5744338250000003,
+      "avg_exposure_delta": 0.005211623380146302,
+      "max_exposure_delta": 0.04524713736799435,
+      "trade_count_delta": 16.0,
+      "worst_month_delta": null,
+      "worst_20d_return_delta": null,
+      "benchmark_excess_delta": -0.0097618178476227,
+      "classification": "POSSIBLE_DRAG",
+      "human_review_required": true
+    },
+    {
+      "module": "trend_stop",
+      "ablation_control_id": "v2_no_trend_stop",
+      "research_only": false,
+      "annual_return_delta": -0.010949393701847596,
+      "cumulative_return_delta": -0.036257179466250095,
+      "max_drawdown_delta": -0.005432942818788297,
+      "sharpe_delta": -0.006097181931827178,
+      "calmar_delta": -0.17105231918120267,
+      "turnover_delta": 0.63390675,
+      "avg_exposure_delta": -0.0822277226432735,
+      "max_exposure_delta": 0.0024380302671879184,
+      "trade_count_delta": 22.0,
+      "worst_month_delta": null,
+      "worst_20d_return_delta": null,
+      "benchmark_excess_delta": -0.0109493937018477,
+      "classification": "POSSIBLE_DRAG",
+      "human_review_required": true
+    },
+    {
+      "module": "market_state_filter",
+      "ablation_control_id": "v2_no_market_state_filter",
+      "research_only": false,
+      "annual_return_delta": -0.011627504248697892,
+      "cumulative_return_delta": -0.03852547605474979,
+      "max_drawdown_delta": 0.030506023094330495,
+      "sharpe_delta": -0.009849778439080081,
+      "calmar_delta": 0.09356461661669191,
+      "turnover_delta": -0.34898876749999985,
+      "avg_exposure_delta": -0.03899080709615621,
+      "max_exposure_delta": -0.03357707219187778,
+      "trade_count_delta": -5.0,
+      "worst_month_delta": null,
+      "worst_20d_return_delta": null,
+      "benchmark_excess_delta": -0.011627504248697997,
+      "classification": "RISK_REDUCER",
+      "human_review_required": false
+    },
+    {
+      "module": "industry_cap",
+      "ablation_control_id": "v2_no_industry_cap",
+      "research_only": false,
+      "annual_return_delta": 0.005205447452382009,
+      "cumulative_return_delta": 0.016994521653750205,
+      "max_drawdown_delta": -0.0027175093138114004,
+      "sharpe_delta": 0.08528501998662985,
+      "calmar_delta": 0.03447646100890456,
+      "turnover_delta": -0.355522437499999,
+      "avg_exposure_delta": -0.07214004447508149,
+      "max_exposure_delta": 0.00036631337560844024,
+      "trade_count_delta": -8.0,
+      "worst_month_delta": null,
+      "worst_20d_return_delta": null,
+      "benchmark_excess_delta": 0.005205447452381898,
+      "classification": "RETURN_ENHANCER",
+      "human_review_required": false
+    },
+    {
+      "module": "account_constraints",
+      "ablation_control_id": "v2_relaxed_account_constraints_research_only",
+      "research_only": true,
+      "annual_return_delta": 0.0014032338385748105,
+      "cumulative_return_delta": 0.0045965508347702855,
+      "max_drawdown_delta": 0.0034171946995983915,
+      "sharpe_delta": 0.0887378215561535,
+      "calmar_delta": 0.04128181949048737,
+      "turnover_delta": -0.3501908845249999,
+      "avg_exposure_delta": -0.09163278287680188,
+      "max_exposure_delta": -0.10877632860371456,
+      "trade_count_delta": -3.0,
+      "worst_month_delta": null,
+      "worst_20d_return_delta": null,
+      "benchmark_excess_delta": 0.0014032338385746995,
+      "classification": "RETURN_ENHANCER",
+      "human_review_required": false
+    }
+  ],
+  "warnings": [
+    {
+      "code": "MODULE_REQUIRES_HUMAN_REVIEW",
+      "module": "high_dividend_supplement",
+      "classification": "POSSIBLE_DRAG"
+    },
+    {
+      "code": "MODULE_REQUIRES_HUMAN_REVIEW",
+      "module": "trend_stop",
+      "classification": "POSSIBLE_DRAG"
+    }
+  ],
+  "violations": []
+}

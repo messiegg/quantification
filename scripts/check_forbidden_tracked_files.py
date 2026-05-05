@@ -34,6 +34,7 @@ FORBIDDEN_GLOBS = [
     "data/observation/paper_account.yml",
     "data/observation/paper_trades.csv",
     "data/observation/paper_positions.yml",
+    "data/observation/manual_review_log.csv",
     "reports/observation/*/combined_v2_manual_order_list.csv",
     "reports/observation/*/combined_v2_actions.csv",
     "reports/observation/*/combined_v2_1_risk_guard_actions.csv",

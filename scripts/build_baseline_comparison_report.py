@@ -114,6 +114,7 @@ def write_report(payload: dict[str, Any]) -> None:
         "- base_dianjinshu_like: 仓库配置中定义的点金术风格基线，不是对外部作者原文的严格复刻。",
         "- combined_v2: 当前主研究候选。",
         "- no_* 和 relaxed_account_constraints 仅用于解释模块贡献，不自动修改主策略。",
+        "- module_contribution_report: reports/backtest/controls/module_contribution_report.md",
         "",
     ]
     if payload.get("violations"):

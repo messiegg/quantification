@@ -62,6 +62,7 @@
 
 当前报告状态：
 
+- current_release_status: `WARN`
 - `reports/backtest/release/release_guard_report.md`: WARN
 - `reports/backtest/release/forbidden_tracked_files_check.md`: PASS
 - `reports/backtest/release/combined_v2_rc_verify.md`: WARN
@@ -74,6 +75,15 @@
 - `account_constraints`: raw buy 370，executable buy 43，执行比例约 11.6%；min_trade_amount 阻断占比约 59.5%。
 - `sensitivity`: `--mode ci` 可完成，但 universe_size、defensive valuation、cyclical PB、grid_step 在当前 CI 窗口为 NON_BINDING。
 - `baseline_comparison`: no_high_dividend_supplement、no_trend_stop、no_market_state_filter 优于 combined_v2，标记 MODULE_MAY_BE_DRAG，不自动改策略。
+- `observation_readiness`: NOT_READY；尚未形成 60 个观察交易日的人工复核日志，当前不能进入 PASS_CANDIDATE。
+
+新增 WARN 拆解报告：
+
+- `reports/audit/universe_shortfall.md`
+- `reports/backtest/account_suitability_report.md`
+- `reports/backtest/robustness/sensitivity_trigger_coverage.md`
+- `reports/backtest/controls/module_contribution_report.md`
+- `reports/observation/readiness_report.md`
 
 ## 5. Git 与文件边界
 

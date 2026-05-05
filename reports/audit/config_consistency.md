@@ -1,9 +1,9 @@
 # 配置一致性审计
 
 - status: PASS
-- checked_at: 2026-05-05T11:31:18.853786+00:00
-- git_commit: ceafa39e41a279d9f40b97e4004aa86c2f80cad9
-- config_hash: f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616
+- checked_at: 2026-05-05T12:45:47.498651+00:00
+- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
+- config_hash: 737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2
 - active_strategy_config_path: config/strategy_v2.yml
 - active_account_config_path: config/account.yml
 - active_universe_rules_path: config/universe_rules_v2.yml

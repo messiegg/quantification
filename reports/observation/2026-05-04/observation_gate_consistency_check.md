@@ -9,7 +9,7 @@
 
 - PASS | GATE-001A | blocked report absent or legacy when allowed | actual=absent_or_legacy | freshness 已允许观察时，旧 blocked 报告不能作为当前主报告存在。
 - PASS | GATE-001B | no stale blocked content when allowed | actual=none | 允许观察时，当前主路径下不得保留旧 STALE_DATA_BLOCKED 内容。
-- PASS | GATE-001C | tracked old blocked report absent unless legacy | actual=tracked=True, legacy=False | Git 跟踪的旧 blocked report 必须删除，除非第一行标记 LEGACY_SUPERSEDED。
+- PASS | GATE-001C | tracked old blocked report absent unless legacy | actual=tracked=False, legacy=False | Git 跟踪的旧 blocked report 必须删除，除非第一行标记 LEGACY_SUPERSEDED。
 - PASS | GATE-002 | summary exists when freshness allowed | actual=True | 允许观察时必须生成 observation_summary.md。
 - PASS | GATE-003 | manifest action_allowed true | actual=True | manifest 必须反映本次观察已允许。
 - PASS | MARKET-001 | holiday summary marks market closed | actual=present | 非交易日观察报告必须显式标记市场关闭。

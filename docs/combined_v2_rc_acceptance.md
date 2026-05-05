@@ -41,6 +41,17 @@ CI / 发布保护使用 hash-only 口径，不重跑完整回测：
 
 `run_backtest_sensitivity.py --mode ci` 必须真实覆盖核心参数并输出 BINDING / NON_BINDING / ERROR 分类；release guard 只认可 `mode=ci` 的 sensitivity 报告。`run_backtest_controls.py` 默认增量复用已有真实 control/placebo 结果，只补齐缺失消融；不会把缺失消融跳过为 PASS。
 
+当前 WARN 拆解必须同时刷新这些解释型报告：
+
+- `scripts/build_universe_shortfall_report.py`
+- `scripts/build_account_suitability_report.py`
+- `scripts/build_sensitivity_trigger_coverage_report.py`
+- `scripts/build_module_contribution_report.py`
+- `scripts/evaluate_observation_readiness.py`
+- `scripts/check_release_status_consistency.py`
+
+这些报告只解释 WARN 来源，不放宽 universe、账户、sensitivity 或 baseline 审计门槛；真实风险仍必须进入 release manifest risk section。
+
 输出：
 
 - `reports/backtest/release/combined_v2_rc_verify.csv`

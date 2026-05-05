@@ -1,0 +1,441 @@
+{
+  "generated_at": "2026-05-05T12:45:59.021959+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    }
+  ],
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "WARN",
+  "mode": "ci",
+  "source_sensitivity_report": "reports/backtest/robustness/sensitivity_report.json",
+  "non_binding_parameter_count": 4,
+  "classifications": [
+    {
+      "param_path": "universe_size",
+      "variant_id": "universe_large",
+      "base_value": "configured_base",
+      "variant_value": "target_size=48, floor_size=36, ceiling_size=60",
+      "variant_config_hash": "59aa8c9e884eeb0b28deb0b7a360b2f2f84554da7984ad2dd75044fa4f1ef618",
+      "code_read_locations": [
+        {
+          "path": "src/strategy/signals.py",
+          "line": 172,
+          "text": "self.universe_rules_cfg.get(\"target_universe_size\", strategy_cfg[\"execution\"].get(\"equal_weight_target_universe_size\", 16))"
+        },
+        {
+          "path": "src/strategy/universe.py",
+          "line": 578,
+          "text": "target_size = int(rules.get(\"target_size\", rules.get(\"target_universe_size\", 36)))"
+        },
+        {
+          "path": "scripts/audit_config_consistency.py",
+          "line": 86,
+          "text": "\"universe_target\": universe_rules.get(\"target_size\", universe_rules.get(\"target_universe_size\")),"
+        },
+        {
+          "path": "scripts/audit_universe_integrity.py",
+          "line": 609,
+          "text": "target_size = int(rules.get(\"target_size\", rules.get(\"target_universe_size\", 0)) or 0)"
+        },
+        {
+          "path": "scripts/build_sensitivity_trigger_coverage_report.py",
+          "line": 26,
+          "text": "\"universe_size\": [\"target_size\", \"floor_size\", \"ceiling_size\", \"target_universe_size\"],"
+        },
+        {
+          "path": "scripts/run_backtest_sensitivity.py",
+          "line": 119,
+          "text": "universe.update({\"target_size\": target, \"floor_size\": floor, \"ceiling_size\": ceiling, \"target_universe_size\": target, \"target_universe_floor\": floor, \"target_universe_ceiling\": cei"
+        },
+        {
+          "path": "scripts/check_release_status_consistency.py",
+          "line": 82,
+          "text": "target = universe.get(\"target_size\")"
+        },
+        {
+          "path": "scripts/build_universe_shortfall_report.py",
+          "line": 240,
+          "text": "target = int(rules.get(\"target_size\", rules.get(\"target_universe_size\", 0)))"
+        },
+        {
+          "path": "config/strategy_v2.yml",
+          "line": 39,
+          "text": "equal_weight_target_universe_size: 36"
+        },
+        {
+          "path": "config/universe_rules_v2.yml",
+          "line": 5,
+          "text": "target_size: 36"
+        },
+        {
+          "path": "config/strategy.yml",
+          "line": 32,
+          "text": "equal_weight_target_universe_size: 16"
+        },
+        {
+          "path": "config/universe_rules.yml",
+          "line": 3,
+          "text": "target_universe_size: 16"
+        },
+        {
+          "path": "config/strategy_v2_1_risk_guard.yml",
+          "line": 42,
+          "text": "equal_weight_target_universe_size: 36"
+        }
+      ],
+      "rule_name": "universe_size",
+      "trigger_condition": "target_size=48, floor_size=36, ceiling_size=60",
+      "trigger_count_base": 53,
+      "trigger_count_variant": 53,
+      "blocked_by_account_constraints_count": 27,
+      "dominated_by_higher_priority_rule_count": 0,
+      "no_signal_coverage_days": 242,
+      "action_path_changed": false,
+      "position_path_changed": false,
+      "classification": "NO_SIGNAL_COVERAGE",
+      "parameter_binding_status": "NON_BINDING",
+      "non_binding_reason": "NO_SIGNAL_COVERAGE"
+    },
+    {
+      "param_path": "defensive_valuation_threshold",
+      "variant_id": "defensive_valuation_strict",
+      "base_value": "configured_base",
+      "variant_value": "defensive stock/industry thresholds -5",
+      "variant_config_hash": "826296dbe240e1147f09b2905a12cfbe07ee9e9e0fbb994d0f32086b8f753034",
+      "code_read_locations": [
+        {
+          "path": "src/strategy/signals.py",
+          "line": 43,
+          "text": "return _safe_float(row.get(\"stock_q_blended\"), default=100.0) <= float(risk_off_cfg[\"defensive_dividend_max_stock_q_blended\"])"
+        },
+        {
+          "path": "src/strategy/backtest_reports.py",
+          "line": 206,
+          "text": "defensive_count = int((candidate_pool[\"bucket\"] == \"defensive_dividend\").sum())"
+        },
+        {
+          "path": "src/strategy/universe.py",
+          "line": 163,
+          "text": "elif bucket == \"defensive_dividend\":"
+        },
+        {
+          "path": "scripts/run_backtest_compare.py",
+          "line": 112,
+          "text": "defensive = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"defensive_dividend\"] if not detailed.empty else pd.DataFrame()"
+        },
+        {
+          "path": "scripts/run_backtest_attribution.py",
+          "line": 410,
+          "text": "defensive_weight = _safe_div(float(values_today.loc[values_today[\"bucket\"] == \"defensive_dividend\", \"market_value\"].sum()), invested)"
+        },
+        {
+          "path": "scripts/audit_universe_integrity.py",
+          "line": 333,
+          "text": "if bucket == \"defensive_dividend\":"
+        },
+        {
+          "path": "scripts/audit_common.py",
+          "line": 112,
+          "text": "defensive = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"defensive_dividend\"] if not detailed.empty else pd.DataFrame()"
+        },
+        {
+          "path": "scripts/run_backtest_controls.py",
+          "line": 384,
+          "text": "row[\"defensive_pnl\"] = _bucket_total_pnl(\"defensive_dividend\", detailed, final)"
+        },
+        {
+          "path": "scripts/backtest.py",
+          "line": 24,
+          "text": "parser.add_argument(\"--bucket\", default=\"combined\", choices=[\"defensive_dividend\", \"cyclical_rotation\", \"combined\"], help=\"Backtest bucket.\")"
+        },
+        {
+          "path": "scripts/build_sensitivity_trigger_coverage_report.py",
+          "line": 27,
+          "text": "\"defensive_valuation_threshold\": [\"defensive_dividend\", \"stock_q_blended_max\", \"industry_q_blended_max\"],"
+        },
+        {
+          "path": "scripts/run_backtest_sensitivity.py",
+          "line": 84,
+          "text": "rule[\"stock_q_blended_max\"] = float(rule[\"stock_q_blended_max\"]) + stock_delta"
+        },
+        {
+          "path": "config/strategy_v2.yml",
+          "line": 29,
+          "text": "- defensive_dividend"
+        },
+        {
+          "path": "config/universe_rules_v2.yml",
+          "line": 21,
+          "text": "defensive_dividend:"
+        },
+        {
+          "path": "config/strategy.yml",
+          "line": 23,
+          "text": "- defensive_dividend"
+        },
+        {
+          "path": "config/universe_rules.yml",
+          "line": 42,
+          "text": "defensive_dividend:"
+        },
+        {
+          "path": "config/universe.yml",
+          "line": 41,
+          "text": "alternate_bucket: defensive_dividend"
+        },
+        {
+          "path": "config/metric_map.yml",
+          "line": 4,
+          "text": "银行: defensive_dividend"
+        },
+        {
+          "path": "config/strategy_v2_1_risk_guard.yml",
+          "line": 32,
+          "text": "- defensive_dividend"
+        }
+      ],
+      "rule_name": "defensive_valuation_threshold",
+      "trigger_condition": "defensive stock/industry thresholds -5",
+      "trigger_count_base": 53,
+      "trigger_count_variant": 53,
+      "blocked_by_account_constraints_count": 27,
+      "dominated_by_higher_priority_rule_count": 0,
+      "no_signal_coverage_days": 242,
+      "action_path_changed": false,
+      "position_path_changed": false,
+      "classification": "NO_SIGNAL_COVERAGE",
+      "parameter_binding_status": "NON_BINDING",
+      "non_binding_reason": "NO_SIGNAL_COVERAGE"
+    },
+    {
+      "param_path": "cyclical_pb_threshold",
+      "variant_id": "cyclical_pb_strict",
+      "base_value": "configured_base",
+      "variant_value": "cyclical PB stock/industry thresholds -5",
+      "variant_config_hash": "ae375b1d024df903cff5fb3d9a8ba50904f2a3a77fc9e5243539766707a9c652",
+      "code_read_locations": [
+        {
+          "path": "src/pipeline/features.py",
+          "line": 875,
+          "text": "cyclical_industries = set(strategy_cfg[\"buckets\"][\"cyclical_rotation\"][\"allowed_industries\"])"
+        },
+        {
+          "path": "src/strategy/signals.py",
+          "line": 55,
+          "text": "if _safe_float(row.get(\"stock_q_blended\"), default=100.0) <= float(rule[\"stock_q_blended_max\"]):"
+        },
+        {
+          "path": "src/strategy/backtest_reports.py",
+          "line": 207,
+          "text": "cyclical_count = int((candidate_pool[\"bucket\"] == \"cyclical_rotation\").sum())"
+        },
+        {
+          "path": "src/strategy/valuation_resolution.py",
+          "line": 51,
+          "text": "if bucket == \"cyclical_rotation\":"
+        },
+        {
+          "path": "src/strategy/universe.py",
+          "line": 124,
+          "text": "if bucket == \"cyclical_rotation\":"
+        },
+        {
+          "path": "scripts/run_backtest_compare.py",
+          "line": 113,
+          "text": "cyclical = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"cyclical_rotation\"] if not detailed.empty else pd.DataFrame()"
+        },
+        {
+          "path": "scripts/run_backtest_attribution.py",
+          "line": 411,
+          "text": "cyclical_weight = _safe_div(float(values_today.loc[values_today[\"bucket\"] == \"cyclical_rotation\", \"market_value\"].sum()), invested)"
+        },
+        {
+          "path": "scripts/audit_universe_integrity.py",
+          "line": 423,
+          "text": "if bucket == \"cyclical_rotation\":"
+        },
+        {
+          "path": "scripts/audit_common.py",
+          "line": 113,
+          "text": "cyclical = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"cyclical_rotation\"] if not detailed.empty else pd.DataFrame()"
+        },
+        {
+          "path": "scripts/run_backtest_controls.py",
+          "line": 385,
+          "text": "row[\"cyclical_pnl\"] = _bucket_total_pnl(\"cyclical_rotation\", detailed, final)"
+        },
+        {
+          "path": "scripts/backtest.py",
+          "line": 24,
+          "text": "parser.add_argument(\"--bucket\", default=\"combined\", choices=[\"defensive_dividend\", \"cyclical_rotation\", \"combined\"], help=\"Backtest bucket.\")"
+        },
+        {
+          "path": "scripts/build_sensitivity_trigger_coverage_report.py",
+          "line": 27,
+          "text": "\"defensive_valuation_threshold\": [\"defensive_dividend\", \"stock_q_blended_max\", \"industry_q_blended_max\"],"
+        },
+        {
+          "path": "scripts/run_backtest_sensitivity.py",
+          "line": 84,
+          "text": "rule[\"stock_q_blended_max\"] = float(rule[\"stock_q_blended_max\"]) + stock_delta"
+        },
+        {
+          "path": "config/strategy_v2.yml",
+          "line": 30,
+          "text": "- cyclical_rotation"
+        },
+        {
+          "path": "config/universe_rules_v2.yml",
+          "line": 24,
+          "text": "cyclical_rotation:"
+        },
+        {
+          "path": "config/strategy.yml",
+          "line": 82,
+          "text": "stock_q_blended_max: 20"
+        },
+        {
+          "path": "config/universe_rules.yml",
+          "line": 53,
+          "text": "cyclical_rotation:"
+        },
+        {
+          "path": "config/universe.yml",
+          "line": 11,
+          "text": "bucket: cyclical_rotation"
+        },
+        {
+          "path": "config/metric_map.yml",
+          "line": 11,
+          "text": "煤炭: cyclical_rotation"
+        },
+        {
+          "path": "config/strategy_v2_1_risk_guard.yml",
+          "line": 33,
+          "text": "- cyclical_rotation"
+        }
+      ],
+      "rule_name": "cyclical_pb_threshold",
+      "trigger_condition": "cyclical PB stock/industry thresholds -5",
+      "trigger_count_base": 53,
+      "trigger_count_variant": 53,
+      "blocked_by_account_constraints_count": 27,
+      "dominated_by_higher_priority_rule_count": 0,
+      "no_signal_coverage_days": 242,
+      "action_path_changed": false,
+      "position_path_changed": false,
+      "classification": "NO_SIGNAL_COVERAGE",
+      "parameter_binding_status": "NON_BINDING",
+      "non_binding_reason": "NO_SIGNAL_COVERAGE"
+    },
+    {
+      "param_path": "grid_step",
+      "variant_id": "grid_tighter",
+      "base_value": "configured_base",
+      "variant_value": "clip(1.0*ATR20/close,0.03,0.07)",
+      "variant_config_hash": "6ede5845f715d65cb458abd754d91e24743d332a9bba3cf243fa1565ba834d22",
+      "code_read_locations": [
+        {
+          "path": "src/strategy/signals.py",
+          "line": 228,
+          "text": "grid_cfg = self.strategy_cfg[\"execution\"][\"grid_execution\"]"
+        },
+        {
+          "path": "src/strategy/grid.py",
+          "line": 6,
+          "text": "return float(grid_cfg[\"max_step\"])"
+        },
+        {
+          "path": "scripts/build_sensitivity_trigger_coverage_report.py",
+          "line": 29,
+          "text": "\"grid_step\": [\"grid_execution\", \"atr_multiplier\", \"min_step\", \"max_step\"],"
+        },
+        {
+          "path": "scripts/run_backtest_sensitivity.py",
+          "line": 143,
+          "text": "for variant_id, atr, min_step, max_step in ((\"grid_tighter\", 1.0, 0.03, 0.07), (\"grid_wider\", 1.5, 0.04, 0.09)):"
+        },
+        {
+          "path": "config/strategy_v2.yml",
+          "line": 45,
+          "text": "grid_execution:"
+        },
+        {
+          "path": "config/strategy.yml",
+          "line": 33,
+          "text": "grid_execution:"
+        },
+        {
+          "path": "config/strategy_v2_1_risk_guard.yml",
+          "line": 48,
+          "text": "grid_execution:"
+        }
+      ],
+      "rule_name": "grid_step",
+      "trigger_condition": "clip(1.0*ATR20/close,0.03,0.07)",
+      "trigger_count_base": 53,
+      "trigger_count_variant": 53,
+      "blocked_by_account_constraints_count": 27,
+      "dominated_by_higher_priority_rule_count": 0,
+      "no_signal_coverage_days": 242,
+      "action_path_changed": false,
+      "position_path_changed": false,
+      "classification": "NO_SIGNAL_COVERAGE",
+      "parameter_binding_status": "NON_BINDING",
+      "non_binding_reason": "NO_SIGNAL_COVERAGE"
+    }
+  ],
+  "warnings": [
+    {
+      "code": "NON_BINDING_PARAMETERS_REQUIRE_OBSERVATION",
+      "count": 4
+    }
+  ],
+  "violations": [],
+  "coverage_limitations": [
+    "CI mode uses a bounded date window and does not prove behavior in all regimes.",
+    "Rule trigger counts use exported sensitivity diagnostics; rule-internal borderline counts are unavailable unless the engine exports them."
+  ]
+}

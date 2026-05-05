@@ -24,7 +24,13 @@ from scripts.audit_config_consistency import build_config_consistency_report
 from scripts.audit_data_freshness import build_audit_data_freshness_report
 from scripts.audit_universe_integrity import build_universe_integrity_report
 from scripts.build_account_constraints_report import build_account_constraints_report
+from scripts.build_account_suitability_report import build_account_suitability_report
+from scripts.build_module_contribution_report import build_module_contribution_report
 from scripts.build_observation_evidence_chain import build_observation_evidence_chain
+from scripts.build_sensitivity_trigger_coverage_report import build_sensitivity_trigger_coverage_report
+from scripts.build_universe_shortfall_report import build_universe_shortfall_report
+from scripts.check_release_status_consistency import build_release_status_consistency_report
+from scripts.evaluate_observation_readiness import evaluate_observation_readiness
 from scripts.report_metadata import config_hash, data_hash, git_branch, git_commit, now_utc_iso, sha256_path, status_from_children, write_json
 from scripts.verify_combined_v2_rc import MANIFEST_PATH, _manifest_hash_map, verify_release_candidate
 from src.utils.config import resolve_path
@@ -221,6 +227,21 @@ def _check_baseline_comparison(rows: list[dict]) -> None:
     )
 
 
+def _add_observation_readiness_check(rows: list[dict], payload: dict) -> None:
+    raw_status = str(payload.get("status", "NOT_READY")).upper() if payload else "FAIL"
+    status = "PASS" if raw_status == "READY" else "WARN" if raw_status == "NOT_READY" else "FAIL"
+    _row(
+        rows,
+        "RG-READY-001",
+        "observation readiness policy",
+        status,
+        "READY for PASS_CANDIDATE consideration",
+        raw_status,
+        "reports/observation/readiness_report.json",
+        "观察期准入未满足时不得进入 PASS_CANDIDATE，只能保持 WARN。",
+    )
+
+
 def _check_tests_status(rows: list[dict]) -> None:
     payload = _read_json(TEST_STATUS_JSON)
     _row(
@@ -327,6 +348,11 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
     existing = _read_json(RELEASE_MANIFEST_JSON)
     freshness = audit_payloads.get("data_freshness", {})
     account_constraints = audit_payloads.get("account_constraints", {})
+    account_suitability = audit_payloads.get("account_suitability", {})
+    universe_shortfall = audit_payloads.get("universe_shortfall", {})
+    sensitivity_coverage = audit_payloads.get("sensitivity_trigger_coverage", {})
+    module_contribution = audit_payloads.get("module_contribution", {})
+    observation_readiness = audit_payloads.get("observation_readiness", {})
     status = _release_status_from_rows(frame)
     key_paths = [
         "config/strategy_v2.yml",
@@ -345,7 +371,13 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         f"reports/observation/{as_of_date}/evidence_chain.json",
         "reports/backtest/robustness/sensitivity_report.json",
         "reports/backtest/account_constraints_report.json",
+        "reports/backtest/account_suitability_report.json",
         "reports/backtest/controls/baseline_comparison.json",
+        "reports/backtest/controls/module_contribution_report.json",
+        "reports/backtest/robustness/sensitivity_trigger_coverage.json",
+        "reports/audit/universe_shortfall.json",
+        "reports/observation/readiness_report.json",
+        "config/observation_readiness.yml",
     ]
     payload = {
         **existing,
@@ -376,6 +408,30 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         "risk_section": {
             "account_constraints_status": account_constraints.get("status", "FAIL"),
             "account_constraints_warnings": account_constraints.get("warnings", []),
+            "account_suitability_status": account_suitability.get("status", "MISSING"),
+            "account_suitability_base_executable_raw_buy_ratio": (account_suitability.get("base_case") or {}).get("executable_raw_buy_ratio"),
+            "universe_shortfall_status": universe_shortfall.get("status", "MISSING"),
+            "universe_shortfall_to_target": universe_shortfall.get("shortfall_to_target"),
+            "sensitivity_trigger_coverage_status": sensitivity_coverage.get("status", "MISSING"),
+            "sensitivity_non_binding_classifications": [
+                {
+                    "param_path": item.get("param_path"),
+                    "classification": item.get("classification"),
+                    "variant_id": item.get("variant_id"),
+                }
+                for item in sensitivity_coverage.get("classifications", [])
+            ],
+            "module_contribution_status": module_contribution.get("status", "MISSING"),
+            "module_contribution_classifications": [
+                {
+                    "module": item.get("module"),
+                    "classification": item.get("classification"),
+                    "human_review_required": item.get("human_review_required"),
+                }
+                for item in module_contribution.get("modules", [])
+                if item.get("classification") in {"POSSIBLE_DRAG", "INCONCLUSIVE", "COSTLY_RISK_REDUCER", "RISK_REDUCER"}
+            ],
+            "observation_readiness_status": observation_readiness.get("status", "MISSING"),
             "minimum_backtest_years_warning": "sample is about three years; keep as manual observation candidate only",
             "auto_trading_approved": False,
         },
@@ -415,6 +471,13 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         lines.append(f"- {warning.get('code')}: {warning.get('message')} actual={warning.get('actual')}")
     if not account_constraints.get("warnings"):
         lines.append("- account_constraints: no WARN")
+    lines.append(f"- universe_shortfall_to_target: {payload['risk_section'].get('universe_shortfall_to_target')}")
+    lines.append(f"- account_suitability_base_executable_raw_buy_ratio: {payload['risk_section'].get('account_suitability_base_executable_raw_buy_ratio')}")
+    lines.append(f"- observation_readiness_status: {payload['risk_section'].get('observation_readiness_status')}")
+    for item in payload["risk_section"].get("sensitivity_non_binding_classifications", []):
+        lines.append(f"- sensitivity {item.get('param_path')}: {item.get('classification')}")
+    for item in payload["risk_section"].get("module_contribution_classifications", []):
+        lines.append(f"- module {item.get('module')}: {item.get('classification')}")
     lines.extend(["", "## release guard checks", ""])
     for row in payload["release_guard_checks"]:
         lines.append(f"- {row['status']} | {row['check_id']} | {row['check_name']} | actual={row['actual']}")
@@ -451,6 +514,10 @@ def build_release_guard_report(
     audit_payloads["universe_integrity"] = universe_integrity
     _add_payload_check(rows, "RG-UNIVERSE-001", "universe integrity audit", universe_integrity, "scripts/audit_universe_integrity.py", "股票池低于 floor、突破硬过滤或 override 无依据时必须 FAIL。")
 
+    universe_shortfall = build_universe_shortfall_report(write_report=write_report)
+    audit_payloads["universe_shortfall"] = universe_shortfall
+    _add_payload_check(rows, "RG-UNIVERSE-002", "universe shortfall explanation", universe_shortfall, "scripts/build_universe_shortfall_report.py", "低于 target 但高于 floor 时保持 WARN，并输出候选损耗解释。")
+
     data_freshness = build_audit_data_freshness_report(as_of_date, write_report=write_report)
     audit_payloads["data_freshness"] = data_freshness
     _add_payload_check(rows, "RG-DATA-001", "data freshness audit", data_freshness, "scripts/audit_data_freshness.py", "target_trade_date 晚于数据 asof 时必须 FAIL。")
@@ -458,6 +525,10 @@ def build_release_guard_report(
     account_constraints = build_account_constraints_report(write_report=write_report)
     audit_payloads["account_constraints"] = account_constraints
     _add_payload_check(rows, "RG-ACCOUNT-001", "account constraints report", account_constraints, "scripts/build_account_constraints_report.py", "账户约束 WARN 不自动阻断 release，但必须进入 manifest risk section.")
+
+    account_suitability = build_account_suitability_report(write_report=write_report)
+    audit_payloads["account_suitability"] = account_suitability
+    _add_payload_check(rows, "RG-ACCOUNT-002", "account suitability report", account_suitability, "scripts/build_account_suitability_report.py", "base case 执行比例低于观察阈值时保持 WARN，研究场景不得用于 release PASS。")
 
     evidence_chain = build_observation_evidence_chain(
         as_of_date,
@@ -471,7 +542,15 @@ def build_release_guard_report(
 
     _check_lookahead_audit(rows)
     _check_sensitivity(rows)
+    audit_payloads["sensitivity"] = _read_json("reports/backtest/robustness/sensitivity_report.json")
+    sensitivity_coverage = build_sensitivity_trigger_coverage_report(write_report=write_report)
+    audit_payloads["sensitivity_trigger_coverage"] = sensitivity_coverage
+    _add_payload_check(rows, "RG-SENS-002", "sensitivity trigger coverage", sensitivity_coverage, "scripts/build_sensitivity_trigger_coverage_report.py", "NON_BINDING 参数必须分类；PARAM_NOT_WIRED 必须 FAIL，NO_SIGNAL_COVERAGE 保持 WARN。")
     _check_baseline_comparison(rows)
+    audit_payloads["baseline_comparison"] = _read_json("reports/backtest/controls/baseline_comparison.json")
+    module_contribution = build_module_contribution_report(write_report=write_report)
+    audit_payloads["module_contribution"] = module_contribution
+    _add_payload_check(rows, "RG-BASELINE-002", "module contribution report", module_contribution, "scripts/build_module_contribution_report.py", "MODULE_MAY_BE_DRAG 必须拆成风险收益解释，不自动删模块。")
     _check_tests_status(rows)
 
     stale_frame = build_report_freshness_check(write_report=write_report)
@@ -494,7 +573,23 @@ def build_release_guard_report(
 
     _check_tracked_local_artifacts(rows)
     _check_observation_state(rows, as_of_date)
+    observation_readiness = evaluate_observation_readiness(write_report=write_report)
+    audit_payloads["observation_readiness"] = observation_readiness
+    _add_observation_readiness_check(rows, observation_readiness)
     _check_config_hashes(rows)
+
+    status_consistency = build_release_status_consistency_report(write_report=write_report)
+    audit_payloads["release_status_consistency"] = status_consistency
+    _row(
+        rows,
+        "RG-STATUS-001",
+        "release status consistency",
+        str(status_consistency.get("status", "FAIL")).upper(),
+        "current release status consistent across public reports",
+        status_consistency.get("expected_current_release_status", "missing"),
+        "scripts/check_release_status_consistency.py",
+        "manifest、release guard、README 和当前 project_status 文档不得互相矛盾。",
+    )
 
     frame = pd.DataFrame(
         rows,

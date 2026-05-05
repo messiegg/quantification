@@ -19,6 +19,7 @@ ACTIVE_RUNTIME_CONFIG_PATHS = [
     "config/metric_map.yml",
     "config/data_sources.yml",
     "config/observation.yml",
+    "config/observation_readiness.yml",
 ]
 
 

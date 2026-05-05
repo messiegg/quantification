@@ -1,0 +1,2 @@
+date,target_trade_date,report_status,reviewed_by,reviewed_at,action_count,blocked_action_count,accepted_action_count,rejected_action_count,rejection_reason,notes
+2026-04-30,2026-04-30,WARN,manual_reviewer,2026-04-30T16:30:00+08:00,0,0,0,0,,template row only

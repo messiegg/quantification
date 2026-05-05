@@ -1,0 +1,1316 @@
+{
+  "generated_at": "2026-05-05T12:45:58.694646+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    }
+  ],
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "WARN",
+  "base_case": {
+    "research_only": false,
+    "initial_capital": 200000.0,
+    "current_cash": 50000.0,
+    "reserved_cash": 0.0,
+    "latest_total_equity": 200000.0,
+    "min_trade_amount": 5000.0,
+    "lot_size": 100,
+    "tranche_weights": {
+      "1": 0.03,
+      "2": 0.06,
+      "3": 0.09
+    },
+    "max_position_weight": 0.12,
+    "max_total_exposure": null,
+    "raw_buy_signal_count": 370,
+    "executable_buy_count": 43,
+    "executable_raw_buy_ratio": 0.11621621621621622,
+    "blocker_counts": {
+      "MIN_TRADE_AMOUNT": 220,
+      "CASH_INSUFFICIENT": 88,
+      "TOTAL_EXPOSURE_LIMIT": 73,
+      "LOT_SIZE_ZERO": 4
+    },
+    "min_trade_amount_block_ratio": 0.5945945945945946,
+    "cash_block_ratio": 0.23783783783783785,
+    "exposure_block_ratio": 0.1972972972972973,
+    "lot_size_block_ratio": 0.010810810810810811,
+    "avg_positions": null,
+    "max_positions": 20,
+    "avg_exposure": 0.46939167840982304,
+    "turnover": 555248.6335
+  },
+  "scenarios": [
+    {
+      "scenario_id": "capital_x0.5_min_trade_x1_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 43,
+      "estimated_executable_raw_buy_ratio": 0.11621621621621622,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x1_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 43,
+      "estimated_executable_raw_buy_ratio": 0.11621621621621622,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x1_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 43,
+      "estimated_executable_raw_buy_ratio": 0.11621621621621622,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x1_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 43,
+      "estimated_executable_raw_buy_ratio": 0.11621621621621622,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x1_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 43,
+      "estimated_executable_raw_buy_ratio": 0.11621621621621622,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.5_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.5_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.5_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.5_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.5_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.25_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.25_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.25_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.25_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x0.5_min_trade_x0.25_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 0.5,
+      "initial_capital": 100000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x1_target_positions_20",
+      "research_only": false,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x1_target_positions_12",
+      "research_only": false,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x1_target_positions_18",
+      "research_only": false,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x1_target_positions_24",
+      "research_only": false,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x1_target_positions_30",
+      "research_only": false,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 171,
+      "estimated_executable_raw_buy_ratio": 0.46216216216216216,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.5_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.5_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.5_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.5_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.5_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.25_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.25_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.25_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.25_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x1_min_trade_x0.25_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 1,
+      "initial_capital": 200000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x1_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x1_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x1_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x1_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x1_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.5_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.5_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.5_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.5_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.5_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.25_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.25_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.25_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.25_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x2_min_trade_x0.25_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 2,
+      "initial_capital": 400000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x1_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x1_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x1_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x1_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x1_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.5_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.5_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.5_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.5_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.5_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.25_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.25_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.25_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.25_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x5_min_trade_x0.25_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 5,
+      "initial_capital": 1000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x1_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x1_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x1_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x1_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x1_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 5000.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.5_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.5_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.5_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.5_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.5_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 2500.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.25_target_positions_20",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 20,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.25_target_positions_12",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 12,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.25_target_positions_18",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 18,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.25_target_positions_24",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 24,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    },
+    {
+      "scenario_id": "capital_x10_min_trade_x0.25_target_positions_30",
+      "research_only": true,
+      "capital_multiplier": 10,
+      "initial_capital": 2000000.0,
+      "min_trade_amount": 1250.0,
+      "target_positions": 30,
+      "estimated_executable_buy_count": 205,
+      "estimated_executable_raw_buy_ratio": 0.5540540540540541,
+      "estimation_method": "heuristic_min_trade_only_from_intended_target_weight",
+      "limitations": [
+        "per-signal actual portfolio equity and desired trade amount are not present in blocked_signals",
+        "cash, exposure, lot-size and same-day priority interactions are not re-simulated",
+        "scenario output is research_only and cannot be used for release PASS"
+      ]
+    }
+  ],
+  "estimated_capital_required_to_reach_executable_raw_25": "unknown",
+  "estimated_capital_required_to_reach_executable_raw_50": "unknown",
+  "missing_data_for_exact_capital_estimate": [
+    "per_signal_actual_equity",
+    "per_signal_desired_trade_amount",
+    "per_signal_cash_after_priority_ordering"
+  ],
+  "recommended_manual_use_notes": [
+    "当前资金与最小成交额组合会让买入执行明显受账户约束主导。",
+    "非 base 场景仅用于人工评估资金规模和最小成交额适配性，不改变 release 口径。",
+    "在真实观察日志证明执行比例改善前，release 顶层应保持 WARN。"
+  ],
+  "warnings": [
+    {
+      "code": "BASE_CASE_EXECUTION_RATIO_BELOW_OBSERVATION_MINIMUM",
+      "expected": ">=0.25",
+      "actual": 0.11621621621621622
+    },
+    {
+      "code": "MIN_TRADE_AMOUNT_DOMINATES_BASE_CASE",
+      "expected": "<=0.50 of raw buy signals",
+      "actual": 0.5945945945945946
+    }
+  ],
+  "violations": [],
+  "source_files": [
+    "reports/backtest/combined_v2_blocked_signals.csv",
+    "reports/backtest/account_constraints_report.json",
+    "config/account.yml"
+  ]
+}

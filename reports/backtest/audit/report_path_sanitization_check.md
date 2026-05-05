@@ -1,7 +1,7 @@
 # report path sanitization check
 
 - overall_status: PASS
-- scanned_files: 39
+- scanned_files: 40
 - fail_count: 0
 
 ## checks
@@ -20,6 +20,7 @@
 - PASS | reports/backtest/release/observation_sync_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/post_data_update_worktree_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/release_guard_report.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/backtest/release/release_status_consistency.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/release_sync_consistency_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/test_status.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_gaps/latest.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。

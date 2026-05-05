@@ -1,7 +1,7 @@
 {
   "run_id": "combined_v2_rc_2023-04-03_2026-04-03_next_bar",
   "created_at": "2026-05-05T08:57:40.644926+00:00",
-  "git_commit": "ceafa39e41a279d9f40b97e4004aa86c2f80cad9",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
   "python_version": "3.14.3",
   "start_date": "2023-04-03",
   "end_date": "2026-04-03",
@@ -119,45 +119,75 @@
     },
     {
       "path": "reports/audit/config_consistency.json",
-      "sha256": "8f1815371d273f5d911bda46cb443b20f157d590b281663e1b80eaf859229885",
+      "sha256": "a2097562b1936594311acf56cfbe7b477e85efbad4c37cd6ac1a344861d9b118",
       "exists": true
     },
     {
       "path": "reports/audit/universe_integrity.json",
-      "sha256": "ed1897ca0ea7d4bc0ed3cfee94308531c997f803768bc3df7a6e66781e704b86",
+      "sha256": "24ec2ff3ed00f625e63a14635cdc8077935cdc50df4e10c660f5ff2db6be8470",
       "exists": true
     },
     {
       "path": "reports/audit/data_freshness.json",
-      "sha256": "139f5465eae07c3534cd632e07c79703024673d919850cc10975f2a8cbc22a2f",
+      "sha256": "56918713265c7e83d5bf97049b8533ea10e5e66786dce99448abd600eea204d8",
       "exists": true
     },
     {
       "path": "reports/observation/2026-05-04/evidence_chain.json",
-      "sha256": "0d7e4757b39d1a98076794b1655c449d145bd4a751ee05c4dcc2cb7d974925ec",
+      "sha256": "76d394baaf005f920eeb50d05240d35eac71140e3217ba0bb969f24b8072a5f7",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_report.json",
-      "sha256": "3acff0e05d3bb988497bff973fc78c1fc7c820a4f71e27154bc5842b612cb672",
+      "sha256": "b6845b1daee4c288107c7b351cb9a0b36c8be5f4621b66b0807ebbae36265fe8",
       "exists": true
     },
     {
       "path": "reports/backtest/account_constraints_report.json",
-      "sha256": "ea1b24f2574686bfb70c9db6625f96d88036575a443aa6f168a06322cb3d4832",
+      "sha256": "9dfc70561620ec349e7c2ba38afe416095eba314cb6f555391eb5c7af242cc43",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/account_suitability_report.json",
+      "sha256": "467053002c31e44afd1aaeed027992b03fe9dfc7e223ba6ca5541b666a925c69",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/baseline_comparison.json",
-      "sha256": "018fea1522dc26e60fedd58881c1d95c884b811e66593b82009ceccf0d39d181",
+      "sha256": "0662216c60f7d7ab899488794e9610af4dd53cc35ca143373e4c288aab313793",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/controls/module_contribution_report.json",
+      "sha256": "96d093efaf089ea50a2b2014939dd841d2051fdf33eff56bd70e809cb082d072",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/robustness/sensitivity_trigger_coverage.json",
+      "sha256": "0ceb452337de7e6f80c25c4871b15c98e89370480ded6966fd2d4cd9cbc62181",
+      "exists": true
+    },
+    {
+      "path": "reports/audit/universe_shortfall.json",
+      "sha256": "7b5c711388c9fe86033cd4864ee2b1b465e3cfd676471223ee41e54fc50203d5",
+      "exists": true
+    },
+    {
+      "path": "reports/observation/readiness_report.json",
+      "sha256": "cb59e4b3e3600edcacf953a9a0450854093e8f03e9085aac1b6485b1850209ae",
+      "exists": true
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce",
       "exists": true
     }
   ],
   "status": "WARN",
   "branch": "codex/combined-v2-rc-release",
-  "generated_at": "2026-05-05T11:31:26.279353+00:00",
-  "config_hash": "f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616",
-  "data_hash": "9082113047c9cd5e3e97dc07b412555ae4ec202765def37dbc1baae647320eb3",
+  "generated_at": "2026-05-05T12:45:59.530475+00:00",
+  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
   "requested_date": "2026-05-04",
   "target_trade_date": "2026-04-30",
   "target_trading_date": "2026-04-30",
@@ -174,9 +204,17 @@
   "audit_statuses": {
     "config_consistency": "PASS",
     "universe_integrity": "WARN",
+    "universe_shortfall": "WARN",
     "data_freshness": "PASS",
     "account_constraints": "WARN",
-    "evidence_chain": "WARN"
+    "account_suitability": "WARN",
+    "evidence_chain": "WARN",
+    "sensitivity": "WARN",
+    "sensitivity_trigger_coverage": "WARN",
+    "baseline_comparison": "WARN",
+    "module_contribution": "WARN",
+    "observation_readiness": "NOT_READY",
+    "release_status_consistency": "PASS"
   },
   "release_guard_checks": [
     {
@@ -207,6 +245,15 @@
       "recommendation": "股票池低于 floor、突破硬过滤或 override 无依据时必须 FAIL。"
     },
     {
+      "check_id": "RG-UNIVERSE-002",
+      "check_name": "universe shortfall explanation",
+      "status": "WARN",
+      "expected": "PASS/WARN without FAIL",
+      "actual": "WARN",
+      "evidence": "scripts/build_universe_shortfall_report.py",
+      "recommendation": "低于 target 但高于 floor 时保持 WARN，并输出候选损耗解释。"
+    },
+    {
       "check_id": "RG-DATA-001",
       "check_name": "data freshness audit",
       "status": "PASS",
@@ -223,6 +270,15 @@
       "actual": "WARN",
       "evidence": "scripts/build_account_constraints_report.py",
       "recommendation": "账户约束 WARN 不自动阻断 release，但必须进入 manifest risk section."
+    },
+    {
+      "check_id": "RG-ACCOUNT-002",
+      "check_name": "account suitability report",
+      "status": "WARN",
+      "expected": "PASS/WARN without FAIL",
+      "actual": "WARN",
+      "evidence": "scripts/build_account_suitability_report.py",
+      "recommendation": "base case 执行比例低于观察阈值时保持 WARN，研究场景不得用于 release PASS。"
     },
     {
       "check_id": "RG-EVIDENCE-001",
@@ -252,6 +308,15 @@
       "recommendation": "release guard 只认可 --mode ci 结果；参数变化未绑定、计算 ERROR 或原因 UNKNOWN 不能计入鲁棒性 PASS。"
     },
     {
+      "check_id": "RG-SENS-002",
+      "check_name": "sensitivity trigger coverage",
+      "status": "WARN",
+      "expected": "PASS/WARN without FAIL",
+      "actual": "WARN",
+      "evidence": "scripts/build_sensitivity_trigger_coverage_report.py",
+      "recommendation": "NON_BINDING 参数必须分类；PARAM_NOT_WIRED 必须 FAIL，NO_SIGNAL_COVERAGE 保持 WARN。"
+    },
+    {
       "check_id": "RG-BASELINE-001",
       "check_name": "baseline comparison report exists and is not failing",
       "status": "WARN",
@@ -259,6 +324,15 @@
       "actual": "WARN",
       "evidence": "reports/backtest/controls/baseline_comparison.json",
       "recommendation": "必须区分 documented dianjinshu-like baseline、combined_v2 和模块消融。"
+    },
+    {
+      "check_id": "RG-BASELINE-002",
+      "check_name": "module contribution report",
+      "status": "WARN",
+      "expected": "PASS/WARN without FAIL",
+      "actual": "WARN",
+      "evidence": "scripts/build_module_contribution_report.py",
+      "recommendation": "MODULE_MAY_BE_DRAG 必须拆成风险收益解释，不自动删模块。"
     },
     {
       "check_id": "RG-TESTS-001",
@@ -292,7 +366,7 @@
       "check_name": "report path sanitization check",
       "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=40 WARN=0 FAIL=0",
+      "actual": "PASS=41 WARN=0 FAIL=0",
       "evidence": "scripts/check_report_path_sanitization.py",
       "recommendation": "公开报告不得包含本机路径或 secret。"
     },
@@ -310,7 +384,7 @@
       "check_name": "combined_v2 RC hash-only verification",
       "status": "WARN",
       "expected": "no FAIL",
-      "actual": "PASS=18 WARN=6 FAIL=0",
+      "actual": "PASS=20 WARN=10 FAIL=0",
       "evidence": "scripts/verify_combined_v2_rc.py --mode hash-only",
       "recommendation": "CI 只验证 manifest/hash/已提交小型报告，不重跑完整回测。"
     },
@@ -360,6 +434,15 @@
       "recommendation": "观察报告只能作为手工复核材料，不得写成今日实盘执行或自动下单。"
     },
     {
+      "check_id": "RG-READY-001",
+      "check_name": "observation readiness policy",
+      "status": "WARN",
+      "expected": "READY for PASS_CANDIDATE consideration",
+      "actual": "NOT_READY",
+      "evidence": "reports/observation/readiness_report.json",
+      "recommendation": "观察期准入未满足时不得进入 PASS_CANDIDATE，只能保持 WARN。"
+    },
+    {
       "check_id": "CFG-HASH-strategy_v2",
       "check_name": "config/strategy_v2.yml hash matches RC manifest",
       "status": "PASS",
@@ -376,6 +459,15 @@
       "actual": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8",
       "evidence": "config/universe_rules_v2.yml",
       "recommendation": "配置 hash 漂移意味着 RC 口径不再冻结，必须停止发布。"
+    },
+    {
+      "check_id": "RG-STATUS-001",
+      "check_name": "release status consistency",
+      "status": "PASS",
+      "expected": "current release status consistent across public reports",
+      "actual": "WARN",
+      "evidence": "scripts/check_release_status_consistency.py",
+      "recommendation": "manifest、release guard、README 和当前 project_status 文档不得互相矛盾。"
     }
   ],
   "risk_section": {
@@ -394,6 +486,52 @@
         "actual": 0.5945945945945946
       }
     ],
+    "account_suitability_status": "WARN",
+    "account_suitability_base_executable_raw_buy_ratio": 0.11621621621621622,
+    "universe_shortfall_status": "WARN",
+    "universe_shortfall_to_target": 6,
+    "sensitivity_trigger_coverage_status": "WARN",
+    "sensitivity_non_binding_classifications": [
+      {
+        "param_path": "universe_size",
+        "classification": "NO_SIGNAL_COVERAGE",
+        "variant_id": "universe_large"
+      },
+      {
+        "param_path": "defensive_valuation_threshold",
+        "classification": "NO_SIGNAL_COVERAGE",
+        "variant_id": "defensive_valuation_strict"
+      },
+      {
+        "param_path": "cyclical_pb_threshold",
+        "classification": "NO_SIGNAL_COVERAGE",
+        "variant_id": "cyclical_pb_strict"
+      },
+      {
+        "param_path": "grid_step",
+        "classification": "NO_SIGNAL_COVERAGE",
+        "variant_id": "grid_tighter"
+      }
+    ],
+    "module_contribution_status": "WARN",
+    "module_contribution_classifications": [
+      {
+        "module": "high_dividend_supplement",
+        "classification": "POSSIBLE_DRAG",
+        "human_review_required": true
+      },
+      {
+        "module": "trend_stop",
+        "classification": "POSSIBLE_DRAG",
+        "human_review_required": true
+      },
+      {
+        "module": "market_state_filter",
+        "classification": "RISK_REDUCER",
+        "human_review_required": false
+      }
+    ],
+    "observation_readiness_status": "NOT_READY",
     "minimum_backtest_years_warning": "sample is about three years; keep as manual observation candidate only",
     "auto_trading_approved": false
   }

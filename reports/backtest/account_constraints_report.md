@@ -1,9 +1,9 @@
 # account constraints report
 
 - status: WARN
-- generated_at: 2026-05-05T11:31:25.610472+00:00
-- git_commit: ceafa39e41a279d9f40b97e4004aa86c2f80cad9
-- config_hash: f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616
+- generated_at: 2026-05-05T12:45:58.635394+00:00
+- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
+- config_hash: 737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2
 - raw_buy_signal_count: 370
 - raw_sell_signal_count: 91
 - executable_buy_count: 43

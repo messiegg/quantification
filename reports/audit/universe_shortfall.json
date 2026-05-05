@@ -1,0 +1,686 @@
+{
+  "generated_at": "2026-05-05T12:45:56.113413+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    }
+  ],
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "requested_date": "",
+  "target_trade_date": "2026-04-30",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "WARN",
+  "active_date": "2026-04-30",
+  "universe_file": "config/universe.yml",
+  "rules_file": "config/universe_rules_v2.yml",
+  "target_size": 36,
+  "floor_size": 24,
+  "selected_count": 30,
+  "shortfall_to_target": 6,
+  "candidate_pool_raw_count": 5151,
+  "candidate_pool_count": 72,
+  "funnel": {
+    "raw_feature_rows": 5151,
+    "allowed_industry_rows": 1340,
+    "candidate_pool_rows": 72,
+    "filtered_out_rows": 5079,
+    "filter_loss_counts": {
+      "industry_not_in_metric_map": 3811,
+      "market_cap_billion": 2090,
+      "roe": 595,
+      "st": 42,
+      "latest_net_profit": 225,
+      "dv_ttm": 361,
+      "debt_to_assets": 11,
+      "valuation": 162,
+      "industry_leader": 517,
+      "pb_q_blended": 593,
+      "avg_amount_60d_million": 56,
+      "cycle_trap": 29,
+      "roe_equity_non_positive": 6,
+      "listed_days": 126,
+      "pb_missing": 1,
+      "pb": 1
+    },
+    "stage_loss_counts": {
+      "allowed_industry": 3811,
+      "bucket_filter": 1267,
+      "candidate_pool": 72,
+      "data_coverage": 1
+    }
+  },
+  "largest_loss_layer": "allowed_industry",
+  "industry_counts": {
+    "交通运输": 3,
+    "基础化工": 3,
+    "建筑材料": 3,
+    "有色金属": 1,
+    "煤炭": 1,
+    "石油石化": 1,
+    "钢铁": 3,
+    "公用事业": 3,
+    "家用电器": 3,
+    "通信": 3,
+    "银行": 3,
+    "非银金融": 3
+  },
+  "industry_cap_blocked_count": 30,
+  "market_cap_min": 300,
+  "top_excluded_candidates": [
+    {
+      "symbol": "601816.sh",
+      "code": "601816.sh",
+      "name": "京沪高铁",
+      "industry": "交通运输",
+      "market_cap_billion": 2397.3582891300002,
+      "pe": 18.363130912819443,
+      "pb": 1.172622326316487,
+      "dividend_yield": 0.03197959183673468,
+      "score": 76.44687280158283,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "000333.sz",
+      "code": "000333.sz",
+      "name": "美的集团",
+      "industry": "家用电器",
+      "market_cap_billion": 6166.256986846,
+      "pe": 14.031628892595862,
+      "pb": 2.7623961368801555,
+      "dividend_yield": 0.04932182490752158,
+      "score": 76.29400461517217,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600803.sh",
+      "code": "600803.sh",
+      "name": "新奥股份",
+      "industry": "公用事业",
+      "market_cap_billion": 627.2060626782,
+      "pe": 13.398060006113662,
+      "pb": 2.5447602395755595,
+      "dividend_yield": 0.048864758144126344,
+      "score": 74.68734578608549,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "002032.sz",
+      "code": "002032.sz",
+      "name": "苏 泊 尔",
+      "industry": "家用电器",
+      "market_cap_billion": 377.43372241040004,
+      "pe": 18.0011484954663,
+      "pb": 6.005443853451932,
+      "dividend_yield": 0.05967296665958799,
+      "score": 74.39196535584526,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601919.sh",
+      "code": "601919.sh",
+      "name": "中远海控",
+      "industry": "交通运输",
+      "market_cap_billion": 2162.1514871431996,
+      "pe": 7.004474319789421,
+      "pb": 0.9308972371094557,
+      "dividend_yield": 0.11260623229461755,
+      "score": 74.08784451807426,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601018.sh",
+      "code": "601018.sh",
+      "name": "宁波港",
+      "industry": "交通运输",
+      "market_cap_billion": 719.812370763,
+      "pe": 13.926985978892795,
+      "pb": 0.891566265060241,
+      "dividend_yield": 0.0372972972972973,
+      "score": 74.06540075436115,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600642.sh",
+      "code": "600642.sh",
+      "name": "申能股份",
+      "industry": "公用事业",
+      "market_cap_billion": 443.4035914656001,
+      "pe": 11.145573979044734,
+      "pb": 1.2072154438893095,
+      "dividend_yield": 0.04966887417218542,
+      "score": 73.77711040098946,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600027.sh",
+      "code": "600027.sh",
+      "name": "华电国际",
+      "industry": "公用事业",
+      "market_cap_billion": 579.4275317816,
+      "pe": 9.545263001699253,
+      "pb": 1.2030752302395766,
+      "dividend_yield": 0.044088176352705406,
+      "score": 73.0738524475472,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "002736.sz",
+      "code": "002736.sz",
+      "name": "国信证券",
+      "industry": "非银金融",
+      "market_cap_billion": 1097.9148560320002,
+      "pe": 8.800835696927864,
+      "pb": 1.1300756335324424,
+      "dividend_yield": 0.03264925373134329,
+      "score": 72.64678694954658,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "001965.sz",
+      "code": "001965.sz",
+      "name": "招商公路",
+      "industry": "交通运输",
+      "market_cap_billion": 638.738929248,
+      "pe": 13.854991569013135,
+      "pb": 0.9263196144453079,
+      "dividend_yield": 0.04436170212765955,
+      "score": 72.24007413209621,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600233.sh",
+      "code": "600233.sh",
+      "name": "圆通速递",
+      "industry": "交通运输",
+      "market_cap_billion": 735.88205617,
+      "pe": 18.588796812388086,
+      "pb": 2.2053942516098926,
+      "dividend_yield": 0.016744186046511633,
+      "score": 72.12598653983045,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601006.sh",
+      "code": "601006.sh",
+      "name": "大秦铁路",
+      "industry": "交通运输",
+      "market_cap_billion": 1061.7562656332,
+      "pe": 15.942133977908716,
+      "pb": 0.6380418188612078,
+      "dividend_yield": 0.041745730550284674,
+      "score": 71.60260647493321,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601211.sh",
+      "code": "601211.sh",
+      "name": "国泰海通",
+      "industry": "非银金融",
+      "market_cap_billion": 2841.7828436348004,
+      "pe": 10.218856576973616,
+      "pb": 0.8808743169398908,
+      "dividend_yield": 0.026674937965260527,
+      "score": 71.43143287498043,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601319.sh",
+      "code": "601319.sh",
+      "name": "中国人保",
+      "industry": "非银金融",
+      "market_cap_billion": 3175.2825238594,
+      "pe": 6.807191450198088,
+      "pb": 1.0257142857142858,
+      "dividend_yield": 0.026740947075208906,
+      "score": 71.36848561061795,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600886.sh",
+      "code": "600886.sh",
+      "name": "国投电力",
+      "industry": "公用事业",
+      "market_cap_billion": 1091.0125679106002,
+      "pe": 16.575024559518585,
+      "pb": 1.6462695224254724,
+      "dividend_yield": 0.033492296404988985,
+      "score": 71.31230956096793,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601881.sh",
+      "code": "601881.sh",
+      "name": "中国银河",
+      "industry": "非银金融",
+      "market_cap_billion": 1397.4166083168,
+      "pe": 11.161725207480483,
+      "pb": 1.1851204823106796,
+      "dividend_yield": 0.025117370892018778,
+      "score": 71.25865374242125,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600023.sh",
+      "code": "600023.sh",
+      "name": "浙能电力",
+      "industry": "公用事业",
+      "market_cap_billion": 764.2977666930001,
+      "pe": 10.487643657336086,
+      "pb": 1.0181576404806427,
+      "dividend_yield": 0.059649122807017514,
+      "score": 71.18219690246637,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601601.sh",
+      "code": "601601.sh",
+      "name": "中国太保",
+      "industry": "非银金融",
+      "market_cap_billion": 3581.6531236964997,
+      "pe": 6.694053123439865,
+      "pb": 1.1852913085004775,
+      "dividend_yield": 0.029008863819500408,
+      "score": 71.17643151704372,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600863.sh",
+      "code": "600863.sh",
+      "name": "华能蒙电",
+      "industry": "公用事业",
+      "market_cap_billion": 363.55279558399997,
+      "pe": 17.61779514273328,
+      "pb": 2.097905526939312,
+      "dividend_yield": 0.047413793103448294,
+      "score": 70.6174702393997,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601598.sh",
+      "code": "601598.sh",
+      "name": "中国外运",
+      "industry": "交通运输",
+      "market_cap_billion": 430.4250736199999,
+      "pe": 10.70230597315173,
+      "pb": 1.0424548807993483,
+      "dividend_yield": 0.04833333333333334,
+      "score": 70.18685097924751,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600000.sh",
+      "code": "600000.sh",
+      "name": "浦发银行",
+      "industry": "银行",
+      "market_cap_billion": 3087.45121041,
+      "pe": 6.172803667573025,
+      "pb": 0.41888838680524176,
+      "dividend_yield": 0.04422869471413163,
+      "score": 70.04571605601451,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600015.sh",
+      "code": "600015.sh",
+      "name": "华夏银行",
+      "industry": "银行",
+      "market_cap_billion": 1096.5385714452,
+      "pe": 4.031391806783823,
+      "pb": 0.34727822580645157,
+      "dividend_yield": 0.058780841799709764,
+      "score": 69.50999695851938,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600377.sh",
+      "code": "600377.sh",
+      "name": "宁沪高速",
+      "industry": "交通运输",
+      "market_cap_billion": 619.6429425,
+      "pe": 13.488471829915325,
+      "pb": 1.4951824126088025,
+      "dividend_yield": 0.03983739837398372,
+      "score": 69.3190172434747,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601880.sh",
+      "code": "601880.sh",
+      "name": "辽港股份",
+      "industry": "交通运输",
+      "market_cap_billion": 386.5769822932,
+      "pe": 29.582175519441805,
+      "pb": 0.9582283427637371,
+      "dividend_yield": 0.014573170731707321,
+      "score": 69.25405778813176,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601818.sh",
+      "code": "601818.sh",
+      "name": "光大银行",
+      "industry": "银行",
+      "market_cap_billion": 1843.4691931032003,
+      "pe": 4.7480275926008355,
+      "pb": 0.3687943262411348,
+      "dividend_yield": 0.060897435897435875,
+      "score": 68.57437940852908,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "002142.sz",
+      "code": "002142.sz",
+      "name": "宁波银行",
+      "industry": "银行",
+      "market_cap_billion": 2192.392142944,
+      "pe": 7.595330479625845,
+      "pb": 1.0063655653228252,
+      "dividend_yield": 0.036144578313253004,
+      "score": 68.37404578243081,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601688.sh",
+      "code": "601688.sh",
+      "name": "华泰证券",
+      "industry": "非银金融",
+      "market_cap_billion": 1728.644415019,
+      "pe": 10.551132048048796,
+      "pb": 0.9955365665977318,
+      "dividend_yield": 0.027154046997389037,
+      "score": 68.33633477254959,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600060.sh",
+      "code": "600060.sh",
+      "name": "海信视像",
+      "industry": "家用电器",
+      "market_cap_billion": 334.07289702400004,
+      "pe": 13.613339216142016,
+      "pb": 1.5713561423479319,
+      "dividend_yield": 0.034375,
+      "score": 67.76665430660714,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "600900.sh",
+      "code": "600900.sh",
+      "name": "长江电力",
+      "industry": "公用事业",
+      "market_cap_billion": 6684.7170800112,
+      "pe": 20.465012505564392,
+      "pb": 3.023311163458222,
+      "dividend_yield": 0.026830161054172786,
+      "score": 67.51198035959787,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    },
+    {
+      "symbol": "601866.sh",
+      "code": "601866.sh",
+      "name": "中远海发",
+      "industry": "交通运输",
+      "market_cap_billion": 351.05764481200004,
+      "pe": 21.81293699948123,
+      "pb": 1.1402081475483066,
+      "dividend_yield": 0.01541353383458648,
+      "score": 67.3024953362209,
+      "failed_filters": [],
+      "missing_fields": [],
+      "would_enter_if": [
+        "if_not_blocked_by_industry_cap",
+        "if_retained_or_new_ranking_allowed"
+      ],
+      "data_asof": "2026-04-30",
+      "effective_date": null
+    }
+  ],
+  "warnings": [
+    {
+      "code": "UNIVERSE_BELOW_TARGET",
+      "selected_count": 30,
+      "target_size": 36
+    },
+    {
+      "code": "DATA_COVERAGE_WARN",
+      "filtered_out_count": 1
+    }
+  ],
+  "violations": []
+}

@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-05T11:31:22.834358+00:00",
-  "git_commit": "ceafa39e41a279d9f40b97e4004aa86c2f80cad9",
+  "generated_at": "2026-05-05T12:45:51.264411+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
   "branch": "codex/combined-v2-rc-release",
-  "config_hash": "61225deb3df75f8c8d79e79ee94dff146886349addd475e2cba537c54b902606",
+  "config_hash": "b56f172c9ff1affb05ce9385fe456f7bdbc0401340e2db4c9f1bed793e6f2eba",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
@@ -35,12 +35,17 @@
       "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
     },
     {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    },
+    {
       "path": "config/universe.yml",
       "exists": true,
       "sha256": "cadc5a9512ac71c78a05404d52cee02af75c3fcd1bfa8f92d6ed0cf7436fdbd1"
     }
   ],
-  "data_hash": "9082113047c9cd5e3e97dc07b412555ae4ec202765def37dbc1baae647320eb3",
+  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
   "requested_date": "2026-04-30",
   "target_trade_date": "2026-04-30",
   "manual_review_required": true,
@@ -48,7 +53,7 @@
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
   "status": "WARN",
-  "checked_at": "2026-05-05T11:31:22.869389+00:00",
+  "checked_at": "2026-05-05T12:45:51.304356+00:00",
   "universe_file": "config/universe.yml",
   "rules_file": "config/universe_rules_v2.yml",
   "features_file": "data/features/daily_features",

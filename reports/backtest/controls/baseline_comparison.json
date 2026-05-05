@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-05T11:21:24.632449+00:00",
-  "git_commit": "ceafa39e41a279d9f40b97e4004aa86c2f80cad9",
+  "generated_at": "2026-05-05T12:24:08.092409+00:00",
+  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
   "branch": "codex/combined-v2-rc-release",
-  "config_hash": "648403e5ab69d70c7ee80e87600709a3410c2c143fc178c21881ad1c88eb6b66",
+  "config_hash": "8c13e12504fc46f862ba1c4b608474e5284c224bd65e6c202e6373add46fe28c",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
@@ -35,12 +35,17 @@
       "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
     },
     {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    },
+    {
       "path": "config/baselines/dianjinshu_like.yml",
       "exists": true,
       "sha256": "8d6cbd94c171648d0008defa11778c13ea3f4894415b220784f73c2a6329c851"
     }
   ],
-  "data_hash": "9af023ea251c5c1afe31aef0976347b396b8c55e0c45fdc374c6dc2b1ccfe48e",
+  "data_hash": "a09eaa5950a5129cd4f6eb5ef89ebb3937b6496ffe79934d97b42ac17f2a4fcd",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,

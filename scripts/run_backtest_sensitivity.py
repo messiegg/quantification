@@ -431,6 +431,11 @@ def main(argv: list[str] | None = None) -> int:
         default="",
         help="Write a fail-closed sensitivity report for an attempted run that did not complete.",
     )
+    parser.add_argument(
+        "--explain-non-binding",
+        action="store_true",
+        help="Build the sensitivity trigger coverage report after writing sensitivity outputs.",
+    )
     args = parser.parse_args(argv)
     paths = _output_paths(args.mode)
     default_start, default_end = MODE_WINDOWS[args.mode]
@@ -702,6 +707,10 @@ def main(argv: list[str] | None = None) -> int:
             f"- {row['variant_id']}: 年化 {_pct_or_missing(row.get('annual_return'))}，累计 {_pct_or_missing(row.get('cumulative_return'))}，回撤 {_pct_or_missing(row.get('max_drawdown'))}，夏普 {sharpe_text}，成交 {_int_or_zero(row.get('total_trades'))}，平均仓位 {_pct_or_missing(row.get('avg_daily_exposure'))}，binding={row['parameter_binding_status']}，reason={row['non_binding_reason'] or 'n/a'}，changed_action_days={_int_or_zero(row.get('changed_action_days_count'))}，run_status={row.get('variant_run_status') or 'PASS'}"
         )
     ensure_parent(paths["md"]).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    if args.explain_non_binding:
+        from scripts.build_sensitivity_trigger_coverage_report import build_sensitivity_trigger_coverage_report
+
+        build_sensitivity_trigger_coverage_report(write_report=True)
     return 1 if overall_status == "FAIL" else 0
 
 
