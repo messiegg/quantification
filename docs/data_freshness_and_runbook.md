@@ -73,11 +73,26 @@ freshness gate 先把 `requested_as_of_date` 映射到 `target_trading_date`。�
 - 生成 `reports/observation/2026-05-04/observation_run_manifest.json`
 - 如果生成 `combined_v2_manual_order_list.csv`，只能作为下一交易日人工复核清单，且必须标记 `NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY`、`auto_order_allowed=false`、`requires_human_review=true`
 
+当前仓库已提交的 2026-05-04 观察状态为：
+
+- `requested_as_of_is_trading_day: false`
+- `target_trading_date: 2026-04-30`
+- `data_max_date / feature_max_date / benchmark_max_date: 2026-04-30`
+- `allowed_actions: observation_report_allowed`
+- `blocking_reason: NONE`
+- `data_quality_status: WARN`
+- `data_quality` 当前 0 FAIL、1 WARN，WARN 为 `CORE-pe_ttm` 缺失率 `0.27451`
+- `combined_v2_manual_order_list.csv` 可在本地生成，但必须保持 ignored 且不能提交
+
+`reports/data_gaps/latest.md` 是更严格的全市场数据缺口审计，不等同于 observation gate。它可以提示行业数据、估值历史或全市场字段覆盖不足；观察期是否允许报告，以 `reports/observation/<as_of_date>/data_freshness_report.json` 和 `observation_gate_consistency_check` 为准。
+
 ## 全流程
 
 ```bash
 ./.venv/bin/python scripts/check_report_freshness.py
-./.venv/bin/python scripts/verify_combined_v2_rc.py
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode hash-only
+./.venv/bin/python scripts/run_release_guard.py --ci --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/check_forbidden_tracked_files.py --write-report
 ./.venv/bin/python scripts/check_release_sync_consistency.py
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/audit_data_update_cli.py --write-report

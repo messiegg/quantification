@@ -26,6 +26,7 @@ from scripts.audit_common import (
     status_from_rows,
     write_profile_diagnostics,
 )
+from scripts.report_metadata import config_hash, data_hash, git_commit
 
 
 def _row(check_id: str, name: str, status: str, profile: str, evidence: str, affected_file: str, recommendation: str) -> dict:
@@ -198,6 +199,9 @@ def main() -> int:
         "# 回测完整性审计",
         "",
         f"- 审计结论: {audit_status}",
+        f"- git_commit: {git_commit()}",
+        f"- config_hash: {config_hash()}",
+        f"- data_hash: {data_hash()}",
         f"- 固定区间: {DEFAULT_START_DATE} 到 {DEFAULT_END_DATE}",
         f"- baseline next_bar: 年化 {pct(baseline.metrics['annual_return'])}，成交 {baseline.metrics['total_trades']} 笔，最大回撤 {pct(baseline.metrics['max_drawdown'])}",
         f"- combined_v2 next_bar: 年化 {pct(v2.metrics['annual_return'])}，成交 {v2.metrics['total_trades']} 笔，最大回撤 {pct(v2.metrics['max_drawdown'])}",

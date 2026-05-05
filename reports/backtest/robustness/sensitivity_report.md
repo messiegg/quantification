@@ -1,28 +1,7 @@
 # 参数敏感性测试
 
-- 口径: combined_v2 next_bar，固定 2023-04-03 到 2026-04-03。
-- 这是 one-at-a-time 扰动，不做参数优化，不输出最佳参数，不写回正式配置。
+- sensitivity_status: FAIL
+- failure_reason: full sensitivity command exceeded 20 minutes twice without writing a fresh report
+- full sensitivity run did not complete locally; release guard must fail closed.
 - baseline next_bar 年化: 0.10%
-- 小幅收紧后是否仍有正收益: 是
-- 小幅放宽后是否回撤失控: 否
-- 年化接近 0 的变体数: 0/14
-- 跑输 baseline 的变体数: 0/14
-- 过拟合风险标记: 否
-
-## 变体结果
-
-- current_v2: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- universe_small: 年化 8.01%，累计 24.86%，回撤 -8.47%，夏普 0.89，成交 70，平均仓位 43.73%
-- universe_large: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- defensive_valuation_strict: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- defensive_valuation_loose: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- defensive_ma_strict: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- defensive_ma_loose: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- cyclical_pb_strict: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- cyclical_pb_loose: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- holding_shorter: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- holding_longer: 年化 7.00%，累计 21.53%，回撤 -9.26%，夏普 0.75，成交 76，平均仓位 47.66%
-- grid_tighter: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- grid_wider: 年化 7.14%，累计 21.96%，回撤 -9.36%，夏普 0.78，成交 76，平均仓位 46.98%
-- position_conservative: 年化 3.07%，累计 9.09%，回撤 -6.88%，夏普 0.55，成交 47，平均仓位 26.41%
-- position_aggressive: 年化 7.89%，累计 24.45%，回撤 -10.23%，夏普 0.70，成交 74，平均仓位 61.22%
+- baseline 年化来源: /Users/meseg/shu/stocks/quantile/reports/backtest/compare_combined_vs_v2_metrics.csv

@@ -1,14 +1,8 @@
 check_id,check_name,status,expected,actual,evidence,recommendation
-GATE-001A,blocked report absent or legacy when allowed,PASS,observation_blocked.md absent or LEGACY_SUPERSEDED,absent_or_legacy,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,freshness 已允许观察时，旧 blocked 报告不能作为当前主报告存在。
-GATE-001B,no stale blocked content when allowed,PASS,no STALE_DATA_BLOCKED/2026-04-03/action_allowed=false current content,none,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,允许观察时，当前主路径下不得保留旧 STALE_DATA_BLOCKED 内容。
+GATE-001A,blocked report absent or legacy when allowed,FAIL,observation_blocked.md absent or LEGACY_SUPERSEDED,current,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,freshness 已允许观察时，旧 blocked 报告不能作为当前主报告存在。
+GATE-001B,no stale blocked content when allowed,FAIL,no STALE_DATA_BLOCKED/2026-04-03/action_allowed=false current content,action_allowed: false,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,允许观察时，当前主路径下不得保留旧 STALE_DATA_BLOCKED 内容。
 GATE-001C,tracked old blocked report absent unless legacy,PASS,not tracked or LEGACY_SUPERSEDED,"tracked=False, legacy=False",/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_blocked.md,Git 跟踪的旧 blocked report 必须删除，除非第一行标记 LEGACY_SUPERSEDED。
-GATE-002,summary exists when freshness allowed,PASS,exists,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,允许观察时必须生成 observation_summary.md。
-GATE-003,manifest action_allowed true,PASS,true,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_run_manifest.json,manifest 必须反映本次观察已允许。
-MARKET-001,holiday summary marks market closed,PASS,contains MARKET_CLOSED_AS_OF_DATE,present,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,非交易日观察报告必须显式标记市场关闭。
-MARKET-002,holiday summary has no execution wording,PASS,no active execution wording,none,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,非交易日报告只能作为下一交易日人工复核。
-MANUAL-001,manual list marks next trading day review,PASS,NEXT_TRADING_DAY_MANUAL_REVIEW_ONLY,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv,非交易日手工清单必须限定为下一交易日人工复核。
-MANUAL-002,manual list disables auto order,PASS,auto_order_allowed=false,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv,手工清单必须明确禁止自动下单。
-MANUAL-003,manual list requires human review,PASS,requires_human_review=true,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/combined_v2_manual_order_list.csv,手工清单必须要求人工复核。
-QUALITY-001,summary includes data quality WARN,PASS,WARN summary present,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,数据质量 WARN 允许观察，但必须在 summary 中展示。
+GATE-002,summary exists when freshness allowed,FAIL,exists,False,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_summary.md,允许观察时必须生成 observation_summary.md。
+GATE-003,manifest action_allowed true,FAIL,true,False,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/observation_run_manifest.json,manifest 必须反映本次观察已允许。
 CAL-001,holiday calendar staleness is warn only,PASS,not blocking,NONE,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/data_freshness_report.json,非交易日且目标交易日数据已覆盖时，calendar staleness 不得阻断。
 CAL-002,holiday calendar staleness warning present,PASS,warning present,True,/Users/meseg/shu/stocks/quantile/reports/observation/2026-05-04/data_freshness_report.json,calendar-day 超阈值应作为非交易日自然间隔提示。

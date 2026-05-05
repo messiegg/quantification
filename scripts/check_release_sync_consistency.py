@@ -571,7 +571,47 @@ def build_release_sync_consistency_check(
     manual_order_path = obs_dir / "combined_v2_manual_order_list.csv"
     observation_summary = observation_summary_path.read_text(encoding="utf-8") if include_observation_gate and observation_summary_path.exists() else ""
     allowed = freshness.get("allowed_actions") == "observation_report_allowed"
-    if include_observation_gate and allowed:
+    hard_gate_blocked = (
+        allowed
+        and manifest.get("action_allowed") is False
+        and any(
+            str(manifest.get(key, "")).upper() == "FAIL"
+            for key in ("universe_integrity_status", "data_freshness_status", "evidence_chain_status")
+        )
+    )
+    if include_observation_gate and hard_gate_blocked:
+        blocked_current = observation_blocked_path.exists() and not _legacy_superseded(observation_blocked_path)
+        _check_row(
+            rows,
+            "OBS-GATE-001",
+            "allowed freshness hard-blocked by stricter gate",
+            "PASS" if blocked_current else "FAIL",
+            "current observation_blocked.md",
+            "current" if blocked_current else "missing_or_legacy",
+            str(observation_blocked_path),
+            "freshness 允许观察但 universe/evidence 等硬门禁 FAIL 时，必须保留当前阻断报告。",
+        )
+        _check_row(
+            rows,
+            "OBS-GATE-002",
+            "hard-blocked observation has no executable action",
+            "PASS" if manifest.get("action_allowed") is False else "FAIL",
+            "false",
+            str(manifest.get("action_allowed")),
+            str(obs_dir / "observation_run_manifest.json"),
+            "硬门禁 FAIL 时，不允许生成可执行观察建议。",
+        )
+        _check_row(
+            rows,
+            "OBS-GATE-003",
+            "hard-blocked observation reason recorded",
+            "PASS" if manifest.get("blocking_reason") else "FAIL",
+            "blocking_reason present",
+            str(manifest.get("blocking_reason")),
+            str(obs_dir / "observation_run_manifest.json"),
+            "硬门禁阻断必须记录 blocking_reason。",
+        )
+    elif include_observation_gate and allowed:
         blocked_current = observation_blocked_path.exists() and not _legacy_superseded(observation_blocked_path)
         blocked_text = observation_blocked_path.read_text(encoding="utf-8") if observation_blocked_path.exists() else ""
         blocked_stale_matches = [pattern for pattern in STALE_BLOCKED_PATTERNS if pattern in blocked_text]

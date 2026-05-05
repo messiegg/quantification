@@ -24,6 +24,8 @@ DEFAULT_SCAN_GLOBS = [
     "reports/backtest/release/*.md",
     "reports/data_update/**/*.md",
     "reports/data_update/**/*.json",
+    "reports/data_gaps/*.md",
+    "reports/data_gaps/*.json",
 ]
 DEFAULT_CSV = "reports/backtest/audit/report_path_sanitization_check.csv"
 DEFAULT_MD = "reports/backtest/audit/report_path_sanitization_check.md"

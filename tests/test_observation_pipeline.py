@@ -136,6 +136,30 @@ def _patch_pipeline_common(
         return report
 
     monkeypatch.setattr(pipeline, "build_data_freshness_report", fake_freshness)
+    monkeypatch.setattr(
+        pipeline,
+        "build_audit_data_freshness_report",
+        lambda as_of_date, write_report=True, freshness_payload=None: {
+            "status": "PASS" if data_allowed else "FAIL",
+            "target_trade_date": "2026-04-30" if non_trading_day else as_of_date,
+            "market_data_asof": as_of_date if data_allowed else "2026-04-03",
+            "feature_data_asof": as_of_date if data_allowed else "2026-04-03",
+            "benchmark_data_asof": as_of_date if data_allowed else "2026-04-03",
+            "financial_data_asof": "2025-12-31",
+            "effective_financial_date": "2026-03-31",
+            "violations": [] if data_allowed else [{"code": "FIXTURE_STALE"}],
+        },
+    )
+    monkeypatch.setattr(pipeline, "build_universe_integrity_report", lambda write_report=True: {"status": "PASS"})
+
+    def fake_evidence(as_of_date, target_trade_date=None, output_dir=None, universe_report=None, freshness_report=None, write_report=True):
+        out_dir = outbase / as_of_date
+        out_dir.mkdir(parents=True, exist_ok=True)
+        (out_dir / "evidence_chain.json").write_text(json.dumps({"status": "PASS"}), encoding="utf-8")
+        (out_dir / "evidence_chain.md").write_text("fixture\n", encoding="utf-8")
+        return {"status": "PASS", "config_hash": "fixture_config", "data_hash": "fixture_data"}
+
+    monkeypatch.setattr(pipeline, "build_observation_evidence_chain", fake_evidence)
     return outbase
 
 

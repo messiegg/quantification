@@ -20,6 +20,12 @@ from scripts.check_observation_gate_consistency import FORBIDDEN_ACTIVE_PHRASES,
 from scripts.check_release_sync_consistency import build_release_sync_consistency_check
 from scripts.check_report_freshness import build_report_freshness_check
 from scripts.check_report_path_sanitization import build_report_path_sanitization_check
+from scripts.audit_config_consistency import build_config_consistency_report
+from scripts.audit_data_freshness import build_audit_data_freshness_report
+from scripts.audit_universe_integrity import build_universe_integrity_report
+from scripts.build_account_constraints_report import build_account_constraints_report
+from scripts.build_observation_evidence_chain import build_observation_evidence_chain
+from scripts.report_metadata import config_hash, data_hash, git_branch, git_commit, now_utc_iso, sha256_path, status_from_children, write_json
 from scripts.verify_combined_v2_rc import MANIFEST_PATH, _manifest_hash_map, verify_release_candidate
 from src.utils.config import resolve_path
 
@@ -27,6 +33,9 @@ from src.utils.config import resolve_path
 DEFAULT_AS_OF_DATE = "2026-05-04"
 DEFAULT_CSV = "reports/backtest/release/release_guard_report.csv"
 DEFAULT_MD = "reports/backtest/release/release_guard_report.md"
+RELEASE_MANIFEST_JSON = "reports/backtest/release/combined_v2_rc_manifest.json"
+RELEASE_MANIFEST_MD = "reports/backtest/release/combined_v2_rc_manifest.md"
+TEST_STATUS_JSON = "reports/backtest/release/test_status.json"
 PAPER_LEDGER_FILES = [
     "data/observation/paper_account.yml",
     "data/observation/paper_trades.csv",
@@ -51,6 +60,11 @@ def _read_json(path_like: str | Path) -> dict:
     if not path.exists():
         return {}
     return json.loads(path.read_text(encoding="utf-8"))
+
+
+def _status_from_json(path_like: str | Path) -> str:
+    payload = _read_json(path_like)
+    return str(payload.get("status", "FAIL")).upper() if payload else "FAIL"
 
 
 def _git_stdout(args: list[str]) -> str:
@@ -120,6 +134,96 @@ def _add_frame_check(
 ) -> None:
     status, actual = _summarize_frame(frame)
     _row(rows, check_id, check_name, status, "no FAIL", actual, evidence, recommendation)
+
+
+def _add_payload_check(
+    rows: list[dict],
+    check_id: str,
+    check_name: str,
+    payload: dict,
+    evidence: str,
+    recommendation: str,
+    fail_on_warn: bool = False,
+) -> None:
+    raw_status = str(payload.get("status", "FAIL")).upper()
+    status = "FAIL" if fail_on_warn and raw_status == "WARN" else raw_status
+    _row(rows, check_id, check_name, status, "PASS/WARN without FAIL", raw_status, evidence, recommendation)
+
+
+def _check_lookahead_audit(rows: list[dict]) -> None:
+    frame = pd.DataFrame()
+    path = resolve_path("reports/backtest/audit/lookahead_audit.csv")
+    if path.exists():
+        try:
+            frame = pd.read_csv(path)
+        except pd.errors.EmptyDataError:
+            frame = pd.DataFrame()
+    confirmed = 0
+    if not frame.empty:
+        if "status" in frame.columns:
+            confirmed = int((frame["status"].astype(str).str.upper() == "FAIL").sum())
+        if "confirmed_violations" in frame.columns:
+            confirmed = max(confirmed, int(pd.to_numeric(frame["confirmed_violations"], errors="coerce").fillna(0).sum()))
+    _row(
+        rows,
+        "RG-LOOKAHEAD-001",
+        "lookahead audit has no confirmed violations",
+        "PASS" if path.exists() and confirmed == 0 else "FAIL",
+        "confirmed violations = 0",
+        confirmed if path.exists() else "missing",
+        "reports/backtest/audit/lookahead_audit.csv",
+        "前视审计缺失或存在 confirmed violation 时，release 必须 FAIL。",
+    )
+
+
+def _check_sensitivity(rows: list[dict]) -> None:
+    payload = _read_json("reports/backtest/robustness/sensitivity_report.json")
+    status = str(payload.get("status", "FAIL")).upper() if payload else "FAIL"
+    non_binding = payload.get("non_binding_parameters", []) if payload else []
+    unknown = [
+        item
+        for item in payload.get("variants", []) if str(item.get("non_binding_reason", "")).upper() == "UNKNOWN"
+    ] if payload else []
+    if status != "FAIL" and unknown:
+        status = "FAIL"
+    _row(
+        rows,
+        "RG-SENS-001",
+        "sensitivity report binds or classifies core parameters",
+        status,
+        "no all-core NON_BINDING and no UNKNOWN PASS",
+        f"status={payload.get('status') if payload else 'missing'}; non_binding={len(non_binding)}; unknown={len(unknown)}",
+        "reports/backtest/robustness/sensitivity_report.json",
+        "参数变化未绑定或原因 UNKNOWN 不能计入鲁棒性 PASS。",
+    )
+
+
+def _check_baseline_comparison(rows: list[dict]) -> None:
+    payload = _read_json("reports/backtest/controls/baseline_comparison.json")
+    _row(
+        rows,
+        "RG-BASELINE-001",
+        "baseline comparison report exists and is not failing",
+        str(payload.get("status", "FAIL")).upper() if payload else "FAIL",
+        "baseline comparison PASS/WARN",
+        payload.get("status", "missing") if payload else "missing",
+        "reports/backtest/controls/baseline_comparison.json",
+        "必须区分 documented dianjinshu-like baseline、combined_v2 和模块消融。",
+    )
+
+
+def _check_tests_status(rows: list[dict]) -> None:
+    payload = _read_json(TEST_STATUS_JSON)
+    _row(
+        rows,
+        "RG-TESTS-001",
+        "latest pytest status is recorded",
+        "PASS" if payload.get("status") == "PASS" else "FAIL",
+        "reports/backtest/release/test_status.json status=PASS",
+        payload.get("status", "missing") if payload else "missing",
+        TEST_STATUS_JSON,
+        "release manifest 必须记录本轮自动化测试状态；缺失时 fail closed。",
+    )
 
 
 def _check_config_hashes(rows: list[dict]) -> None:
@@ -199,6 +303,115 @@ def _check_observation_state(rows: list[dict], as_of_date: str) -> None:
     )
 
 
+def _release_status_from_rows(frame: pd.DataFrame) -> str:
+    if frame.empty or "status" not in frame.columns:
+        return "FAIL"
+    statuses = set(frame["status"].astype(str).str.upper())
+    if "FAIL" in statuses:
+        return "FAIL"
+    if "WARN" in statuses:
+        return "WARN"
+    return "PASS_CANDIDATE"
+
+
+def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads: dict[str, dict]) -> None:
+    existing = _read_json(RELEASE_MANIFEST_JSON)
+    freshness = audit_payloads.get("data_freshness", {})
+    account_constraints = audit_payloads.get("account_constraints", {})
+    status = _release_status_from_rows(frame)
+    key_paths = [
+        "config/strategy_v2.yml",
+        "config/universe_rules_v2.yml",
+        "config/account.yml",
+        "config/metric_map.yml",
+        "config/observation.yml",
+        "reports/backtest/combined_v2_trades_detailed.csv",
+        "reports/backtest/combined_v2_signal_funnel.csv",
+        "reports/backtest/combined_v2_candidate_scores.csv",
+        "reports/backtest/audit/lookahead_audit.csv",
+        "reports/backtest/audit/integrity_audit.csv",
+        "reports/audit/config_consistency.json",
+        "reports/audit/universe_integrity.json",
+        "reports/audit/data_freshness.json",
+        f"reports/observation/{as_of_date}/evidence_chain.json",
+        "reports/backtest/robustness/sensitivity_report.json",
+        "reports/backtest/account_constraints_report.json",
+        "reports/backtest/controls/baseline_comparison.json",
+    ]
+    payload = {
+        **existing,
+        "status": status,
+        "branch": git_branch(),
+        "git_commit": git_commit(),
+        "generated_at": now_utc_iso(),
+        "config_hash": config_hash(),
+        "data_hash": data_hash(),
+        "requested_date": as_of_date,
+        "target_trade_date": freshness.get("target_trade_date", freshness.get("target_trading_date", "")),
+        "target_trading_date": freshness.get("target_trade_date", freshness.get("target_trading_date", "")),
+        "market_data_asof": freshness.get("market_data_asof", ""),
+        "feature_data_asof": freshness.get("feature_data_asof", ""),
+        "benchmark_data_asof": freshness.get("benchmark_data_asof", ""),
+        "financial_data_asof": freshness.get("financial_data_asof", ""),
+        "effective_financial_date": freshness.get("effective_financial_date", ""),
+        "manual_review_required": True,
+        "auto_trading_approved": False,
+        "broker_integration_enabled": False,
+        "llm_decision_allowed": False,
+        "release_scope": "small_capital_manual_strict_review_observation_candidate",
+        "audit_statuses": {
+            key: value.get("status", "FAIL")
+            for key, value in audit_payloads.items()
+        },
+        "release_guard_checks": frame.to_dict(orient="records"),
+        "risk_section": {
+            "account_constraints_status": account_constraints.get("status", "FAIL"),
+            "account_constraints_warnings": account_constraints.get("warnings", []),
+            "minimum_backtest_years_warning": "sample is about three years; keep as manual observation candidate only",
+            "auto_trading_approved": False,
+        },
+        "key_output_file_hashes": [
+            {"path": path, "sha256": sha256_path(path), "exists": resolve_path(path).exists()}
+            for path in key_paths
+        ],
+    }
+    write_json(RELEASE_MANIFEST_JSON, payload)
+    lines = [
+        "# combined_v2 RC manifest",
+        "",
+        f"- status: {status}",
+        f"- branch: {payload['branch']}",
+        f"- git_commit: {payload['git_commit']}",
+        f"- generated_at: {payload['generated_at']}",
+        f"- config_hash: {payload['config_hash']}",
+        f"- data_hash: {payload['data_hash']}",
+        f"- requested_date: {payload['requested_date']}",
+        f"- target_trade_date: {payload['target_trade_date']}",
+        f"- market_data_asof: {payload['market_data_asof']}",
+        f"- feature_data_asof: {payload['feature_data_asof']}",
+        f"- benchmark_data_asof: {payload['benchmark_data_asof']}",
+        "- manual_review_required: true",
+        "- auto_trading_approved: false",
+        "- broker_integration_enabled: false",
+        "- llm_decision_allowed: false",
+        "- release_scope: 小资金、手动、严格复核观察/试运行候选；不是自动交易批准。",
+        "",
+        "## audit statuses",
+        "",
+    ]
+    for key, value in payload["audit_statuses"].items():
+        lines.append(f"- {key}: {value}")
+    lines.extend(["", "## risk section", ""])
+    for warning in account_constraints.get("warnings", []):
+        lines.append(f"- {warning.get('code')}: {warning.get('message')} actual={warning.get('actual')}")
+    if not account_constraints.get("warnings"):
+        lines.append("- account_constraints: no WARN")
+    lines.extend(["", "## release guard checks", ""])
+    for row in payload["release_guard_checks"]:
+        lines.append(f"- {row['status']} | {row['check_id']} | {row['check_name']} | actual={row['actual']}")
+    resolve_path(RELEASE_MANIFEST_MD).write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
 def build_release_guard_report(
     as_of_date: str = DEFAULT_AS_OF_DATE,
     ci: bool = False,
@@ -208,6 +421,7 @@ def build_release_guard_report(
     output_md: str | Path = DEFAULT_MD,
 ) -> pd.DataFrame:
     rows: list[dict] = []
+    audit_payloads: dict[str, dict] = {}
 
     _row(
         rows,
@@ -219,6 +433,37 @@ def build_release_guard_report(
         "scripts/run_release_guard.py",
         "CI 模式不重跑完整回测，不写行情数据，不生成真实订单。",
     )
+
+    config_consistency = build_config_consistency_report(write_report=write_report)
+    audit_payloads["config_consistency"] = config_consistency
+    _add_payload_check(rows, "RG-CONFIG-001", "config consistency audit", config_consistency, "scripts/audit_config_consistency.py", "运行配置之间冲突必须 FAIL；README 冲突只作为 DOC_MISMATCH WARN。")
+
+    universe_integrity = build_universe_integrity_report(write_report=write_report)
+    audit_payloads["universe_integrity"] = universe_integrity
+    _add_payload_check(rows, "RG-UNIVERSE-001", "universe integrity audit", universe_integrity, "scripts/audit_universe_integrity.py", "股票池低于 floor、突破硬过滤或 override 无依据时必须 FAIL。")
+
+    data_freshness = build_audit_data_freshness_report(as_of_date, write_report=write_report)
+    audit_payloads["data_freshness"] = data_freshness
+    _add_payload_check(rows, "RG-DATA-001", "data freshness audit", data_freshness, "scripts/audit_data_freshness.py", "target_trade_date 晚于数据 asof 时必须 FAIL。")
+
+    account_constraints = build_account_constraints_report(write_report=write_report)
+    audit_payloads["account_constraints"] = account_constraints
+    _add_payload_check(rows, "RG-ACCOUNT-001", "account constraints report", account_constraints, "scripts/build_account_constraints_report.py", "账户约束 WARN 不自动阻断 release，但必须进入 manifest risk section.")
+
+    evidence_chain = build_observation_evidence_chain(
+        as_of_date,
+        target_trade_date=str(data_freshness.get("target_trade_date") or data_freshness.get("target_trading_date") or as_of_date),
+        universe_report=universe_integrity,
+        freshness_report=data_freshness,
+        write_report=write_report,
+    )
+    audit_payloads["evidence_chain"] = evidence_chain
+    _add_payload_check(rows, "RG-EVIDENCE-001", "observation evidence chain", evidence_chain, "scripts/build_observation_evidence_chain.py", "若 observation/release 声称可执行，必须同时存在 evidence_chain。")
+
+    _check_lookahead_audit(rows)
+    _check_sensitivity(rows)
+    _check_baseline_comparison(rows)
+    _check_tests_status(rows)
 
     stale_frame = build_report_freshness_check(write_report=write_report)
     _add_frame_check(rows, "RG-001", "report freshness check", stale_frame, "scripts/check_report_freshness.py", "刷新有旧口径或自相矛盾的报告。")
@@ -270,6 +515,7 @@ def build_release_guard_report(
                 f"- {row['status']} | {row['check_id']} | {row['check_name']} | actual={row['actual']} | evidence={row['evidence']} | {row['recommendation']}"
             )
         md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        _write_release_manifest(frame, as_of_date, audit_payloads)
     return frame
 
 
@@ -278,7 +524,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--ci", action="store_true", help="Run CI-safe hash-only release checks.")
     parser.add_argument("--as-of-date", default=DEFAULT_AS_OF_DATE)
     parser.add_argument("--strict", action="store_true", help="Treat WARN as failing.")
-    parser.add_argument("--write-report", action="store_true")
+    parser.add_argument("--write-report", action="store_true", help="Deprecated: reports are written by default.")
+    parser.add_argument("--no-write-report", action="store_true")
     return parser.parse_args()
 
 
@@ -288,7 +535,7 @@ def main() -> int:
         as_of_date=args.as_of_date,
         ci=args.ci,
         strict=args.strict,
-        write_report=args.write_report,
+        write_report=not args.no_write_report,
     )
     if (frame["status"] == "FAIL").any():
         return 1

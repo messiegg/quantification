@@ -33,8 +33,9 @@
 - 默认频率：月度；也支持季度。
 - 再平衡日：月末或季末收盘后生成新一期 effective universe，下一交易日生效。
 - 非再平衡日：复用当前 effective universe，不重建。
-- 稳定器：老成员只要仍过硬过滤且行业内排名 `<= 4` 可保留；新成员只有行业内排名 `<= 2` 才能进入。
-- 行业上限：每个行业最多 2 只。
+- `combined_v2` 当前运行规则：`target_size=36`、`floor_size=24`、`ceiling_size=48`、`max_per_industry=3`。
+- 稳定器：`combined_v2` 老成员依据 `retained_min_score`、`retained_industry_rank`、`retained_any_rank_score` 保留；新成员依据 `new_min_score`、`new_industry_rank` 进入。
+- universe integrity 审计默认开启；当前池低于 floor、超过 ceiling、超过行业上限、违反硬过滤或 manual override 无配置依据时，release/observation 必须 fail closed。
 - 输出：
   - `config/universe.yml`
   - `reports/universe/latest.md`
@@ -99,8 +100,11 @@
 
 ### 1. 更新数据
 
+实际写数据前先走安全 preflight；只有人工确认后才允许加 `--execute`：
+
 ```bash
-./.venv/bin/python scripts/update_market_data.py --start-date 2016-01-01 --end-date 2026-04-03 --all-stocks
+./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --preflight-only --write-report
+./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
 ```
 
 数据刷新后会同步写出：
@@ -122,13 +126,13 @@
 ### 3. 重建 effective universe
 
 ```bash
-./.venv/bin/python scripts/refresh_universe.py --as-of-date 2026-04-03 --apply
+./.venv/bin/python scripts/refresh_universe.py --as-of-date 2026-04-30 --apply
 ```
 
 ### 4. 生成 snapshot
 
 ```bash
-./.venv/bin/python scripts/prepare_snapshot.py --as-of-date 2026-04-03
+./.venv/bin/python scripts/prepare_snapshot.py --as-of-date 2026-04-30
 ```
 
 ### 5. 生成 orders 与日报
@@ -208,15 +212,19 @@ bash scripts/run_demo.sh
 
 审计固定使用 `2023-04-03` 到 `2026-04-03`，不读取 `2026-04-03` 之后的数据；主口径为 `execution_mode=next_bar`，即 t 日收盘后形成信号，下一交易日按 open 成交，缺少 open 时退回下一交易日 close。`same_close` 只作为乐观成交价对照。
 
-运行完整性、前视、执行口径、walk-forward、敏感性、成本和归因审计：
+运行完整性、前视、配置一致性、universe 完整性、数据新鲜度、执行口径、walk-forward、敏感性、成本、账户约束、control baseline 和归因审计：
 
 ```bash
 ./.venv/bin/python scripts/audit_backtest_integrity.py
 ./.venv/bin/python scripts/audit_backtest_lookahead.py
+./.venv/bin/python scripts/audit_config_consistency.py
+./.venv/bin/python scripts/audit_universe_integrity.py
+./.venv/bin/python scripts/audit_data_freshness.py --as-of-date 2026-05-04
 ./.venv/bin/python scripts/run_backtest_execution_compare.py
 ./.venv/bin/python scripts/run_backtest_walkforward.py
 ./.venv/bin/python scripts/run_backtest_sensitivity.py
 ./.venv/bin/python scripts/run_backtest_cost_stress.py
+./.venv/bin/python scripts/build_account_constraints_report.py
 ./.venv/bin/python scripts/run_backtest_attribution.py
 ./.venv/bin/python scripts/run_backtest_controls.py
 ./.venv/bin/python scripts/run_backtest_v2_1_risk_guard.py
@@ -228,16 +236,22 @@ bash scripts/run_demo.sh
 
 - `reports/backtest/audit/integrity_audit.md`
 - `reports/backtest/audit/lookahead_audit.md`
+- `reports/audit/config_consistency.md`
+- `reports/audit/universe_integrity.md`
+- `reports/audit/data_freshness.md`
 - `reports/backtest/audit/universe_pit_audit.csv`
 - `reports/backtest/audit/execution_mode_compare.md`
 - `reports/backtest/robustness/walkforward_report.md`
 - `reports/backtest/robustness/sensitivity_report.md`
+- `reports/backtest/robustness/sensitivity_report.json`
 - `reports/backtest/robustness/cost_stress_report.md`
+- `reports/backtest/account_constraints_report.md`
 - `reports/backtest/attribution/combined_v2_attribution_report.md`
 - `reports/backtest/attribution/combined_v2_monthly_returns_check.csv`
 - `reports/backtest/attribution/combined_v2_signal_attribution.csv`
 - `reports/backtest/attribution/combined_v2_daily_regime_attribution.csv`
 - `reports/backtest/controls/control_baselines_report.md`
+- `reports/backtest/controls/baseline_comparison.md`
 - `reports/backtest/controls/random_placebo_metrics.csv`
 - `reports/backtest/v2_1/compare_v2_vs_v2_1_risk_guard.md`
 - `reports/backtest/audit/report_consistency_check.csv`
@@ -256,7 +270,7 @@ bash scripts/run_demo.sh
 - signal attribution 拆为 entry signal、exit signal、entry-exit pair；regime attribution 拆为成交/兑现口径和 daily MTM 口径。
 - 估值分位审计不再检查不存在的泛型字段，而是记录 resolver 实际使用的 stock/industry source field、metric 和 source date；release manifest 冻结当前 next_bar 主口径、配置路径、核心绩效和关键输出哈希。
 
-control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖正式 v2 配置。`combined_v2_1_risk_guard` 是独立候选 profile，只改 market regime 风险侧买入限制，沿用 v2 universe，不替换 combined_v2 主口径。
+control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖正式 v2 配置。`base_dianjinshu_like` 是仓库配置中定义的“点金术风格基线”，不是对外部作者原文的严格复刻；模块消融只做解释，不自动修改主策略。`combined_v2_1_risk_guard` 是独立候选 profile，只改 market regime 风险侧买入限制，沿用 v2 universe，不替换 combined_v2 主口径。
 
 ### combined_v2 RC 与观察期运行
 
@@ -270,19 +284,19 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 - max_drawdown: `-0.0936454742991675`
 - total_trades: `76`
 - final_nav: `243928.8809062001`
-- final rating: `PASS_CANDIDATE`
+- release guard best possible rating: `PASS_CANDIDATE`
 
-`PASS_CANDIDATE` 只代表小资金、手动、继续观察候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。
+`PASS_CANDIDATE` 只代表小资金、手动、严格复核观察/试运行候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。若 config consistency、universe integrity、data freshness、lookahead、sensitivity、evidence chain、baseline comparison 或 tests 任一核心审计 FAIL，release guard 必须输出 `FAIL`。
 
 2026-05-04 当前 observation 示例状态：
 
 - `as_of_date`: `2026-05-04`，非交易日。
 - `target_trading_date`: `2026-04-30`。
 - `data_max_date` / `feature_max_date` / `benchmark_max_date`: `2026-04-30`。
-- freshness: `observation_report_allowed`。
-- blocking_reason: `NONE`。
+- freshness: 由 `scripts/audit_data_freshness.py` 与 observation pipeline 共同判定。
+- universe integrity: 若当前 `config/universe.yml` 低于 `floor_size=24` 或有硬过滤违规，observation pipeline 必须生成阻断报告，不得生成可执行买卖建议。
 - data quality: `WARN`，当前主要 WARN 是 `pe_ttm` 缺失率偏高。
-- 结论：只允许下一交易日人工复核，不代表今日实盘执行。
+- 结论：只允许下一交易日人工复核；在 universe/data/evidence 任一 gate FAIL 时，只输出阻断报告，不代表今日实盘执行。
 
 验证 RC 的 CI 轻量口径：
 
@@ -312,6 +326,9 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 
 ```bash
 ./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/audit_data_freshness.py --as-of-date 2026-05-04
+./.venv/bin/python scripts/audit_universe_integrity.py
+./.venv/bin/python scripts/build_observation_evidence_chain.py --as-of-date 2026-05-04
 ./.venv/bin/python scripts/run_data_update_preflight.py --as-of-date 2026-05-04 --write-report
 ./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
 ./.venv/bin/python scripts/check_observation_gate_consistency.py --as-of-date 2026-05-04
@@ -455,6 +472,7 @@ CI 不跑完整数据回测，不更新行情数据，不生成真实订单。�
 - `docs/combined_v2_rc_acceptance.md`
 - `docs/manual_observation_protocol.md`
 - `docs/data_freshness_and_runbook.md`
+- `docs/project_status_2026-05-05.md`
 
 ## 对账与可复现
 

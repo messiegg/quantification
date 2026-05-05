@@ -1,5 +1,13 @@
 # combined_v2 回测诊断报告
 
+## 元数据
+
+- git_commit: f0cd73e15a915b7af4373421dbb57797de0dea83
+- config_hash: f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616
+- data_hash: 4f0e5071b131b57a0a93613ced11a3fb215b4ba1c8fe5911d54472a0bf88af15
+- manual_review_required: true
+- auto_trading_approved: false
+
 ## 三年绩效摘要
 
 - 年化收益: 7.14%

@@ -95,14 +95,14 @@
     "core_symbol_data": 5201
   },
   "missing_files": {
-    "price": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/price_missing.txt",
-    "st_flags": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/st_flags_missing.txt",
-    "market_caps": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/market_caps_missing.txt",
-    "valuation_pb": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/valuation_pb_missing.txt",
-    "valuation_pe_ttm": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/valuation_pe_ttm_missing.txt",
-    "financials": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/financials_missing.txt",
-    "industry_members": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/industry_members_missing.txt",
-    "core_symbol_data": "/Users/meseg/shu/stocks/quantile/data/curated/missing_data/core_symbol_data_missing.txt"
+    "price": "data/curated/missing_data/price_missing.txt",
+    "st_flags": "data/curated/missing_data/st_flags_missing.txt",
+    "market_caps": "data/curated/missing_data/market_caps_missing.txt",
+    "valuation_pb": "data/curated/missing_data/valuation_pb_missing.txt",
+    "valuation_pe_ttm": "data/curated/missing_data/valuation_pe_ttm_missing.txt",
+    "financials": "data/curated/missing_data/financials_missing.txt",
+    "industry_members": "data/curated/missing_data/industry_members_missing.txt",
+    "core_symbol_data": "data/curated/missing_data/core_symbol_data_missing.txt"
   },
   "blockers": [
     {

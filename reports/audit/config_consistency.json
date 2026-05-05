@@ -1,0 +1,93 @@
+{
+  "generated_at": "2026-05-05T09:09:34.535111+00:00",
+  "git_commit": "f0cd73e15a915b7af4373421dbb57797de0dea83",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    }
+  ],
+  "data_hash": "b51fa02fe73514c8b49ebb4f7697840fecaa3a75f648afab04beb1c7d98106bf",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "PASS",
+  "active_values": {
+    "active_strategy_config_path": "config/strategy_v2.yml",
+    "active_account_config_path": "config/account.yml",
+    "active_universe_rules_path": "config/universe_rules_v2.yml",
+    "active_cost_model": "account.execution overrides strategy.execution defaults",
+    "commission": 0.0003,
+    "stamp_tax": 0.0005,
+    "slippage": 5,
+    "min_trade_amount": 5000,
+    "lot_size": 100,
+    "max_single_stock_weight": 0.12,
+    "max_positions": 20,
+    "max_total_position": {
+      "risk_on": 0.95,
+      "neutral": 0.7,
+      "risk_off": 0.4
+    },
+    "industry_cap": 3,
+    "universe_target": 36,
+    "universe_floor": 24,
+    "universe_ceiling": 48,
+    "strategy_version": "combined_v2",
+    "benchmark": "000300",
+    "data_provider": {
+      "price_source_order": [
+        "baostock",
+        "akshare",
+        "efinance"
+      ],
+      "valuation_source_order": [
+        "baostock",
+        "akshare"
+      ],
+      "financial_source_order": [
+        "adata",
+        "akshare",
+        "baostock"
+      ],
+      "market_cap_source_order": [
+        "efinance",
+        "akshare",
+        "baostock"
+      ]
+    }
+  },
+  "violations": [],
+  "warnings": []
+}

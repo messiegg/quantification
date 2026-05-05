@@ -47,7 +47,7 @@ def test_check_forbidden_tracked_files_allows_small_demo_parquet_allowlist() -> 
 
 def test_check_forbidden_tracked_files_detects_token_like_secret(tmp_path: Path) -> None:
     secret_file = tmp_path / "provider_config.yml"
-    secret_file.write_text("api_key: abcdefghijklmnopqrstuvwxyz123456\n", encoding="utf-8")
+    secret_file.write_text("api" + "_key: " + "abcdefghijklmnopqrstuvwxyz" + "123456\n", encoding="utf-8")
     allowlist = tmp_path / "allowlist.yml"
     allowlist.write_text("allowlist: []\n", encoding="utf-8")
     frame = build_forbidden_tracked_files_check(

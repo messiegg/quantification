@@ -26,7 +26,7 @@ market_regime:
 execution:
   trade_at: next_day_open
   fee_rate: 0.0003
-  stamp_tax_rate: 0.001
+  stamp_tax_rate: 0.0005
   slippage_rate: 0.0005
   default_tranches: 3
   equal_weight_target_universe_size: 16

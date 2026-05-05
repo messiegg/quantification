@@ -1,0 +1,794 @@
+{
+  "generated_at": "2026-05-05T09:09:36.634423+00:00",
+  "git_commit": "f0cd73e15a915b7af4373421dbb57797de0dea83",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    }
+  ],
+  "data_hash": "b51fa02fe73514c8b49ebb4f7697840fecaa3a75f648afab04beb1c7d98106bf",
+  "requested_date": "2026-05-04",
+  "target_trade_date": "2026-04-30",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "FAIL",
+  "report_date": "2026-05-04",
+  "target_trading_date": "2026-04-30",
+  "universe_status": "FAIL",
+  "data_freshness_status": "PASS",
+  "actions": [],
+  "constituents": [
+    {
+      "symbol": "600018.sh",
+      "code": "600018.sh",
+      "name": "上港集团",
+      "industry": "交通运输",
+      "bucket": "cyclical_rotation",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pb",
+          "missing_pb",
+          "missing_latest_net_profit"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 1163.998,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 8.581152073095685,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-04-01 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 0.8258730949990224,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-04-01 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.039000000000000014,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-04-01 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 42.80952380952381,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 86.47619047619048,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 5.2445,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 5.0,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": -0.046620268853084235,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "600011.sh",
+      "code": "600011.sh",
+      "name": "华能国际",
+      "industry": "公用事业",
+      "bucket": "defensive_dividend",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pe_ttm",
+          "missing_pb",
+          "missing_latest_net_profit",
+          "missing_debt_to_assets"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 1097.2967,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 7.615063869005745,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-25 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 1.6899613355532683,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-25 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.03862660944206009,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-25 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 6.253423796959418,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 87.04761904761904,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 7.462833333333333,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 6.99,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": -0.06335842061772778,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "600873.sh",
+      "code": "600873.sh",
+      "name": "梅花生物",
+      "industry": "基础化工",
+      "bucket": "cyclical_rotation",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "market_cap_billion_below_market_cap_billion_min",
+          "missing_pb",
+          "missing_pb",
+          "missing_latest_net_profit"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 278.1808,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 7.378412948379666,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-30 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 1.726133183044015,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-30 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.042940524193548386,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-30 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 33.88888888888889,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 89.39682539682539,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 10.83325,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 9.92,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": -0.08430064846652663,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "600690.sh",
+      "code": "600690.sh",
+      "name": "海尔智家",
+      "industry": "家用电器",
+      "bucket": "defensive_dividend",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pe_ttm",
+          "missing_pb",
+          "missing_latest_net_profit",
+          "missing_debt_to_assets"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 2019.0037,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 10.325906505215865,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 1.7009526999096578,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.057326521133302354,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 12.000000000000002,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 83.47619047619048,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 25.110999999999997,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 21.53,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": -0.1426068256939188,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "000786.sz",
+      "code": "000786.sz",
+      "name": "北新建材",
+      "industry": "建筑材料",
+      "bucket": "cyclical_rotation",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pb",
+          "missing_pb",
+          "missing_latest_net_profit"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 441.56,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 15.192782257775354,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-26 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 1.6254653338438885,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-26 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.03334618350038549,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-26 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 15.920634920634921,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 76.15873015873015,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 25.93108333333333,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 25.94,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": 0.0003438601678167341,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "603799.sh",
+      "code": "603799.sh",
+      "name": "华友钴业",
+      "industry": "有色金属",
+      "bucket": "cyclical_rotation",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pb",
+          "missing_pb",
+          "missing_latest_net_profit"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 1263.0308,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 23.605116046001495,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-18 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 2.643504998709724,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-18 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.007508634930169698,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-18 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 46.01075030477668,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 96.88888888888889,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 66.514,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 66.59,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": 0.001142616591995882,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "300628.sz",
+      "code": "300628.sz",
+      "name": "亿联网络",
+      "industry": "通信",
+      "bucket": "defensive_dividend",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pe_ttm",
+          "missing_pb",
+          "missing_latest_net_profit",
+          "missing_debt_to_assets"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 462.7427,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 18.20861998401282,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 5.334686222913542,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.04927456884752258,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2025-10-27 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 35.23558313938453,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 78.17460317460316,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 35.534083333333335,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 36.53,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": 0.028027081979977053,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    },
+    {
+      "symbol": "000708.sz",
+      "code": "000708.sz",
+      "name": "中信特钢",
+      "industry": "钢铁",
+      "bucket": "cyclical_rotation",
+      "selected": true,
+      "hard_filter_results": {
+        "failed_filters": [
+          "missing_pb",
+          "missing_pb",
+          "missing_latest_net_profit"
+        ],
+        "missing_fields": [
+          "pb"
+        ]
+      },
+      "market_cap_billion": {
+        "value": 769.6916,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "pe": {
+        "value": 12.98253866359481,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-17 00:00:00",
+        "used_by_strategy": true
+      },
+      "pb": {
+        "value": 1.7859187830970096,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-17 00:00:00",
+        "used_by_strategy": true
+      },
+      "dividend_yield": {
+        "value": 0.04637483278688524,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": "2026-03-17 00:00:00",
+        "used_by_strategy": true
+      },
+      "valuation_percentile": {
+        "value": 41.95238095238095,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_percentile": {
+        "value": 87.3968253968254,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "industry_rank": {
+        "value": null,
+        "source": "config/universe.yml",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "ma120": {
+        "value": 15.959,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "close": {
+        "value": 15.25,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "deviation_from_ma120": {
+        "value": -0.044426342502663085,
+        "source": "data/features/daily_features",
+        "asof": "2026-04-30",
+        "effective_date": null,
+        "used_by_strategy": true
+      },
+      "selected_reason": "retained",
+      "exclusion_reason": null,
+      "retained": true,
+      "manual_override": false
+    }
+  ],
+  "action_allowed": false
+}

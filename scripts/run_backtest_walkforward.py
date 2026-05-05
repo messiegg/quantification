@@ -22,6 +22,7 @@ from scripts.audit_common import (
     prepare_v2_history,
     run_profile,
 )
+from scripts.report_metadata import config_hash, data_hash, git_commit
 
 
 SEGMENTS = [
@@ -120,6 +121,9 @@ def main() -> int:
     lines = [
         "# walk-forward / 分年度鲁棒性验证",
         "",
+        f"- git_commit: {git_commit()}",
+        f"- config_hash: {config_hash()}",
+        f"- data_hash: {data_hash()}",
         "- 主口径: combined_v2 next_bar，baseline next_bar 作为参考。",
         f"- 全区间: {DEFAULT_START_DATE} 到 {DEFAULT_END_DATE}",
         f"- 分年度正收益段数: {positive_years}/{len(year)}",

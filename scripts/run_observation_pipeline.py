@@ -17,6 +17,10 @@ from scripts.check_data_freshness import build_data_freshness_report
 from scripts.check_data_quality_for_observation import build_data_quality_observation_report
 from scripts.check_release_sync_consistency import build_release_sync_consistency_check
 from scripts.check_report_freshness import build_report_freshness_check
+from scripts.audit_data_freshness import build_audit_data_freshness_report
+from scripts.audit_universe_integrity import build_universe_integrity_report
+from scripts.build_observation_evidence_chain import build_observation_evidence_chain
+from scripts.report_metadata import config_hash, data_hash, git_commit
 from scripts.update_paper_observation import ensure_paper_observation_files
 from scripts.verify_combined_v2_rc import verify_release_candidate
 from src.utils.config import load_yaml, resolve_path
@@ -328,6 +332,9 @@ def _generate_allowed_outputs(
             "## 数据状态",
             "",
             f"- requested_as_of_date: {freshness.get('requested_as_of_date')}",
+            f"- git_commit: {git_commit()}",
+            f"- config_hash: {config_hash()}",
+            f"- data_hash: {data_hash()}",
             f"- requested_as_of_is_trading_day: {str(freshness.get('requested_as_of_is_trading_day')).lower()}",
             f"- target_trading_date: {freshness.get('target_trading_date')}",
             f"- data_max_date: {freshness.get('data_max_date')}",
@@ -430,14 +437,25 @@ def run_observation_pipeline(
     release_sync = build_release_sync_consistency_check(write_report=False, include_observation_gate=False)
     release_sync_status = _status_from_frame(release_sync)
     freshness = build_data_freshness_report(as_of_date, write_report=True)
-    data_status = _blocking_status(freshness)
+    freshness_audit = build_audit_data_freshness_report(as_of_date, write_report=True, freshness_payload=freshness)
+    data_status = "FAIL" if str(freshness_audit.get("status")) == "FAIL" else _blocking_status(freshness)
+    universe_audit = build_universe_integrity_report(write_report=True)
+    universe_status = str(universe_audit.get("status", "FAIL"))
     data_quality: dict = {}
     data_quality_status = "SKIPPED"
     if data_status == "PASS":
         data_quality = build_data_quality_observation_report(as_of_date, write_report=True)
         data_quality_status = str(data_quality.get("status", "FAIL"))
+    evidence = build_observation_evidence_chain(
+        as_of_date,
+        target_trade_date=str(freshness_audit.get("target_trade_date") or freshness.get("target_trading_date") or as_of_date),
+        output_dir=out_dir,
+        universe_report=universe_audit,
+        freshness_report=freshness_audit,
+        write_report=True,
+    )
 
-    generated: list[str] = []
+    generated: list[str] = [_repo_relative(out_dir / "evidence_chain.json"), _repo_relative(out_dir / "evidence_chain.md")]
     blocking_reason = "NONE"
     action_allowed = True
     if rc_status == "FAIL":
@@ -449,11 +467,17 @@ def run_observation_pipeline(
     elif release_sync_status == "FAIL":
         blocking_reason = "RELEASE_SYNC_CONSISTENCY_FAIL"
         action_allowed = False
+    elif universe_status == "FAIL":
+        blocking_reason = "UNIVERSE_INTEGRITY_FAIL"
+        action_allowed = False
     elif data_status == "FAIL" and not force_historical_review:
-        blocking_reason = "STALE_DATA_BLOCKED"
+        blocking_reason = "STALE_DATA_BLOCKED" if freshness.get("allowed_actions") != "observation_report_allowed" else "DATA_FRESHNESS_FAIL"
         action_allowed = False
     elif data_quality_status == "FAIL":
         blocking_reason = "DATA_QUALITY_FAIL"
+        action_allowed = False
+    elif str(evidence.get("status")) == "FAIL":
+        blocking_reason = "EVIDENCE_CHAIN_FAIL"
         action_allowed = False
 
     if not action_allowed:
@@ -493,14 +517,26 @@ def run_observation_pipeline(
         "rc_verify_status": rc_status,
         "stale_report_check_status": stale_status,
         "release_sync_consistency_status": release_sync_status,
+        "universe_integrity_status": universe_status,
         "data_quality_status": data_quality_status,
         "action_allowed": action_allowed,
         "target_trading_date": freshness.get("target_trading_date", ""),
+        "requested_date": as_of_date,
+        "market_data_asof": freshness_audit.get("market_data_asof", ""),
+        "feature_data_asof": freshness_audit.get("feature_data_asof", ""),
+        "benchmark_data_asof": freshness_audit.get("benchmark_data_asof", ""),
+        "financial_data_asof": freshness_audit.get("financial_data_asof", ""),
+        "effective_financial_date": freshness_audit.get("effective_financial_date", ""),
+        "config_hash": evidence.get("config_hash", ""),
+        "data_hash": evidence.get("data_hash", ""),
+        "evidence_chain_status": evidence.get("status", "FAIL"),
         "requested_as_of_is_trading_day": freshness.get("requested_as_of_is_trading_day", None),
         "generated_files": generated + [_repo_relative(out_dir / "data_freshness_report.md")],
         "blocking_reason": blocking_reason,
         "broker_connected": False,
         "auto_order_enabled": False,
+        "auto_trading_approved": False,
+        "broker_integration_enabled": False,
         "llm_decision_allowed": False,
     }
     manifest_path = out_dir / "observation_run_manifest.json"

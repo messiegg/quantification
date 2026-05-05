@@ -59,7 +59,10 @@ def write_symbol_list(path_like: str | Path, symbols: list[str]) -> str:
     path = resolve_path(path_like)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text("\n".join(symbols) + ("\n" if symbols else ""), encoding="utf-8")
-    return str(path)
+    try:
+        return path.relative_to(ROOT).as_posix()
+    except ValueError:
+        return path.as_posix()
 
 
 def clean_benchmark(benchmark: pd.DataFrame) -> tuple[pd.DataFrame, int]:
@@ -182,6 +185,8 @@ def main() -> int:
         "",
         f"- Target trading date: {target_trading_date}",
         f"- HS A-share symbols in master list: {len(hs_symbols)}",
+        "- Scope: full-market strict data gap audit; this is not the observation gate decision.",
+        "- Paths are repo-relative so the report is safe to publish.",
         "",
         "## Table Status",
         "",

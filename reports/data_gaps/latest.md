@@ -2,6 +2,8 @@
 
 - Target trading date: 2026-04-30
 - HS A-share symbols in master list: 5201
+- Scope: full-market strict data gap audit; this is not the observation gate decision.
+- Paths are repo-relative so the report is safe to publish.
 
 ## Table Status
 
@@ -18,14 +20,14 @@
 
 ## Missing Symbol Files
 
-- price: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/price_missing.txt (134)
-- st_flags: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/st_flags_missing.txt (5201)
-- market_caps: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/market_caps_missing.txt (5201)
-- valuation_pb: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/valuation_pb_missing.txt (5201)
-- valuation_pe_ttm: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/valuation_pe_ttm_missing.txt (5201)
-- financials: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/financials_missing.txt (3971)
-- industry_members: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/industry_members_missing.txt (5201)
-- core_symbol_data: /Users/meseg/shu/stocks/quantile/data/curated/missing_data/core_symbol_data_missing.txt (5201)
+- price: data/curated/missing_data/price_missing.txt (134)
+- st_flags: data/curated/missing_data/st_flags_missing.txt (5201)
+- market_caps: data/curated/missing_data/market_caps_missing.txt (5201)
+- valuation_pb: data/curated/missing_data/valuation_pb_missing.txt (5201)
+- valuation_pe_ttm: data/curated/missing_data/valuation_pe_ttm_missing.txt (5201)
+- financials: data/curated/missing_data/financials_missing.txt (3971)
+- industry_members: data/curated/missing_data/industry_members_missing.txt (5201)
+- core_symbol_data: data/curated/missing_data/core_symbol_data_missing.txt (5201)
 
 ## Blocking Tables
 

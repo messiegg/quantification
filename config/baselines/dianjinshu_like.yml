@@ -1,0 +1,22 @@
+baseline_id: documented_dianjinshu_like_baseline
+description: "Repository-defined Dianjinshu-like baseline; not a strict reproduction of any external author's original article."
+source_configs:
+  strategy: config/strategy.yml
+  universe_rules: config/universe_rules.yml
+required_params:
+  pe_max: 20
+  dividend_yield_min: 0.03
+  market_cap_min: 50
+  market_cap_rank: null
+  ma_window: 120
+  buy_deviation_thresholds:
+    BUY_1: 0.92
+    BUY_2: 0.88
+    BUY_3: 0.84
+  sell_deviation_thresholds:
+    reduce_close_to_ma120_min: 1.05
+    sell_all_stock_q_blended_min: 85
+  max_positions: 16
+  position_sizing_method: account_tranche_weights
+  transaction_cost_model: config/account.yml
+fail_closed_on_null_required_params: true

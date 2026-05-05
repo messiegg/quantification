@@ -1,0 +1,54 @@
+{
+  "generated_at": "2026-05-05T09:01:29.896540+00:00",
+  "git_commit": "f0cd73e15a915b7af4373421dbb57797de0dea83",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    }
+  ],
+  "data_hash": "4f0e5071b131b57a0a93613ced11a3fb215b4ba1c8fe5911d54472a0bf88af15",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "FAIL",
+  "failure_reason": "full sensitivity command exceeded 20 minutes twice without writing a fresh report",
+  "base_config_hash": "",
+  "baseline_annual_return": 0.0010330595538758,
+  "baseline_annual_return_source": "/Users/meseg/shu/stocks/quantile/reports/backtest/compare_combined_vs_v2_metrics.csv",
+  "non_binding_parameters": [],
+  "all_core_parameters_non_binding": false,
+  "unknown_non_binding_count": 0,
+  "variants": []
+}

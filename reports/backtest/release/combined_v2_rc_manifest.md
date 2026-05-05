@@ -1,28 +1,56 @@
 # combined_v2 RC manifest
 
-- run_id: combined_v2_rc_2023-04-03_2026-04-03_next_bar
-- created_at: 2026-05-04T07:43:52.341185+00:00
-- git_commit: 123b504a068ef0fab86055cf04bd3cc5d69731fc
-- profile/execution: combined_v2 / next_bar
-- period: 2023-04-03 to 2026-04-03
-- final_nav: 243928.880906
-- annual_return: 0.071352
-- cumulative_return: 0.219644
-- max_drawdown: -0.093645
-- total_trades: 76
+- status: FAIL
+- branch: codex/combined-v2-rc-release
+- git_commit: f0cd73e15a915b7af4373421dbb57797de0dea83
+- generated_at: 2026-05-05T09:09:37.143764+00:00
+- config_hash: f5d49ea7f9c40f4eb3708c86ba3cc84b5c4b7dea513e7002602215c025dce616
+- data_hash: b51fa02fe73514c8b49ebb4f7697840fecaa3a75f648afab04beb1c7d98106bf
+- requested_date: 2026-05-04
+- target_trade_date: 2026-04-30
+- market_data_asof: 2026-04-30
+- feature_data_asof: 2026-04-30
+- benchmark_data_asof: 2026-04-30
+- manual_review_required: true
+- auto_trading_approved: false
+- broker_integration_enabled: false
+- llm_decision_allowed: false
+- release_scope: 小资金、手动、严格复核观察/试运行候选；不是自动交易批准。
 
-## key output file hashes
+## audit statuses
 
-- config/strategy_v2.yml: 2d1d303f0e845a0d44279c4c60438604bad1e10cd3eea6e5c6a0152b5c7b2a04 (exists)
-- config/universe_rules_v2.yml: edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8 (exists)
-- reports/backtest/combined_v2_trades_detailed.csv: 6a1e6a6859c8dfa0e399bf0f900aadad6a3920e36ce3e2cb95a090d6c8643cec (exists)
-- reports/backtest/combined_v2_signal_funnel.csv: 68a417c1438d6925dfc4bfb33832526eb4b28c06811991c7d2df8329b49214f8 (exists)
-- reports/backtest/combined_v2_candidate_scores.csv: e73c8e531d8777ee511d657241d689196a61e7dd62c8b6db3e8ad45b6d9b97bc (exists)
-- reports/backtest/attribution/combined_v2_position_attribution.csv: 33927cc57ed658b2d379757b57c4607cd5f3f0dce8b643ca57c9fc4bf37bc778 (exists)
-- reports/backtest/attribution/combined_v2_trade_attribution.csv: b396b30200aa348ab6d4dc48dc84d1540ad3c2bbc0ed11657f904b34a64f37a2 (exists)
-- reports/backtest/attribution/combined_v2_monthly_returns.csv: 263bbbd73a5fd9755ae77c2c4aa7172d981fba302f3bb4d89092f2b1b58f847d (exists)
-- reports/backtest/attribution/combined_v2_signal_attribution.csv: fc94e98ea51b2478dd0f30cd4fd77f2fb252389f298595359c0dd0188dd3daaf (exists)
-- reports/backtest/attribution/combined_v2_regime_attribution.csv: b6319a00e0e386751d2490b47f1c5024c2071f6c090019c823750e3ee7934ba2 (exists)
-- reports/backtest/audit/lookahead_audit.csv: e445f1c0ee4db5f9964d83928900424f3a9719b20874ccc9a61fbdc67c240c1c (exists)
-- reports/backtest/audit/integrity_audit.csv: f38ab2c649db9d43726528a52f172e5bc380b539982b01c62163c244000072d3 (exists)
-- reports/backtest/controls/control_baselines_metrics.csv: c295d12ceb198d199bb81914db21234e9bf2e685ea696982ce2dd88face185a3 (exists)
+- config_consistency: PASS
+- universe_integrity: FAIL
+- data_freshness: PASS
+- account_constraints: WARN
+- evidence_chain: FAIL
+
+## risk section
+
+- ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION: account constraints dominate buy execution actual=0.11621621621621622
+- MIN_TRADE_AMOUNT_DOMINATES_EXECUTION: min_trade_amount dominates execution actual=0.5945945945945946
+
+## release guard checks
+
+- PASS | MODE-001 | release guard mode | actual=ci hash-only checks
+- PASS | RG-CONFIG-001 | config consistency audit | actual=PASS
+- FAIL | RG-UNIVERSE-001 | universe integrity audit | actual=FAIL
+- PASS | RG-DATA-001 | data freshness audit | actual=PASS
+- WARN | RG-ACCOUNT-001 | account constraints report | actual=WARN
+- FAIL | RG-EVIDENCE-001 | observation evidence chain | actual=FAIL
+- PASS | RG-LOOKAHEAD-001 | lookahead audit has no confirmed violations | actual=0
+- FAIL | RG-SENS-001 | sensitivity report binds or classifies core parameters | actual=status=FAIL; non_binding=0; unknown=0
+- FAIL | RG-BASELINE-001 | baseline comparison report exists and is not failing | actual=FAIL
+- PASS | RG-TESTS-001 | latest pytest status is recorded | actual=PASS
+- FAIL | RG-001 | report freshness check | actual=PASS=8 WARN=0 FAIL=5
+- PASS | RG-002 | release sync consistency check | actual=PASS=27 WARN=0 FAIL=0
+- PASS | RG-003 | report path sanitization check | actual=PASS=37 WARN=0 FAIL=0
+- FAIL | RG-004 | observation gate consistency check | actual=PASS=3 WARN=0 FAIL=4
+- WARN | RG-005 | combined_v2 RC hash-only verification | actual=PASS=18 WARN=6 FAIL=0
+- PASS | RG-006 | forbidden tracked files check | actual=PASS=6 WARN=0 FAIL=0
+- PASS | GIT-MANUAL-001 | manual order and action files are not tracked | actual=none
+- PASS | GIT-LEDGER-001 | real paper ledger files are not tracked | actual=none
+- PASS | OBS-CONFLICT-001 | observation report does not keep allowed and blocked current reports together | actual=allowed=True; summary_exists=False; blocked_current=True
+- PASS | OBS-WORDING-001 | observation summary has no active execution wording | actual=none
+- PASS | CFG-HASH-strategy_v2 | config/strategy_v2.yml hash matches RC manifest | actual=7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb
+- PASS | CFG-HASH-universe_rules_v2 | config/universe_rules_v2.yml hash matches RC manifest | actual=edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8

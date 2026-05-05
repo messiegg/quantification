@@ -1,7 +1,7 @@
 # report path sanitization check
 
 - overall_status: PASS
-- scanned_files: 34
+- scanned_files: 37
 - fail_count: 0
 
 ## checks
@@ -21,6 +21,9 @@
 - PASS | reports/backtest/release/post_data_update_worktree_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/release_guard_report.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/release_sync_consistency_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/backtest/release/test_status.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/data_gaps/latest.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/data_gaps/latest.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_update/2026-05-04/efinance_price_backfill_2026-04-30.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_update/2026-05-04/market_data_update_plan.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_update/2026-05-04/market_data_update_plan.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
@@ -35,9 +38,8 @@
 - PASS | reports/observation/2026-05-04/data_freshness_report.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/observation/2026-05-04/data_quality_observation_report.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/observation/2026-05-04/data_quality_observation_report.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/observation/2026-05-04/evidence_chain.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/observation/2026-05-04/evidence_chain.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/observation/2026-05-04/observation_blocked.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/observation/2026-05-04/observation_gate_consistency_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/observation/2026-05-04/observation_run_manifest.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
-- PASS | reports/observation/2026-05-04/observation_summary.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
-- PASS | reports/observation/2026-05-04/observation_summary.md | profile_compare_reference_exists | matched=profile_compare.md | summary 引用的 profile_compare.md 已存在。
-- PASS | reports/observation/2026-05-04/observation_summary.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
-- PASS | reports/observation/2026-05-04/profile_compare.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。

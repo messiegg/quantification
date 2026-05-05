@@ -1,0 +1,516 @@
+{
+  "generated_at": "2026-05-05T09:09:34.555125+00:00",
+  "git_commit": "f0cd73e15a915b7af4373421dbb57797de0dea83",
+  "branch": "codex/combined-v2-rc-release",
+  "config_hash": "0e89b4d194ac999b77ad51b3f22dba53a074999d2671518ffdcea8ec0121539f",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/universe.yml",
+      "exists": true,
+      "sha256": "cd2ff5b89988c4a52d4d20d6d63a51cf996303ae6ef450a6813458c6b5de8efb"
+    }
+  ],
+  "data_hash": "b51fa02fe73514c8b49ebb4f7697840fecaa3a75f648afab04beb1c7d98106bf",
+  "requested_date": "2026-04-30",
+  "target_trade_date": "2026-04-30",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "status": "FAIL",
+  "checked_at": "2026-05-05T09:09:34.569168+00:00",
+  "universe_file": "config/universe.yml",
+  "rules_file": "config/universe_rules_v2.yml",
+  "active_date": "2026-04-30",
+  "selected_count": 8,
+  "target_size": 36,
+  "floor": 24,
+  "ceiling": 48,
+  "max_per_industry": 3,
+  "market_cap_billion_min": 300,
+  "hard_filter_thresholds": {
+    "base": {
+      "listed_days_min": 1000,
+      "main_metric_history_years_min": 0,
+      "avg_amount_60d_million_min": 50,
+      "market_cap_billion_min": 300,
+      "require_industry": true,
+      "require_a_share": true,
+      "require_not_st": true,
+      "core_required_fields": [
+        "industry",
+        "market_cap_billion",
+        "avg_amount_60d_million",
+        "pb"
+      ]
+    },
+    "defensive_dividend": {
+      "market_cap_billion_min": 300,
+      "avg_amount_60d_million_min": 50,
+      "roe_min": 6,
+      "latest_net_profit_min_exclusive": 0,
+      "debt_to_assets_max": 85,
+      "dv_ttm_min": 0.025,
+      "pe_ttm_max_when_primary_metric": 25,
+      "pb_min_exclusive": 0,
+      "pb_q_blended_max_when_primary_metric": 75
+    },
+    "cyclical_rotation": {
+      "market_cap_billion_min": 300,
+      "avg_amount_60d_million_min": 50,
+      "latest_net_profit_min_exclusive": 0,
+      "roe_min": 3,
+      "pb_min_exclusive": 0,
+      "pb_q_blended_max": 60,
+      "market_cap_industry_rank_top_n": 10,
+      "market_cap_industry_rank_top_pct": 0.4
+    }
+  },
+  "retained_rules": {
+    "retained_min_score": 50,
+    "retained_industry_rank": 6,
+    "retained_any_rank_score": 60
+  },
+  "violations": [
+    {
+      "code": "UNIVERSE_UNDER_FLOOR",
+      "message": "selected universe count is below configured floor",
+      "expected": ">=24",
+      "actual": 8,
+      "source": "config/universe.yml;config/universe_rules_v2.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "600018.sh",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "600018.sh",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "600011.sh",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "600011.sh",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "600873.sh",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "600873.sh",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "market_cap_billion_below_market_cap_billion_min",
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "600690.sh",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "600690.sh",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "000786.sz",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "000786.sz",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "603799.sh",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "603799.sh",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "300628.sz",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "300628.sz",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "MISSING_KEY_FIELDS",
+      "symbol": "000708.sz",
+      "message": "selected constituent misses required fields",
+      "fields": [
+        "pb"
+      ],
+      "source": "config/universe.yml"
+    },
+    {
+      "code": "HARD_FILTER_VIOLATION",
+      "symbol": "000708.sz",
+      "message": "selected constituent violates hard filters without explicit override basis",
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "selected_as": "retained",
+      "source": "config/universe.yml"
+    }
+  ],
+  "warnings": [],
+  "constituents": [
+    {
+      "symbol": "600018.sh",
+      "code": "600018.sh",
+      "name": "上港集团",
+      "industry": "交通运输",
+      "bucket": "cyclical_rotation",
+      "market_cap_billion": 1163.998,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.039,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "600011.sh",
+      "code": "600011.sh",
+      "name": "华能国际",
+      "industry": "公用事业",
+      "bucket": "defensive_dividend",
+      "market_cap_billion": 1097.2967,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0386,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "600873.sh",
+      "code": "600873.sh",
+      "name": "梅花生物",
+      "industry": "基础化工",
+      "bucket": "cyclical_rotation",
+      "market_cap_billion": 278.1808,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0429,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "market_cap_billion_below_market_cap_billion_min",
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "600690.sh",
+      "code": "600690.sh",
+      "name": "海尔智家",
+      "industry": "家用电器",
+      "bucket": "defensive_dividend",
+      "market_cap_billion": 2019.0037,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0573,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "000786.sz",
+      "code": "000786.sz",
+      "name": "北新建材",
+      "industry": "建筑材料",
+      "bucket": "cyclical_rotation",
+      "market_cap_billion": 441.56,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0333,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "603799.sh",
+      "code": "603799.sh",
+      "name": "华友钴业",
+      "industry": "有色金属",
+      "bucket": "cyclical_rotation",
+      "market_cap_billion": 1263.0308,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0075,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "300628.sz",
+      "code": "300628.sz",
+      "name": "亿联网络",
+      "industry": "通信",
+      "bucket": "defensive_dividend",
+      "market_cap_billion": 462.7427,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0493,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pe_ttm",
+        "missing_pb",
+        "missing_latest_net_profit",
+        "missing_debt_to_assets"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    },
+    {
+      "symbol": "000708.sz",
+      "code": "000708.sz",
+      "name": "中信特钢",
+      "industry": "钢铁",
+      "bucket": "cyclical_rotation",
+      "market_cap_billion": 769.6916,
+      "pe": null,
+      "pb": null,
+      "dividend_yield": 0.0464,
+      "selected_reason": "retained",
+      "retained": true,
+      "manual_override": false,
+      "override_reason": null,
+      "override_effective_date": null,
+      "failed_filters": [
+        "missing_pb",
+        "missing_pb",
+        "missing_latest_net_profit"
+      ],
+      "missing_fields": [
+        "pb"
+      ],
+      "data_source": "config/universe.yml",
+      "data_path": "config/universe.yml",
+      "data_asof": "2026-04-30",
+      "effective_date": "2026-05-01"
+    }
+  ]
+}

@@ -7,6 +7,7 @@ import pandas as pd
 
 from src.strategy.universe import build_candidate_pool
 from src.utils.config import resolve_path
+from scripts.report_metadata import config_hash, data_hash, git_commit
 
 
 DAILY_FUNNEL_COLUMNS = [
@@ -325,6 +326,14 @@ def _render_diagnostic_report(
     monthly_buy = _monthly_counts(daily)
     lines = [
         f"# {prefix} 回测诊断报告",
+        "",
+        "## 元数据",
+        "",
+        f"- git_commit: {git_commit()}",
+        f"- config_hash: {config_hash()}",
+        f"- data_hash: {data_hash()}",
+        f"- manual_review_required: true",
+        f"- auto_trading_approved: false",
         "",
         "## 三年绩效摘要",
         "",

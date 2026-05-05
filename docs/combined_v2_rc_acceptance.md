@@ -10,15 +10,28 @@
 - max_drawdown: `-0.0936454742991675`
 - total_trades: `76`
 - final_nav: `243928.8809062001`
-- final rating: `PASS_CANDIDATE`
+- best possible rating: `PASS_CANDIDATE`
 
-`PASS_CANDIDATE` 只表示“小资金、手动、继续观察候选”。它不是自动实盘批准，也不是券商接入批准。
+`PASS_CANDIDATE` 只表示“小资金、手动、严格复核观察/试运行候选”。它不是自动实盘批准，也不是券商接入批准。当前 release guard 会整合配置一致性、universe integrity、数据新鲜度、前视审计、sensitivity、账户约束、evidence chain、baseline comparison 和测试状态；任一核心审计 FAIL 时，release 必须为 `FAIL`。
 
 ## 验证方式
 
+CI / 发布保护使用 hash-only 口径，不重跑完整回测：
+
 ```bash
-./.venv/bin/python scripts/verify_combined_v2_rc.py
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode hash-only
+./.venv/bin/python scripts/audit_config_consistency.py
+./.venv/bin/python scripts/audit_universe_integrity.py
+./.venv/bin/python scripts/audit_data_freshness.py --as-of-date 2026-05-04
+./.venv/bin/python scripts/run_release_guard.py --ci --as-of-date 2026-05-04
+./.venv/bin/python scripts/check_forbidden_tracked_files.py --write-report
 ./.venv/bin/python scripts/check_report_freshness.py
+```
+
+本地完整数据环境才使用 full 口径：
+
+```bash
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode full
 ```
 
 输出：
@@ -26,16 +39,32 @@
 - `reports/backtest/release/combined_v2_rc_verify.csv`
 - `reports/backtest/release/combined_v2_rc_verify.md`
 - `reports/backtest/release/combined_v2_rc_code_manifest.json`
+- `reports/audit/config_consistency.json`
+- `reports/audit/universe_integrity.json`
+- `reports/audit/data_freshness.json`
+- `reports/observation/2026-05-04/evidence_chain.json`
+- `reports/backtest/account_constraints_report.json`
+- `reports/backtest/controls/baseline_comparison.json`
+- `reports/backtest/release/release_guard_report.md`
+- `reports/backtest/release/forbidden_tracked_files_check.md`
 - `reports/backtest/audit/stale_report_check.csv`
 - `reports/backtest/audit/stale_report_check.md`
 
-配置 hash 漂移是 `FAIL`。核心策略代码 hash 漂移是 `WARN`，不会直接判定策略失效，但必须重跑完整审计。报告 hash 漂移而严格指标一致时也是 `WARN`，需要刷新报告或解释差异。
+配置 hash 漂移是 `FAIL`。核心策略代码 hash 漂移过去作为 `WARN` 处理；当前发布保护阶段要求先通过 `release_guard`，再决定是否需要本地 full 复核。报告 hash 漂移而严格指标一致时也是 `WARN`，需要刷新报告或解释差异。
+
+截至当前发布保护口径：
+
+- latest commit: `f0cd73e15a915b7af4373421dbb57797de0dea83`
+- `verify_combined_v2_rc --mode hash-only`: PASS
+- `run_release_guard --ci --as-of-date 2026-05-04`: 由当前审计产物决定；若 universe 低于 floor 或硬过滤违规，必须 FAIL。
+- `check_forbidden_tracked_files`: PASS
 
 ## 不得改变的边界
 
 - 不修改 `combined_v2` 买入、卖出、网格、仓位、market regime、cycle_peak_trap、hard_add_ban、fundamental_break 逻辑。
 - 不修改 `config/strategy_v2.yml` 与 `config/universe_rules_v2.yml` 的交易含义。
 - 不接券商，不自动下单，不让 LLM 决定 `action_enum`。
+- 不允许在 universe/data/evidence 任一 gate FAIL 时生成“可执行买卖建议”；只能生成阻断报告。
 - 不用 `2026-04-03` 之后的数据改写三年历史回测。
 - `combined_v2_1_risk_guard` 只保留为 conservative observation candidate，不替换主策略。
 

@@ -28,11 +28,12 @@ from scripts.audit_common import (
     prepare_v2_history,
     run_profile,
 )
-from scripts.run_backtest_compare import _benchmark_metrics
+from scripts.run_backtest_compare import _benchmark_metrics, _generate_v2_history, _history_generation_start
+from scripts.report_metadata import metadata_header, write_json
 from src.strategy.backtest_engine import BacktestEngine, BacktestResult
 from src.strategy.backtest_reports import build_universe_funnel
 from src.strategy.regime import determine_market_regime
-from src.utils.config import resolve_path
+from src.utils.config import load_yaml_optional, resolve_path
 
 
 @dataclass
@@ -331,6 +332,19 @@ def _row_from_result(control_id: str, profile: str, result, benchmark: pd.DataFr
     row["control_id"] = control_id
     row["profile"] = profile
     row["execution_mode"] = "next_bar"
+    diagnostics = result.daily_diagnostics if isinstance(result, BacktestResult) and result.daily_diagnostics is not None else pd.DataFrame()
+    if diagnostics.empty:
+        row["raw_signal_count"] = None
+        row["executable_signal_count"] = None
+    else:
+        row["raw_signal_count"] = int(
+            pd.to_numeric(diagnostics.get("raw_buy_signal_count", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()
+            + pd.to_numeric(diagnostics.get("raw_sell_signal_count", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()
+        )
+        row["executable_signal_count"] = int(
+            pd.to_numeric(diagnostics.get("executable_buy_count", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()
+            + pd.to_numeric(diagnostics.get("executable_sell_count", pd.Series(dtype=float)), errors="coerce").fillna(0).sum()
+        )
     return row
 
 
@@ -352,6 +366,26 @@ def _run_v2_variant(configs: dict, features: pd.DataFrame, benchmark: pd.DataFra
         execution_mode="next_bar",
     )
     return engine.run(features=features.copy(), benchmark=benchmark.copy(), bucket=bucket)
+
+
+def _run_v2_custom(
+    configs: dict,
+    features: pd.DataFrame,
+    benchmark: pd.DataFrame,
+    *,
+    strategy: dict | None = None,
+    universe: dict | None = None,
+    account: dict | None = None,
+    history_dir: str | Path = V2_HISTORY_DIR,
+) -> BacktestResult:
+    engine = BacktestEngine(
+        copy.deepcopy(strategy or configs["v2_strategy"]),
+        universe_rules_cfg=copy.deepcopy(universe or configs["v2_universe"]),
+        account_cfg=copy.deepcopy(account or configs["account"]),
+        historical_universe_dir=history_dir,
+        execution_mode="next_bar",
+    )
+    return engine.run(features=features.copy(), benchmark=benchmark.copy(), bucket="combined")
 
 
 def _percentile(values: list[float], observed: float) -> float:
@@ -390,6 +424,42 @@ def main() -> int:
     results["v2_no_grid"] = _run_v2_variant(configs, features, benchmark, "v2_no_grid", {"disable_grid": True})
     results["v2_no_trend_stop"] = _run_v2_variant(configs, features, benchmark, "v2_no_trend_stop", {"disable_trend_stop": True})
     results["v2_risk_off_no_new_buy"] = _run_v2_variant(configs, features, benchmark, "v2_risk_off_no_new_buy", {"risk_off_no_new_buy": True})
+    no_market_strategy = copy.deepcopy(configs["v2_strategy"])
+    no_market_strategy.setdefault("control_overrides", {})["research_only_no_market_state_filter"] = True
+    no_market_strategy["market_regime"]["max_total_position"] = {"risk_on": 0.95, "neutral": 0.95, "risk_off": 0.95}
+    no_market_strategy["market_regime"]["block_new_in_risk_off"] = False
+    results["v2_no_market_state_filter"] = _run_v2_custom(configs, features, benchmark, strategy=no_market_strategy)
+
+    relaxed_account = copy.deepcopy(configs["account"])
+    relaxed_account.setdefault("position_sizing", {})["min_trade_value"] = 0
+    relaxed_account.setdefault("execution", {})["round_lot"] = 1
+    relaxed_strategy = copy.deepcopy(configs["v2_strategy"])
+    relaxed_strategy.setdefault("control_overrides", {})["research_only_relaxed_account_constraints"] = True
+    relaxed_strategy.setdefault("execution", {})["max_positions"] = 999
+    relaxed_strategy.setdefault("execution", {})["max_new_positions_per_day"] = 999
+    relaxed_strategy.setdefault("execution", {})["max_adds_per_day"] = 999
+    results["v2_relaxed_account_constraints_research_only"] = _run_v2_custom(
+        configs,
+        features,
+        benchmark,
+        strategy=relaxed_strategy,
+        account=relaxed_account,
+    )
+
+    no_industry_universe = copy.deepcopy(configs["v2_universe"])
+    no_industry_universe["max_per_industry"] = 999
+    no_industry_universe["max_names_per_industry"] = 999
+    no_industry_history = "reports/backtest/controls/no_industry_cap_universe_history"
+    generation_start = _history_generation_start("data/curated/universe_history", DEFAULT_START_DATE, DEFAULT_END_DATE)
+    generation_features = load_feature_window(generation_start, DEFAULT_END_DATE, DEFAULT_FEATURES_FILE)
+    _generate_v2_history(generation_features, "data/curated/universe_history", no_industry_history, no_industry_universe, configs["metric_map"])
+    results["v2_no_industry_cap"] = _run_v2_custom(
+        configs,
+        features,
+        benchmark,
+        universe=no_industry_universe,
+        history_dir=no_industry_history,
+    )
 
     rows = []
     trades_frames = []
@@ -422,6 +492,8 @@ def main() -> int:
         "avg_positions",
         "max_positions",
         "turnover",
+        "raw_signal_count",
+        "executable_signal_count",
         "total_fees",
         "total_tax",
         "total_slippage",
@@ -477,7 +549,60 @@ def main() -> int:
     no_grid = metrics[metrics["control_id"] == "v2_no_grid"].iloc[0]
     no_stop = metrics[metrics["control_id"] == "v2_no_trend_stop"].iloc[0]
     no_risk_buy = metrics[metrics["control_id"] == "v2_risk_off_no_new_buy"].iloc[0]
+    no_market = metrics[metrics["control_id"] == "v2_no_market_state_filter"].iloc[0]
+    no_industry = metrics[metrics["control_id"] == "v2_no_industry_cap"].iloc[0]
+    relaxed_account_metrics = metrics[metrics["control_id"] == "v2_relaxed_account_constraints_research_only"].iloc[0]
     baseline = metrics[metrics["control_id"] == "baseline_combined_next_bar"].iloc[0]
+    comparison_rows = []
+    label_map = {
+        "baseline_combined_next_bar": "base_dianjinshu_like",
+        "combined_v2_next_bar": "combined_v2",
+        "v2_no_high_dividend_supplement": "no_high_dividend_supplement",
+        "v2_no_trend_stop": "no_trend_stop",
+        "v2_no_market_state_filter": "no_market_state_filter",
+        "v2_no_industry_cap": "no_industry_cap",
+        "v2_relaxed_account_constraints_research_only": "relaxed_account_constraints_research_only",
+    }
+    for row in metrics.to_dict(orient="records"):
+        if row["control_id"] not in label_map:
+            continue
+        comparison = dict(row)
+        comparison["comparison_id"] = label_map[row["control_id"]]
+        comparison["research_only"] = comparison["comparison_id"] in {
+            "no_market_state_filter",
+            "no_industry_cap",
+            "relaxed_account_constraints_research_only",
+        }
+        comparison["baseline_note"] = (
+            "仓库配置中定义的点金术风格基线，不是对外部作者原文的严格复刻。"
+            if comparison["comparison_id"] == "base_dianjinshu_like"
+            else ""
+        )
+        comparison["module_flag"] = (
+            "MODULE_MAY_BE_DRAG"
+            if comparison["comparison_id"].startswith("no_")
+            and float(comparison.get("annual_return", 0.0)) > float(v2["annual_return"])
+            else ""
+        )
+        comparison_rows.append(comparison)
+    baseline_cfg = load_yaml_optional("config/baselines/dianjinshu_like.yml")
+    missing_required = [
+        key
+        for key, value in (baseline_cfg.get("required_params", {}) or {}).items()
+        if value is None and key not in {"market_cap_rank"}
+    ]
+    baseline_status = "FAIL" if missing_required else "WARN" if any(row.get("module_flag") for row in comparison_rows) else "PASS"
+    write_json(
+        output_dir / "baseline_comparison.json",
+        {
+            **metadata_header(extra_config_paths=["config/baselines/dianjinshu_like.yml"]),
+            "status": baseline_status,
+            "baseline_source": "documented_dianjinshu_like_baseline",
+            "strict_external_original_reproduction": False,
+            "missing_required_baseline_params": missing_required,
+            "comparisons": comparison_rows,
+        },
+    )
     lines = [
         "# control baselines 报告",
         "",
@@ -495,6 +620,9 @@ def main() -> int:
         f"- 网格是否有实际贡献: 禁用后年化 {pct(no_grid['annual_return'])}，成交 {int(no_grid['total_trades'])}；若与 v2 接近，说明当前 GRID_ADD/GRID_TRIM 贡献有限。",
         f"- trend_stop 是保护还是拖累: 禁用后年化 {pct(no_stop['annual_return'])}、回撤 {pct(no_stop['max_drawdown'])}；该项只作风险解释，不能作为主策略。",
         f"- risk_off 新买入是否值得保留: risk_off 禁新买后年化 {pct(no_risk_buy['annual_return'])}、回撤 {pct(no_risk_buy['max_drawdown'])}。",
+        f"- no_market_state_filter 仅研究用途: 年化 {pct(no_market['annual_return'])}、回撤 {pct(no_market['max_drawdown'])}，不能作为实盘口径。",
+        f"- no_industry_cap 仅研究用途: 年化 {pct(no_industry['annual_return'])}、回撤 {pct(no_industry['max_drawdown'])}，不能作为实盘口径。",
+        f"- relaxed_account_constraints 仅研究用途: 年化 {pct(relaxed_account_metrics['annual_return'])}、回撤 {pct(relaxed_account_metrics['max_drawdown'])}，不能作为实盘口径。",
         f"- combined_v2 在 random placebo 年化分布中的 percentile: {placebo_percentile:.1f}%。",
         "",
         "## 指标明细",
@@ -508,6 +636,26 @@ def main() -> int:
     for row in summary_stats:
         lines.append(f"- {row['seed']}: 年化 {pct(row['annual_return'])}，最大回撤 {pct(row['max_drawdown'])}，夏普 {row['sharpe']:.2f}")
     (output_dir / "control_baselines_report.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
+    comparison_lines = [
+        "# baseline comparison",
+        "",
+        f"- status: {baseline_status}",
+        "- base_dianjinshu_like: 仓库配置中定义的点金术风格基线，不是对外部作者原文的严格复刻。",
+        "- combined_v2: 当前主研究候选。",
+        "- 所有 no_* 和 relaxed_account_constraints 仅用于解释模块贡献，不自动修改主策略。",
+        "",
+        "## metrics",
+        "",
+    ]
+    for row in comparison_rows:
+        flag = f" | {row['module_flag']}" if row.get("module_flag") else ""
+        comparison_lines.append(
+            f"- {row['comparison_id']}: 年化 {pct(row['annual_return'])}，累计 {pct(row['cumulative_return'])}，回撤 {pct(row['max_drawdown'])}，Sharpe {row['sharpe']:.2f}，Calmar {row['calmar']:.2f}，turnover {row['turnover']:.2f}，平均仓位 {pct(row['avg_daily_exposure'])}，成交 {int(row['total_trades'])}，raw/executable {row.get('raw_signal_count')} / {row.get('executable_signal_count')}，超额 {pct(row['excess_annual_return'])}{flag}"
+        )
+    if missing_required:
+        comparison_lines.extend(["", "## missing_required_baseline_params", ""])
+        comparison_lines.extend([f"- {item}" for item in missing_required])
+    (output_dir / "baseline_comparison.md").write_text("\n".join(comparison_lines) + "\n", encoding="utf-8")
     return 0
 
 

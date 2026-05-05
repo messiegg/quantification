@@ -24,6 +24,7 @@ from scripts.audit_common import (
     prepare_v2_history,
     run_profile,
 )
+from scripts.report_metadata import config_hash, data_hash, git_commit
 from src.strategy.backtest_engine import BacktestEngine
 
 
@@ -86,6 +87,9 @@ def main() -> int:
     lines = [
         "# 成本和滑点压力测试",
         "",
+        f"- git_commit: {git_commit()}",
+        f"- config_hash: {config_hash()}",
+        f"- data_hash: {data_hash()}",
         "- 口径: combined_v2 next_bar。",
         "- 压力测试只覆盖成交成本参数；信号、股票池和策略阈值不写回、不修改。",
         f"- baseline next_bar 年化: {pct(baseline_annual)}",
