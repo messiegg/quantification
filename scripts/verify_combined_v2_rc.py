@@ -190,11 +190,30 @@ def verify_release_candidate(
     output_csv: str | Path = VERIFY_CSV,
     output_md: str | Path = VERIFY_MD,
     rerun_backtest: bool = True,
+    mode: str | None = None,
     write_report: bool = True,
 ) -> pd.DataFrame:
+    if mode is None:
+        mode = "full" if rerun_backtest else "hash-only"
+    if mode not in {"full", "hash-only"}:
+        raise ValueError(f"unsupported verify mode: {mode}")
+    rerun_backtest = mode == "full"
+
     manifest = _read_manifest(manifest_path)
     manifest_hashes = _manifest_hash_map(manifest)
     rows: list[dict] = []
+
+    _row(
+        rows,
+        "MODE-001",
+        "verification mode",
+        "PASS",
+        mode,
+        mode,
+        "",
+        str(manifest_path),
+        "hash-only 使用已提交的小型报告与 manifest，不重跑完整回测；full 仅用于本地完整数据环境。",
+    )
 
     for path in ("config/strategy_v2.yml", "config/universe_rules_v2.yml"):
         expected = manifest_hashes.get(path, "")
@@ -212,7 +231,7 @@ def verify_release_candidate(
         )
 
     metrics, _ = _rerun_metrics(manifest) if rerun_backtest else _load_existing_metrics(manifest)
-    source = "in-memory rerun" if rerun_backtest else "execution_mode_compare.csv"
+    source = "in-memory rerun" if rerun_backtest else "hash-only: execution_mode_compare.csv"
     for metric_name, (expected, tolerance) in EXPECTED_METRICS.items():
         actual = float(metrics[metric_name])
         diff = actual - expected
@@ -283,6 +302,7 @@ def verify_release_candidate(
             "# combined_v2 RC verify",
             "",
             f"- overall_status: {overall}",
+            f"- mode: {mode}",
             f"- profile: {manifest.get('profile')}",
             f"- execution_mode: {manifest.get('execution_mode')}",
             f"- period: {manifest.get('start_date')} to {manifest.get('end_date')}",
@@ -306,13 +326,33 @@ def verify_release_candidate(
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Verify combined_v2 release-candidate strict next_bar口径。")
     parser.add_argument("--manifest", default=MANIFEST_PATH)
-    parser.add_argument("--skip-rerun", action="store_true", help="Use existing execution_mode_compare.csv instead of rerunning the in-memory backtest.")
+    parser.add_argument(
+        "--mode",
+        choices=["hash-only", "full"],
+        default=None,
+        help="hash-only checks manifest/report hashes and committed metrics without full backtest; full reruns the strict next_bar backtest.",
+    )
+    parser.add_argument(
+        "--skip-rerun",
+        action="store_true",
+        help="Deprecated alias for --mode hash-only.",
+    )
+    parser.add_argument(
+        "--no-rerun-backtest",
+        action="store_true",
+        help="Alias for --mode hash-only.",
+    )
     return parser.parse_args()
 
 
 def main() -> int:
     args = parse_args()
-    frame = verify_release_candidate(manifest_path=args.manifest, rerun_backtest=not args.skip_rerun)
+    mode = args.mode
+    if mode is None and (args.skip_rerun or args.no_rerun_backtest):
+        mode = "hash-only"
+    if mode is None:
+        mode = "full"
+    frame = verify_release_candidate(manifest_path=args.manifest, mode=mode)
     return 1 if (frame["status"] == "FAIL").any() else 0
 
 

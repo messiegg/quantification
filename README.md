@@ -274,10 +274,26 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 
 `PASS_CANDIDATE` 只代表小资金、手动、继续观察候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。
 
-验证 RC：
+2026-05-04 当前 observation 示例状态：
+
+- `as_of_date`: `2026-05-04`，非交易日。
+- `target_trading_date`: `2026-04-30`。
+- `data_max_date` / `feature_max_date` / `benchmark_max_date`: `2026-04-30`。
+- freshness: `observation_report_allowed`。
+- blocking_reason: `NONE`。
+- data quality: `WARN`，当前主要 WARN 是 `pe_ttm` 缺失率偏高。
+- 结论：只允许下一交易日人工复核，不代表今日实盘执行。
+
+验证 RC 的 CI 轻量口径：
 
 ```bash
-./.venv/bin/python scripts/verify_combined_v2_rc.py
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode hash-only
+```
+
+本地完整数据环境验证 RC：
+
+```bash
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode full
 ```
 
 检查旧报告残留：
@@ -300,6 +316,55 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 ./.venv/bin/python scripts/update_market_data_safe.py --as-of-date 2026-05-04 --dry-run --write-report
 ./.venv/bin/python scripts/check_observation_gate_consistency.py --as-of-date 2026-05-04
 ```
+
+### CI / 发布保护
+
+GitHub Actions 分两层默认运行：
+
+- Layer 1 轻量测试：
+
+```bash
+python -m pytest -q -m "not data_required and not full_backtest"
+```
+
+- Layer 2 report guard：
+
+```bash
+python scripts/run_release_guard.py --ci --as-of-date 2026-05-04
+```
+
+CI 不跑完整数据回测，不更新行情数据，不生成真实订单。完整本地验证仍在有本地数据的环境运行：
+
+```bash
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode full
+./.venv/bin/python scripts/check_data_freshness.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/check_data_quality_for_observation.py --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/run_observation_pipeline.py --as-of-date 2026-05-04 --profile combined_v2 --mode paper --compare-conservative true
+```
+
+本地 pre-commit 风格检查不强制安装 hook，提交前手动运行：
+
+```bash
+./.venv/bin/python scripts/run_release_guard.py --ci --as-of-date 2026-05-04 --write-report
+./.venv/bin/python scripts/check_forbidden_tracked_files.py --write-report
+./.venv/bin/python scripts/verify_combined_v2_rc.py --mode hash-only
+./.venv/bin/python -m pytest -q -m "not data_required and not full_backtest"
+```
+
+发布保护报告：
+
+- `reports/backtest/release/release_guard_report.md`
+- `reports/backtest/release/release_guard_report.csv`
+- `reports/backtest/release/forbidden_tracked_files_check.md`
+- `reports/backtest/release/forbidden_tracked_files_check.csv`
+
+真实 paper ledger 仍只保留在本地 ignored 文件中；`combined_v2_manual_order_list.csv` 和 observation actions 也是 ignored local artifact，不提交公开仓库。小型 demo fixture 如需保留，必须写入 `config/release_file_allowlist.yml`，并声明原因、大小上限和 `may_contain_sensitive_data: false`。
+
+更多流程见：
+
+- `docs/ci_and_local_validation.md`
+- `docs/release_checklist.md`
+- `docs/pr_checklist.md`
 
 关键输出：
 

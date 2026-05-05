@@ -56,6 +56,9 @@ RELEASE_SYNC_STALE_PATTERNS = [
     "存在 untracked 文件: True",
     "存在未暂存修改: True",
     "当前 HEAD commit: 6d16a186",
+    "data_freshness: BLOCK",
+    "allowed_actions: historical_review_only",
+    "blocking_reason: STALE_DATA_BLOCKED",
 ]
 OBSERVATION_FORBIDDEN_ACTIVE_PHRASES = [
     "今日实盘执行",

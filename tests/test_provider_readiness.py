@@ -2,7 +2,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
 from scripts import check_provider_readiness as readiness
+
+
+pytestmark = pytest.mark.no_network
 
 
 def _target_info() -> dict:
@@ -19,8 +24,8 @@ def _target_info() -> dict:
 
 
 def test_provider_readiness_reports_do_not_leak_token(monkeypatch, tmp_path: Path) -> None:
-    secret = "SUPER_SECRET_TUSHARE_TOKEN"
-    monkeypatch.setenv("TUSHARE_TOKEN", secret)
+    dummy_value = "DUMMY_TEST_TOKEN"
+    monkeypatch.setenv("TUSHARE_TOKEN", dummy_value)
     monkeypatch.setattr(readiness, "resolve_target_trading_date", lambda *args, **kwargs: _target_info())
     report = readiness.check_provider_readiness(
         "2026-05-04",
@@ -31,7 +36,7 @@ def test_provider_readiness_reports_do_not_leak_token(monkeypatch, tmp_path: Pat
     )
     assert report["token_present"]["tushare"] is True
     for path in (tmp_path / "provider.json", tmp_path / "provider.md", tmp_path / "provider.csv"):
-        assert secret not in path.read_text(encoding="utf-8")
+        assert dummy_value not in path.read_text(encoding="utf-8")
 
 
 def test_provider_readiness_handles_missing_tdx_dir_without_exception(monkeypatch, tmp_path: Path) -> None:

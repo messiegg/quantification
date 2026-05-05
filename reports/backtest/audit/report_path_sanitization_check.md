@@ -1,7 +1,7 @@
 # report path sanitization check
 
 - overall_status: PASS
-- scanned_files: 32
+- scanned_files: 34
 - fail_count: 0
 
 ## checks
@@ -15,9 +15,11 @@
 - PASS | reports/backtest/audit/stale_report_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/combined_v2_rc_manifest.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/combined_v2_rc_verify.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/backtest/release/forbidden_tracked_files_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/observation_release_sync_summary.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/observation_sync_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/post_data_update_worktree_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
+- PASS | reports/backtest/release/release_guard_report.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/backtest/release/release_sync_consistency_check.md | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_update/2026-05-04/efinance_price_backfill_2026-04-30.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。
 - PASS | reports/data_update/2026-05-04/market_data_update_plan.json | path_and_secret_sanitized | matched=none | 未发现本地绝对路径或疑似 secret。

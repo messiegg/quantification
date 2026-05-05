@@ -21,8 +21,14 @@ reports/backtest/release/release_sync_consistency_check.csv,True,True,False,True
 reports/backtest/release/release_sync_consistency_check.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/observation/2026-05-04/data_freshness_report.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/observation/2026-05-04/data_freshness_report.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
-reports/observation/2026-05-04/observation_blocked.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/data_quality_observation_report.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/data_quality_observation_report.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_gate_consistency_check.csv,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_gate_consistency_check.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/observation/2026-05-04/observation_run_manifest.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_summary.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/observation_summary.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
+reports/observation/2026-05-04/profile_compare.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/data_update/2026-05-04/market_data_update_plan.json,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 reports/data_update/2026-05-04/market_data_update_plan.md,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。
 scripts/check_data_quality_for_observation.py,True,True,False,True,False,KEEP_TRACKED,发布和复现所需文件，已被 Git 跟踪。

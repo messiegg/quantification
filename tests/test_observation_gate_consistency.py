@@ -3,7 +3,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from scripts import check_observation_gate_consistency as gate
+
+
+pytestmark = pytest.mark.observation
 
 
 def _patch_gate_config(monkeypatch, tmp_path: Path) -> Path:

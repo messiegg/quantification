@@ -67,6 +67,10 @@ def _row(file_path: str, check_name: str, status: str, matched_text: str, recomm
     }
 
 
+def _redact_secret_evidence(text: str) -> str:
+    return re.sub(r"([:=]\s*['\"]?).*", r"\1<REDACTED>", text)
+
+
 def build_report_path_sanitization_check(
     scan_globs: list[str] | None = None,
     output_csv: str | Path = DEFAULT_CSV,
@@ -98,7 +102,7 @@ def build_report_path_sanitization_check(
                     rel,
                     "token-like secret pattern",
                     "FAIL",
-                    match.group(0)[:64],
+                    _redact_secret_evidence(match.group(0)[:64]),
                     "报告不得包含 token、password、secret 或 API key 原文。",
                 )
             )

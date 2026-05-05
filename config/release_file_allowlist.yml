@@ -1,0 +1,17 @@
+allowlist:
+  - path: .env.example
+    reason: 可提交的空值环境变量模板，不包含真实 token、密码或账户信息。
+    max_size_bytes: 1000
+    may_contain_sensitive_data: false
+  - path: data/demo_case/benchmark_daily.parquet
+    reason: 小型 demo fixture，用于离线测试固定 demo，不是行情主数据。
+    max_size_bytes: 10000
+    may_contain_sensitive_data: false
+  - path: data/demo_case/daily_features.parquet
+    reason: 小型 demo fixture，用于离线测试固定 demo，不是 data/features 主特征目录。
+    max_size_bytes: 50000
+    may_contain_sensitive_data: false
+  - path: data/demo_case/financials_effective.parquet
+    reason: 小型 demo fixture，用于离线测试固定 demo，不是完整财务数据。
+    max_size_bytes: 10000
+    may_contain_sensitive_data: false

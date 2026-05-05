@@ -50,8 +50,14 @@ TRACKED_RELEASE_FILES = [
     "reports/backtest/release/release_sync_consistency_check.md",
     "reports/observation/2026-05-04/data_freshness_report.json",
     "reports/observation/2026-05-04/data_freshness_report.md",
-    "reports/observation/2026-05-04/observation_blocked.md",
+    "reports/observation/2026-05-04/data_quality_observation_report.json",
+    "reports/observation/2026-05-04/data_quality_observation_report.md",
+    "reports/observation/2026-05-04/observation_gate_consistency_check.csv",
+    "reports/observation/2026-05-04/observation_gate_consistency_check.md",
     "reports/observation/2026-05-04/observation_run_manifest.json",
+    "reports/observation/2026-05-04/observation_summary.json",
+    "reports/observation/2026-05-04/observation_summary.md",
+    "reports/observation/2026-05-04/profile_compare.md",
     "reports/data_update/2026-05-04/market_data_update_plan.json",
     "reports/data_update/2026-05-04/market_data_update_plan.md",
     "scripts/check_data_quality_for_observation.py",
@@ -89,6 +95,9 @@ SUMMARY_FORBIDDEN = [
     "存在未暂存修改: True",
     "当前 HEAD commit: 6d16a186",
     "需要执行: git push origin codex/combined-v2-rc-release",
+    "data_freshness: BLOCK",
+    "allowed_actions: historical_review_only",
+    "blocking_reason: STALE_DATA_BLOCKED",
 ]
 
 SUMMARY_REQUIRED = [
@@ -327,6 +336,10 @@ def build_release_sync_summary(
     manifest = _read_json("reports/observation/2026-05-04/observation_run_manifest.json")
     rc_status, metrics = _rc_verify_summary()
     manual_order_path = resolve_path("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
+    freshness_allowed = freshness.get("allowed_actions") == "observation_report_allowed"
+    data_freshness_status = "ALLOW" if freshness_allowed else "BLOCK"
+    manual_tracked = _tracked_by_git("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
+    manual_ignored = _ignored_by_git("reports/observation/2026-05-04/combined_v2_manual_order_list.csv")
     modified = files_modified_by_refresh or [str(output_md)]
     if pytest_result is None:
         existing = resolve_path(output_md)
@@ -370,16 +383,22 @@ def build_release_sync_summary(
             "",
             "## 2026-05-04 data freshness",
             "",
-            "- data_freshness: BLOCK",
-            f"- data_max_date: {freshness.get('data_max_date', '2026-04-03')}",
-            f"- stale_calendar_days: {freshness.get('stale_calendar_days', 31)}",
-            f"- allowed_actions: {freshness.get('allowed_actions', 'historical_review_only')}",
+            f"- data_freshness: {data_freshness_status}",
+            f"- target_trading_date: {freshness.get('target_trading_date', '')}",
+            f"- data_max_date: {freshness.get('data_max_date', '')}",
+            f"- feature_max_date: {freshness.get('feature_max_date', '')}",
+            f"- benchmark_max_date: {freshness.get('benchmark_max_date', '')}",
+            f"- stale_calendar_days: {freshness.get('stale_calendar_days', '')}",
+            f"- stale_trading_days: {freshness.get('stale_trading_days', '')}",
+            f"- allowed_actions: {freshness.get('allowed_actions', '')}",
             "",
             "## observation pipeline",
             "",
-            f"- blocking_reason: {manifest.get('blocking_reason', 'STALE_DATA_BLOCKED')}",
+            f"- blocking_reason: {manifest.get('blocking_reason', '')}",
             f"- action_allowed: {str(manifest.get('action_allowed', False)).lower()}",
-            f"- manual_order_list 未生成: {'是' if not manual_order_path.exists() else '否'}",
+            f"- manual_order_list exists locally: {'是' if manual_order_path.exists() else '否'}",
+            f"- manual_order_list tracked_by_git: {'是' if manual_tracked else '否'}",
+            f"- manual_order_list ignored_by_git: {'是' if manual_ignored else '否'}",
             "",
             "## RC verify",
             "",
@@ -399,7 +418,8 @@ def build_release_sync_summary(
             "- 可以提交这轮报告同步修复。",
             "- 不涉及策略变更。",
             "- 不涉及数据更新。",
-            "- 不允许生成 2026-05-04 手工订单。",
+            "- 观察期输出只允许下一交易日人工复核。",
+            "- 不允许自动下单或接券商。",
         ]
     )
     text = "\n".join(lines) + "\n"

@@ -1,7 +1,7 @@
 # release sync consistency check
 
 - overall_status: PASS
-- generated_at: 2026-05-04T17:41:12.457862+00:00
+- generated_at: 2026-05-05T04:32:19.820999+00:00
 - fail_count: 0
 - warn_count: 0
 
@@ -19,6 +19,9 @@
 - PASS | SUMMARY-MD-004 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
 - PASS | SUMMARY-MD-005 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
 - PASS | SUMMARY-MD-006 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
+- PASS | SUMMARY-MD-007 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
+- PASS | SUMMARY-MD-008 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
+- PASS | SUMMARY-MD-009 | observation_release_sync_summary.md old conclusion absent | actual=absent | 刷新发布同步总结，避免提交前状态结论进入发布分支。
 - PASS | SYNC-CSV-FORBIDDEN-ACTION-1 | observation_sync_check.csv forbidden action count | actual=0 | 当前发布同步报告不得要求补 git add 或人工调查。
 - PASS | SYNC-CSV-FORBIDDEN-ACTION-2 | observation_sync_check.csv forbidden action count | actual=0 | 当前发布同步报告不得要求补 git add 或人工调查。
 - PASS | SYNC-CSV-LEDGER-paper_account | data/observation/paper_account.yml action | actual=IGNORE_LOCAL_ONLY | 真实 paper ledger 必须保持本地忽略，不进入公开提交。

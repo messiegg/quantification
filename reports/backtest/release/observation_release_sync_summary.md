@@ -4,32 +4,47 @@
 
 - 当前验证目标分支: codex/combined-v2-rc-release
 - 当前本地分支: codex/combined-v2-rc-release
-- verified_target_commit_at_generation: 9dfc5dea741ebb2f68c661c6af0b7722712f715e
+- verified_target_commit_at_generation: e3d6d7c8dfc0afbbe93cdc9dee3e74f813519a4f
 - remote_branch_hash_at_generation: REMOTE_CHECK_UNAVAILABLE
 - final_commit_after_report_commit: see final operator response
 
 ## 本地工作区状态
 
 - status_before_report_refresh:
-  - `M  README.md`
-  - `M  config/observation.yml`
-  - `M  docs/data_freshness_and_runbook.md`
+  - `M .github/workflows/ci.yml`
+  - ` M README.md`
+  - ` M pytest.ini`
+  - ` M reports/backtest/audit/report_path_sanitization_check.csv`
+  - ` M reports/backtest/audit/report_path_sanitization_check.md`
+  - ` M reports/backtest/audit/stale_report_check.md`
+  - ` M reports/backtest/release/combined_v2_rc_verify.csv`
+  - ` M reports/backtest/release/combined_v2_rc_verify.md`
+  - ` M reports/backtest/release/observation_release_sync_summary.md`
   - ` M reports/backtest/release/observation_sync_check.csv`
   - ` M reports/backtest/release/observation_sync_check.md`
-  - `A  reports/data_update/2026-05-04/market_data_update_plan.json`
-  - `A  reports/data_update/2026-05-04/market_data_update_plan.md`
-  - `M  reports/observation/2026-05-04/data_freshness_report.json`
-  - `M  reports/observation/2026-05-04/data_freshness_report.md`
-  - `M  reports/observation/2026-05-04/observation_blocked.md`
-  - `M  reports/observation/2026-05-04/observation_run_manifest.json`
-  - `M  scripts/check_data_freshness.py`
-  - `A  scripts/check_data_quality_for_observation.py`
-  - `M  scripts/check_release_sync_consistency.py`
-  - `M  scripts/run_observation_pipeline.py`
-  - `A  scripts/update_market_data_safe.py`
-  - `A  tests/test_data_freshness_trading_calendar.py`
-  - `M  tests/test_observation_pipeline.py`
-  - `A  tests/test_safe_data_update.py`
+  - ` M reports/backtest/release/release_sync_consistency_check.csv`
+  - ` M reports/backtest/release/release_sync_consistency_check.md`
+  - ` M scripts/check_release_sync_consistency.py`
+  - ` M scripts/check_report_freshness.py`
+  - ` M scripts/check_report_path_sanitization.py`
+  - ` M scripts/verify_combined_v2_rc.py`
+  - ` M tests/test_observation_gate_consistency.py`
+  - ` M tests/test_provider_readiness.py`
+  - ` M tests/test_safe_data_update.py`
+  - ` M tests/test_strict_universe_smoke.py`
+  - `?? config/release_file_allowlist.yml`
+  - `?? docs/ci_and_local_validation.md`
+  - `?? docs/pr_checklist.md`
+  - `?? docs/release_checklist.md`
+  - `?? reports/backtest/release/forbidden_tracked_files_check.csv`
+  - `?? reports/backtest/release/forbidden_tracked_files_check.md`
+  - `?? reports/backtest/release/release_guard_report.csv`
+  - `?? reports/backtest/release/release_guard_report.md`
+  - `?? scripts/check_forbidden_tracked_files.py`
+  - `?? scripts/run_release_guard.py`
+  - `?? tests/test_ci_markers.py`
+  - `?? tests/test_forbidden_tracked_files.py`
+  - `?? tests/test_release_guard.py`
 - files_modified_by_this_refresh:
   - `reports/backtest/release/observation_sync_check.csv`
   - `reports/backtest/release/observation_sync_check.md`
@@ -38,23 +53,29 @@
 
 ## observation 文件跟踪状态
 
-- 应跟踪文件数量: 39
-- 已跟踪数量: 39
+- 应跟踪文件数量: 45
+- 已跟踪数量: 45
 - 未跟踪数量: 0
 - 真实 paper ledger ignored: 是
 
 ## 2026-05-04 data freshness
 
-- data_freshness: BLOCK
-- data_max_date: 2026-04-03
-- stale_calendar_days: 31
-- allowed_actions: historical_review_only
+- data_freshness: ALLOW
+- target_trading_date: 2026-04-30
+- data_max_date: 2026-04-30
+- feature_max_date: 2026-04-30
+- benchmark_max_date: 2026-04-30
+- stale_calendar_days: 4
+- stale_trading_days: 0
+- allowed_actions: observation_report_allowed
 
 ## observation pipeline
 
-- blocking_reason: STALE_DATA_BLOCKED
-- action_allowed: false
-- manual_order_list 未生成: 是
+- blocking_reason: NONE
+- action_allowed: true
+- manual_order_list exists locally: 是
+- manual_order_list tracked_by_git: 否
+- manual_order_list ignored_by_git: 是
 
 ## RC verify
 
@@ -67,11 +88,12 @@
 
 ## pytest
 
-- pytest: 137 passed, 2 warnings in 81.48s
+- pytest: 184 passed, 2 warnings in 83.97s
 
 ## 结论
 
 - 可以提交这轮报告同步修复。
 - 不涉及策略变更。
 - 不涉及数据更新。
-- 不允许生成 2026-05-04 手工订单。
+- 观察期输出只允许下一交易日人工复核。
+- 不允许自动下单或接券商。

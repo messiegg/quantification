@@ -3,9 +3,13 @@ from __future__ import annotations
 from pathlib import Path
 
 import pandas as pd
+import pytest
 
 from scripts import update_market_data_safe as safe_update
 from src.utils.config import resolve_path
+
+
+pytestmark = pytest.mark.no_network
 
 
 def _target_info() -> dict:

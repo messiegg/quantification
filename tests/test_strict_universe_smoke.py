@@ -28,6 +28,7 @@ def _required_data_ready() -> bool:
 
 
 @pytest.mark.skipif(not _required_data_ready(), reason="strict 2026-04-03 smoke test requires local parquet datasets")
+@pytest.mark.data_required
 def test_strict_2026_04_03_reaches_refresh_universe_and_breaks_old_listed_days_cap() -> None:
     build = subprocess.run(
         [sys.executable, "scripts/build_features.py", "--as-of-date", "2026-04-03"],

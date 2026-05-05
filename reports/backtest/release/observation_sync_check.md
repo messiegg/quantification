@@ -2,7 +2,7 @@
 
 ## 摘要
 
-- KEEP_TRACKED: 39
+- KEEP_TRACKED: 45
 - IGNORE_LOCAL_ONLY: 3
 
 ## 明细
@@ -29,8 +29,14 @@
 - KEEP_TRACKED | reports/backtest/release/release_sync_consistency_check.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/observation/2026-05-04/data_freshness_report.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/observation/2026-05-04/data_freshness_report.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
-- KEEP_TRACKED | reports/observation/2026-05-04/observation_blocked.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/data_quality_observation_report.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/data_quality_observation_report.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/observation_gate_consistency_check.csv | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/observation_gate_consistency_check.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/observation/2026-05-04/observation_run_manifest.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/observation_summary.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/observation_summary.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
+- KEEP_TRACKED | reports/observation/2026-05-04/profile_compare.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/data_update/2026-05-04/market_data_update_plan.json | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | reports/data_update/2026-05-04/market_data_update_plan.md | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。
 - KEEP_TRACKED | scripts/check_data_quality_for_observation.py | exists=True | tracked=True | ignored=False | 发布和复现所需文件，已被 Git 跟踪。

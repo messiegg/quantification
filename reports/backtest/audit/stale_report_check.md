@@ -1,7 +1,7 @@
 # stale report check
 
 - overall_status: PASS
-- scanned_files: 16
+- scanned_files: 18
 - fail_count: 0
 - warn_count: 0
 
