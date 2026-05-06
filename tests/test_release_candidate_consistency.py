@@ -101,7 +101,7 @@ def test_release_manifest_matches_current_trade_and_nav_artifacts(tmp_path: Path
     manifest = build_release_manifest(json_path=tmp_path / "manifest.json", md_path=tmp_path / "manifest.md")
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
-    expected_final_nav = 200000.0 * (1.0 + float(row["cumulative_return"]))
+    expected_final_nav = float(manifest["initial_capital"]) * (1.0 + float(row["cumulative_return"]))
     assert abs(float(manifest["final_nav"]) - expected_final_nav) < 1e-6
     assert int(manifest["total_trades"]) == 76
     trade_hash = next(item for item in manifest["key_output_file_hashes"] if item["path"] == "reports/backtest/combined_v2_trades_detailed.csv")

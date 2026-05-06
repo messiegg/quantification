@@ -18,9 +18,9 @@
 ## 数据状态
 
 - requested_as_of_date: 2026-05-04
-- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
-- config_hash: 737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2
-- data_hash: a09eaa5950a5129cd4f6eb5ef89ebb3937b6496ffe79934d97b42ac17f2a4fcd
+- git_commit: c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad
+- config_hash: 77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7
+- data_hash: 4553718b5c57f153e3ceb378ec7446983974ca9e6b34b203d24924a9b21f6bb7
 - requested_as_of_is_trading_day: false
 - target_trading_date: 2026-04-30
 - data_max_date: 2026-04-30

@@ -1,0 +1,13 @@
+profile_name: reference_200k_execution
+research_only: true
+
+execution:
+  min_trade_value: 5000
+  round_lot: 100
+  commission_rate: 0.0003
+  stamp_duty_rate_sell: 0.0005
+  slippage_bps: 5
+  max_positions: 20
+  equal_weight_target_universe_size: 36
+  max_new_positions_per_day: 3
+  max_adds_per_day: 5

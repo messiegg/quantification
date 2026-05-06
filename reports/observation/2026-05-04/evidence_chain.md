@@ -4,14 +4,26 @@
 - report_date: 2026-05-04
 - requested_date: 2026-05-04
 - target_trade_date: 2026-04-30
-- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
-- config_hash: 737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2
-- data_hash: 2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b
+- git_commit: c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad
+- config_hash: 77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7
+- data_hash: c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1
 - universe_status: WARN
 - data_freshness_status: PASS
 - action_count: 0
 - constituent_count: 30
 - auto_trading_approved: false
+
+## runtime profile
+
+- account_profile: retail_50k_lot_aware
+- initial_capital: 50000.0
+- min_trade_value: 1500.0
+- round_lot: 100
+- universe_target_size: 36
+- universe_floor: 24
+- universe_selected_count: 30
+- portfolio_max_positions: 8
+- portfolio_equal_weight_target_positions: 8
 
 ## Actions
 

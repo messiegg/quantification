@@ -75,15 +75,18 @@ position_sizing:
     monkeypatch.setattr(
         account_suitability,
         "build_account_constraints_report",
-        lambda write_report=False: {
+        lambda *args, **kwargs: {
             "raw_buy_signal_count": 10,
+            "account_feasible_buy_signal_count": 4,
             "executable_buy_count": 1,
             "executable_raw_buy_ratio": 0.1,
+            "executable_account_feasible_buy_ratio": 0.25,
             "blocked_buy_count": 9,
             "blocker_counts": {"MIN_TRADE_AMOUNT": 6},
             "min_trade_amount_block_count": 6,
             "cash_block_count": 0,
             "exposure_block_count": 0,
+            "max_positions_block_count": 0,
             "lot_size_block_count": 0,
             "average_exposure": 0.2,
             "turnover": 1.0,

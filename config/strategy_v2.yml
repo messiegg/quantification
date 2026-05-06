@@ -36,10 +36,13 @@ execution:
   stamp_tax_rate: 0.0005
   slippage_rate: 0.0005
   default_tranches: 3
-  equal_weight_target_universe_size: 36
-  max_positions: 20
-  max_new_positions_per_day: 3
-  max_adds_per_day: 5
+  equal_weight_target_universe_size: 8
+  max_positions: 8
+  max_new_positions_per_day: 1
+  max_adds_per_day: 2
+  lot_aware_sizing: true
+  pending_add_state: true
+  duplicate_blocked_signal_suppression: true
   min_holding_days_for_soft_trim: 40
   min_holding_days_for_soft_exit: 60
   grid_execution:

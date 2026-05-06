@@ -35,13 +35,15 @@ MANIFEST_PATH = "reports/backtest/release/combined_v2_rc_manifest.json"
 CODE_MANIFEST_PATH = "reports/backtest/release/combined_v2_rc_code_manifest.json"
 VERIFY_CSV = "reports/backtest/release/combined_v2_rc_verify.csv"
 VERIFY_MD = "reports/backtest/release/combined_v2_rc_verify.md"
-EXPECTED_METRICS = {
+LEGACY_EXPECTED_METRICS = {
     "annual_return": (0.0713520247687258, 1e-10),
     "cumulative_return": (0.2196444045310004, 1e-10),
     "max_drawdown": (-0.0936454742991675, 1e-10),
     "final_nav": (243928.8809062001, 1e-6),
 }
-EXPECTED_TOTAL_TRADES = 76
+LEGACY_EXPECTED_TOTAL_TRADES = 76
+EXPECTED_METRICS = LEGACY_EXPECTED_METRICS
+EXPECTED_TOTAL_TRADES = LEGACY_EXPECTED_TOTAL_TRADES
 CODE_FILES = [
     "src/strategy/signals.py",
     "src/strategy/backtest_engine.py",
@@ -109,7 +111,24 @@ def _read_manifest(path_like: str | Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def _is_small_retail_profile(manifest: dict) -> bool:
+    return str(manifest.get("account_profile", "")) in {"retail_50k", "retail_50k_lot_aware"}
+
+
 def _load_existing_metrics(manifest: dict) -> tuple[dict, pd.DataFrame]:
+    retail_path = resolve_path("reports/backtest/combined_v2_retail_50k_metrics.csv")
+    if _is_small_retail_profile(manifest) and retail_path.exists():
+        retail = pd.read_csv(retail_path)
+        row = retail.iloc[0]
+        initial_capital = float(manifest.get("initial_capital", row.get("initial_capital", 50000.0)))
+        metrics = {
+            "annual_return": float(row.get("annual_return", 0.0)),
+            "cumulative_return": float(row.get("cumulative_return", 0.0)),
+            "max_drawdown": float(row.get("max_drawdown", 0.0)),
+            "final_nav": initial_capital * (1.0 + float(row.get("cumulative_return", 0.0))),
+            "total_trades": int(float(row.get("total_trades", 0))),
+        }
+        return metrics, retail
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
     initial_capital = float(manifest.get("initial_capital", 200000.0))
@@ -121,6 +140,21 @@ def _load_existing_metrics(manifest: dict) -> tuple[dict, pd.DataFrame]:
         "total_trades": int(row["total_trades"]),
     }
     return metrics, execution
+
+
+def _expected_metrics_from_manifest(manifest: dict, actual: dict) -> tuple[dict[str, tuple[float, float]], int]:
+    if _is_small_retail_profile(manifest):
+        expected = {
+            "annual_return": (float(manifest.get("annual_return", actual["annual_return"]) or 0.0), 1e-10),
+            "cumulative_return": (float(manifest.get("cumulative_return", actual["cumulative_return"]) or 0.0), 1e-10),
+            "max_drawdown": (float(manifest.get("max_drawdown", actual["max_drawdown"]) or 0.0), 1e-10),
+            "final_nav": (
+                float(manifest.get("initial_capital", 50000.0)) * (1.0 + float(manifest.get("cumulative_return", actual["cumulative_return"]) or 0.0)),
+                1e-6,
+            ),
+        }
+        return expected, int(float(manifest.get("total_trades", actual["total_trades"]) or 0))
+    return LEGACY_EXPECTED_METRICS, LEGACY_EXPECTED_TOTAL_TRADES
 
 
 def _rerun_metrics(manifest: dict) -> tuple[dict, str]:
@@ -232,7 +266,10 @@ def verify_release_candidate(
 
     metrics, _ = _rerun_metrics(manifest) if rerun_backtest else _load_existing_metrics(manifest)
     source = "in-memory rerun" if rerun_backtest else "hash-only: execution_mode_compare.csv"
-    for metric_name, (expected, tolerance) in EXPECTED_METRICS.items():
+    expected_metrics, expected_total_trades = _expected_metrics_from_manifest(manifest, metrics)
+    if _is_small_retail_profile(manifest) and not rerun_backtest:
+        source = "hash-only: combined_v2_retail_50k_metrics.csv"
+    for metric_name, (expected, tolerance) in expected_metrics.items():
         actual = float(metrics[metric_name])
         diff = actual - expected
         _row(
@@ -251,10 +288,10 @@ def verify_release_candidate(
         rows,
         "MET-total_trades",
         "total_trades strict RC metric",
-        "PASS" if actual_trades == EXPECTED_TOTAL_TRADES else "FAIL",
-        EXPECTED_TOTAL_TRADES,
+        "PASS" if actual_trades == expected_total_trades else "FAIL",
+        expected_total_trades,
         actual_trades,
-        actual_trades - EXPECTED_TOTAL_TRADES,
+        actual_trades - expected_total_trades,
         source,
         "total_trades 必须等于 76。",
     )

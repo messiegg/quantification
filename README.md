@@ -60,11 +60,16 @@
 
 ## 账户与金额约束
 
+- 当前默认运行账户口径是 `retail_50k_lot_aware`：`initial_capital=50000`、`current_cash=50000`、`latest_total_equity=50000`、`min_trade_value=1500`、`round_lot=100`。
+- `reference_200k` 只保留为研究对照，不能作为当前 release 默认账户。
 - 回测读取 `config/account.yml -> account.initial_capital`，因为回测需要从明确初始资金开始模拟净值与仓位演化。
 - 日常执行读取 `current_cash`、`reserved_cash`、`latest_total_equity`，因为现实账户的可买金额取决于当前现金和当前总权益，而不是历史初始资金。
 - `target_position_tranches -> target_weight` 的映射由 `config/account.yml -> position_sizing.tranche_weights` 决定。
+- `combined_v2` 的 universe target 仍是 36，只代表候选股票池目标；小账户组合执行层的最大持仓数是 8，不能把它当作 universe target 下调。
+- `retail_50k_lot_aware` 的 NEW_BUY 会先检查一手名义金额、现金、最小成交额和单票上限；只要一手不超过单票上限且现金足够，就允许把目标订单抬到至少一手。
+- ADD 不会为了凑整手突破单票上限；若目标缺口、现金或剩余单票容量暂时不足一手，会输出 `HOLD_WITH_PENDING_ADD`，并保留 pending 条件供人工观察。
 - orders 会显式输出 `target_shares`、`delta_shares`、`rounded_lots`、`estimated_turnover`、`estimated_commission`、`estimated_stamp_duty`、`estimated_total_cash_impact`、`target_price_reference`。
-- 若整手约束、最小成交额或现金不足导致不可执行，`action_enum` 会改为 `BLOCKED`，并写入 `blocked_reason`。
+- 若整手约束、最小成交额、一手过贵或现金不足导致不可执行，`action_enum` 会改为 `BLOCKED`，并写入 `blocked_reason`；重复阻断仍计入 raw blocker，但每日人工清单会用 `user_visible_action=false` 去重。
 - 若缺少 `account.yml` 或关键字段缺失，系统仍输出 `action_enum`，但 orders 会进入 degraded mode：
   - 不输出精确 `target_order_value`
   - 报告显式提示“仅有方向性建议，未完成金额约束”
@@ -78,6 +83,7 @@
 - `BUY_3`
 - `HOLD`
 - `HOLD_FROZEN`
+- `HOLD_WITH_PENDING_ADD`
 - `REDUCE`
 - `SELL_ALL`
 - `EMPTY`
@@ -281,21 +287,24 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 
 - profile: `combined_v2`
 - execution_mode: `next_bar`
+- default account profile: `retail_50k_lot_aware`
 - period: `2023-04-03` 到 `2026-04-03`
-- annual_return: `0.0713520247687258`
-- cumulative_return: `0.2196444045310004`
-- max_drawdown: `-0.0936454742991675`
-- total_trades: `76`
-- final_nav: `243928.8809062001`
+- annual_return: `0.024846220411411934`
+- cumulative_return: `0.07326562069200016`
+- max_drawdown: `-0.08876605706976393`
+- total_trades: `41`
+- buy_trades: `23`
 - release guard best possible rating: `PASS_CANDIDATE`
 - current_release_status: `WARN`
 
 `PASS_CANDIDATE` 只代表小资金、手动、严格复核观察/试运行候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。若 config consistency、universe integrity、data freshness、lookahead、sensitivity、evidence chain、baseline comparison 或 tests 任一核心审计 FAIL，release guard 必须输出 `FAIL`。
 
-当前 `WARN` 不是硬阻断，但仍不能写成 `PASS_CANDIDATE`：effective universe 当前 30 只，高于 `floor_size=24` 但低于 `target_size=36`；账户约束仍主导买入执行；sensitivity 仍有核心参数在 CI 窗口 NON_BINDING；baseline 消融里仍有模块需要人工解释风险收益权衡；观察期 readiness 尚未满足 60 个交易日人工复核日志要求。新增报告入口：
+当前 `WARN` 不是硬阻断，但仍不能写成 `PASS_CANDIDATE`：effective universe 当前 30 只，高于 `floor_size=24` 但低于 `target_size=36`；`actual_50k_lot_aware` raw buy 629、unique raw buy intent 159、repeated blocked buy 470、account-feasible buy 426、executable buy 23，executable/raw 约 3.66%，仍低于 25% 门槛；sensitivity 仍有核心参数在 CI 窗口 NON_BINDING；baseline 消融里仍有模块需要人工解释风险收益权衡；观察期 readiness 尚未满足 60 个交易日人工复核日志要求。新增报告入口：
 
 - `reports/audit/universe_shortfall.md`
 - `reports/backtest/account_suitability_report.md`
+- `reports/backtest/account_profiles/lot_affordability_report.md`
+- `reports/backtest/account_profiles/account_profile_comparison.md`
 - `reports/backtest/robustness/sensitivity_trigger_coverage.md`
 - `reports/backtest/controls/module_contribution_report.md`
 - `reports/observation/readiness_report.md`

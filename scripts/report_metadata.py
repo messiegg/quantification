@@ -74,6 +74,73 @@ def load_yaml_file(path_like: str | Path) -> dict[str, Any]:
     return data if isinstance(data, dict) else {}
 
 
+def _safe_float(value: object, default: float | None = None) -> float | None:
+    try:
+        numeric = float(value)
+    except (TypeError, ValueError):
+        return default
+    return numeric
+
+
+def _safe_int(value: object, default: int | None = None) -> int | None:
+    numeric = _safe_float(value)
+    return int(numeric) if numeric is not None else default
+
+
+def runtime_profile_metadata(
+    *,
+    account_config: str | Path = "config/account.yml",
+    strategy_config: str | Path = "config/strategy_v2.yml",
+    universe_rules_config: str | Path = "config/universe_rules_v2.yml",
+    universe_config: str | Path = "config/universe.yml",
+) -> dict[str, Any]:
+    account = load_yaml_file(account_config)
+    strategy = load_yaml_file(strategy_config)
+    rules = load_yaml_file(universe_rules_config)
+    universe = load_yaml_file(universe_config)
+    account_values = account.get("account", {}) if isinstance(account.get("account"), dict) else {}
+    account_execution = account.get("execution", {}) if isinstance(account.get("execution"), dict) else {}
+    sizing = account.get("position_sizing", {}) if isinstance(account.get("position_sizing"), dict) else {}
+    strategy_execution = strategy.get("execution", {}) if isinstance(strategy.get("execution"), dict) else {}
+    stocks = universe.get("stocks", []) if isinstance(universe.get("stocks"), list) else []
+    universe_target = rules.get("target_size", rules.get("target_universe_size"))
+    universe_floor = rules.get("floor_size", rules.get("target_universe_floor"))
+    portfolio_max = strategy_execution.get("max_positions")
+    portfolio_equal_weight = strategy_execution.get("equal_weight_target_universe_size")
+    return {
+        "account_profile": account.get("account_profile", account.get("profile", "unknown")),
+        "research_only": bool(account.get("research_only", False) or strategy.get("research_only", False)),
+        "initial_capital": _safe_float(account_values.get("initial_capital")),
+        "current_cash": _safe_float(account_values.get("current_cash")),
+        "latest_total_equity": _safe_float(account_values.get("latest_total_equity")),
+        "min_trade_value": _safe_float(sizing.get("min_trade_value")),
+        "round_lot": _safe_int(account_execution.get("round_lot")),
+        "commission_rate": _safe_float(account_execution.get("commission_rate")),
+        "stamp_duty_rate_sell": _safe_float(account_execution.get("stamp_duty_rate_sell")),
+        "slippage_bps": _safe_float(account_execution.get("slippage_bps")),
+        "universe_target_size": _safe_int(universe_target),
+        "universe_floor": _safe_int(universe_floor),
+        "universe_selected_count": int(len(stocks)),
+        "portfolio_max_positions": _safe_int(portfolio_max),
+        "portfolio_equal_weight_target_positions": _safe_int(portfolio_equal_weight),
+    }
+
+
+def runtime_profile_lines(payload: dict[str, Any]) -> list[str]:
+    keys = [
+        "account_profile",
+        "initial_capital",
+        "min_trade_value",
+        "round_lot",
+        "universe_target_size",
+        "universe_floor",
+        "universe_selected_count",
+        "portfolio_max_positions",
+        "portfolio_equal_weight_target_positions",
+    ]
+    return [f"- {key}: {payload.get(key)}" for key in keys if key in payload]
+
+
 def config_hash(paths: Iterable[str | Path] | None = None) -> str:
     items: list[dict[str, Any]] = []
     for path_like in paths or ACTIVE_RUNTIME_CONFIG_PATHS:
@@ -152,6 +219,7 @@ def metadata_header(
         for path in extra_config_paths:
             if str(path) not in paths:
                 paths.append(str(path))
+    profile_meta = runtime_profile_metadata()
     return {
         "generated_at": now_utc_iso(),
         "git_commit": git_commit(),
@@ -165,4 +233,6 @@ def metadata_header(
         "auto_trading_approved": False,
         "broker_integration_enabled": False,
         "llm_decision_allowed": False,
+        "runtime_profile": dict(profile_meta),
+        **profile_meta,
     }

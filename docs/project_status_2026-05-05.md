@@ -1,13 +1,14 @@
 # 项目现状说明（2026-05-05）
 
-本文记录当前仓库代码、数据、观察期和发布保护状态。它取代 `docs/project_status_2026-04-05.md` 作为最新状态说明。
+本文记录当前仓库代码、数据、观察期和发布保护状态，取代此前 2026-04 strict 数据恢复阶段的历史快照。
 
 ## 1. 代码状态
 
 - 当前分支：`codex/combined-v2-rc-release`
-- 本轮修改前 HEAD：`ceafa39e41a279d9f40b97e4004aa86c2f80cad9`
-- `combined_v2` 交易规则未改。
-- `config/strategy_v2.yml` 未改。
+- 本轮修改前 HEAD：`c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad`
+- `combined_v2` 选股硬规则未改，`config/universe_rules_v2.yml` 未改。
+- 当前默认账户已切换为 `retail_50k_lot_aware`：本金/现金/最新权益 50000，最小交易额 1500，100 股一手。
+- `config/strategy_v2.yml` 只调整小账户执行层容量与整手 sizing：最大持仓 8、等权目标持仓 8、每日新开 1、每日加仓 2，启用 `lot_aware_sizing`、`pending_add_state` 和重复阻断去重展示。
 - `config/universe_rules_v2.yml` 未改。
 - `combined_v2_1_risk_guard` 仍只是 conservative observation candidate，不替换主策略。
 - 仓库仍禁止接券商、自动下单、真实订单生成和 LLM 决定 `action_enum`。
@@ -40,14 +41,15 @@
 
 - profile: `combined_v2`
 - execution_mode: `next_bar`
+- default account profile: `retail_50k_lot_aware`
 - period: `2023-04-03` 到 `2026-04-03`
-- annual_return: `0.0713520247687258`
-- cumulative_return: `0.2196444045310004`
-- max_drawdown: `-0.0936454742991675`
-- total_trades: `76`
-- final_nav: `243928.8809062001`
+- annual_return: `0.024846220411411934`
+- cumulative_return: `0.07326562069200016`
+- max_drawdown: `-0.08876605706976393`
+- total_trades: `41`
+- buy_trades: `23`
 
-旧的 `9.14% / 83` 笔是 legacy pre-PIT 旧口径，只能作为历史说明保留。
+`reference_200k_current` 只保留为研究对照：annual_return `0.07135202476872582`，cumulative_return `0.21964440453100043`，total_trades `76`。旧的 `9.14% / 83` 笔是 legacy pre-PIT 旧口径，只能作为历史说明保留。
 
 ## 4. 发布保护状态
 
@@ -72,7 +74,7 @@
 主要 WARN 来源：
 
 - `universe_integrity`: selected_count=30，高于 floor=24，但低于 target=36；无硬过滤违规、无缺关键字段。
-- `account_constraints`: raw buy 370，executable buy 43，执行比例约 11.6%；min_trade_amount 阻断占比约 59.5%。
+- `account_constraints`: 默认 `actual_50k_lot_aware` raw buy 629，unique raw buy intent 159，repeated blocked buy 470，account-feasible buy 426，executable buy 23，执行比例约 3.66%；MIN_TRADE_AMOUNT 和 LOT_SIZE_ZERO 阻断降为 0，但 `MAX_POSITIONS_LIMIT`、`CASH_INSUFFICIENT_FOR_ONE_LOT` 与 `PRICE_TOO_HIGH_FOR_ACCOUNT_LOT` 仍主导小账户执行。
 - `sensitivity`: `--mode ci` 可完成，但 universe_size、defensive valuation、cyclical PB、grid_step 在当前 CI 窗口为 NON_BINDING。
 - `baseline_comparison`: no_high_dividend_supplement、no_trend_stop、no_market_state_filter 优于 combined_v2，标记 MODULE_MAY_BE_DRAG，不自动改策略。
 - `observation_readiness`: NOT_READY；尚未形成 60 个观察交易日的人工复核日志，当前不能进入 PASS_CANDIDATE。
@@ -81,6 +83,8 @@
 
 - `reports/audit/universe_shortfall.md`
 - `reports/backtest/account_suitability_report.md`
+- `reports/backtest/account_profiles/account_profile_comparison.md`
+- `reports/backtest/account_profiles/lot_affordability_report.md`
 - `reports/backtest/robustness/sensitivity_trigger_coverage.md`
 - `reports/backtest/controls/module_contribution_report.md`
 - `reports/observation/readiness_report.md`

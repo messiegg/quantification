@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
 
 from scripts.audit_data_freshness import build_audit_data_freshness_report
 from scripts.audit_universe_integrity import build_universe_integrity_report
-from scripts.report_metadata import metadata_header, status_from_children, write_json
+from scripts.report_metadata import metadata_header, runtime_profile_lines, status_from_children, write_json
 from src.utils.config import load_yaml, resolve_path
 
 
@@ -124,7 +124,24 @@ def _constituents(universe_report: dict[str, Any], target_trade_date: str) -> li
     return output
 
 
-def _action_from_trade(row: dict[str, Any]) -> dict[str, Any]:
+def _account_execution_values() -> dict[str, Any]:
+    account = load_yaml("config/account.yml")
+    execution = account.get("execution", {}) or {}
+    sizing = account.get("position_sizing", {}) or {}
+    account_values = account.get("account", {}) or {}
+    equity = float(account_values.get("latest_total_equity") or account_values.get("initial_capital") or 0.0)
+    max_single = equity * float(sizing.get("max_single_stock_weight", 0.0) or 0.0)
+    return {
+        "round_lot": int(execution.get("round_lot", 100) or 100),
+        "min_trade_value": float(sizing.get("min_trade_value", 0.0) or 0.0),
+        "max_single_position_value": max_single,
+    }
+
+
+def _action_from_trade(row: dict[str, Any], account_values: dict[str, Any]) -> dict[str, Any]:
+    price = float(row.get("price") or 0.0)
+    lot_notional = price * int(account_values.get("round_lot", 100) or 100)
+    minimum_lot_order_value = max(float(account_values.get("min_trade_value", 0.0) or 0.0), lot_notional)
     return {
         "symbol": row.get("ts_code") or row.get("symbol"),
         "code": row.get("ts_code") or row.get("symbol"),
@@ -137,6 +154,15 @@ def _action_from_trade(row: dict[str, Any]) -> dict[str, Any]:
         "executable_amount": row.get("amount"),
         "blocked": False,
         "blockers": [],
+        "lot_notional": lot_notional,
+        "minimum_lot_order_value": minimum_lot_order_value,
+        "max_single_position_value": account_values.get("max_single_position_value"),
+        "remaining_single_name_capacity": None,
+        "execution_eligible_for_new_buy": True,
+        "execution_ineligible_reason": "",
+        "pending_add_state": False,
+        "repeated_blocked_signal_suppressed": False,
+        "user_visible_action": True,
         "rule_path": "hard_filter -> bucket -> valuation -> market_state -> grid -> account_constraints",
         "triggered_rules": [value for value in [row.get("entry_reason"), row.get("exit_reason"), row.get("execution_reason_code")] if value],
         "suppressed_rules": [],
@@ -158,6 +184,15 @@ def _action_from_blocked(row: dict[str, Any]) -> dict[str, Any]:
         "executable_amount": 0,
         "blocked": True,
         "blockers": [reason],
+        "lot_notional": row.get("lot_notional"),
+        "minimum_lot_order_value": row.get("minimum_lot_order_value"),
+        "max_single_position_value": row.get("max_single_position_value"),
+        "remaining_single_name_capacity": row.get("remaining_single_name_capacity"),
+        "execution_eligible_for_new_buy": row.get("execution_eligible_for_new_buy", False),
+        "execution_ineligible_reason": row.get("execution_ineligible_reason") or reason,
+        "pending_add_state": row.get("pending_add_state", False),
+        "repeated_blocked_signal_suppressed": row.get("repeated_blocked_signal_suppressed", False),
+        "user_visible_action": row.get("user_visible_action", True),
         "rule_path": "hard_filter -> bucket -> valuation -> market_state -> grid -> account_constraints",
         "triggered_rules": [],
         "suppressed_rules": [row.get("reason_detail") or reason],
@@ -179,7 +214,8 @@ def build_observation_evidence_chain(
     universe = universe_report or build_universe_integrity_report(write_report=False)
     trades = _target_rows(_read_csv("reports/backtest/combined_v2_trades_detailed.csv"), target)
     blocked = _target_rows(_read_csv("reports/backtest/combined_v2_blocked_signals.csv"), target)
-    actions = [_action_from_trade(row) for row in trades.to_dict(orient="records")]
+    account_values = _account_execution_values()
+    actions = [_action_from_trade(row, account_values) for row in trades.to_dict(orient="records")]
     actions.extend(_action_from_blocked(row) for row in blocked.to_dict(orient="records"))
     universe_status = str(universe.get("status", "FAIL"))
     freshness_status = str(freshness.get("status", "FAIL"))
@@ -227,6 +263,10 @@ def _write_md(payload: dict[str, Any], path_like: str | Path) -> None:
         f"- action_count: {len(payload['actions'])}",
         f"- constituent_count: {len(payload['constituents'])}",
         "- auto_trading_approved: false",
+        "",
+        "## runtime profile",
+        "",
+        *runtime_profile_lines(payload),
         "",
         "## Actions",
         "",

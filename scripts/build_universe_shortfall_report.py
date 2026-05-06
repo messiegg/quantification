@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.report_metadata import metadata_header, write_json
+from scripts.report_metadata import metadata_header, runtime_profile_lines, write_json
 from src.strategy.metric_map import candidate_buckets_for_industry, metric_for_industry
 from src.strategy.universe import (
     _base_filter_reasons,
@@ -289,6 +289,13 @@ def _write_md(payload: dict[str, Any]) -> None:
         f"- target_size: {payload['target_size']}",
         f"- floor_size: {payload['floor_size']}",
         f"- selected_count: {payload['selected_count']}",
+        "",
+        "## runtime profile",
+        "",
+        *runtime_profile_lines(payload),
+        "",
+        "## shortfall",
+        "",
         f"- shortfall_to_target: {payload['shortfall_to_target']}",
         f"- candidate_pool_raw_count: {payload['candidate_pool_raw_count']}",
         f"- candidate_pool_count: {payload['candidate_pool_count']}",

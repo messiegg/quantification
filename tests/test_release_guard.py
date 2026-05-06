@@ -32,6 +32,22 @@ def _patch_base_guard(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> Path:
     monkeypatch.setattr(guard, "build_audit_data_freshness_report", lambda *args, **kwargs: {"status": "PASS", "target_trade_date": "2026-05-04"})
     monkeypatch.setattr(guard, "build_account_constraints_report", lambda *args, **kwargs: {"status": "PASS", "warnings": []})
     monkeypatch.setattr(guard, "build_account_suitability_report", lambda *args, **kwargs: {"status": "PASS", "base_case": {"executable_raw_buy_ratio": 0.5}})
+    monkeypatch.setattr(
+        guard,
+        "_check_account_profile_comparison",
+        lambda rows: rows.append(
+            {
+                "check_id": "RG-ACCOUNT-003",
+                "check_name": "fixture",
+                "status": "PASS",
+                "expected": "",
+                "actual": "",
+                "evidence": "",
+                "recommendation": "",
+            }
+        )
+        or {"status": "PASS", "profiles": [{"profile": "actual_50k_retail", "executable_raw_buy_ratio": 0.5}]},
+    )
     monkeypatch.setattr(guard, "build_observation_evidence_chain", lambda *args, **kwargs: {"status": "PASS"})
     monkeypatch.setattr(guard, "_check_lookahead_audit", lambda rows: rows.append({"check_id": "RG-LOOKAHEAD-001", "check_name": "fixture", "status": "PASS", "expected": "", "actual": "", "evidence": "", "recommendation": ""}))
     monkeypatch.setattr(guard, "_check_sensitivity", lambda rows: rows.append({"check_id": "RG-SENS-001", "check_name": "fixture", "status": "PASS", "expected": "", "actual": "", "evidence": "", "recommendation": ""}))

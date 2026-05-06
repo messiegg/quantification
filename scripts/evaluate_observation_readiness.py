@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.report_metadata import metadata_header, write_json
+from scripts.report_metadata import metadata_header, runtime_profile_lines, write_json
 from src.utils.config import load_yaml, resolve_path
 
 
@@ -154,6 +154,10 @@ def _write_md(payload: dict[str, Any]) -> None:
         "- auto_trading_approved: false",
         "- broker_integration_enabled: false",
         "- llm_decision_allowed: false",
+        "",
+        "## runtime profile",
+        "",
+        *runtime_profile_lines(payload),
         "",
         "## checks",
         "",

@@ -5,7 +5,7 @@
 - variant_timeout_seconds: 240
 - 这是 one-at-a-time 扰动，不做参数优化，不输出最佳参数，不写回正式配置。
 - sensitivity_status: WARN
-- non_binding_parameters: cyclical_pb_threshold, defensive_valuation_threshold, grid_step, universe_size
+- non_binding_parameters: defensive_valuation_threshold, grid_step, min_holding_days, universe_size
 - unknown_non_binding_count: 0
 - error_variant_count: 0
 - baseline next_bar 年化: 0.10%
@@ -18,10 +18,10 @@
 
 ## 变体结果
 
-- current_v2: 年化 12.13%，累计 11.62%，回撤 -2.02%，夏普 2.43，成交 26，平均仓位 37.28%，binding=BASELINE，reason=n/a，changed_action_days=0，run_status=PASS
-- universe_large: 年化 12.13%，累计 11.62%，回撤 -2.02%，夏普 2.43，成交 26，平均仓位 37.28%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
-- defensive_valuation_strict: 年化 12.13%，累计 11.62%，回撤 -2.02%，夏普 2.43，成交 26，平均仓位 37.28%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
-- cyclical_pb_strict: 年化 12.13%，累计 11.62%，回撤 -2.02%，夏普 2.43，成交 26，平均仓位 37.28%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
-- holding_shorter: 年化 12.07%，累计 11.56%，回撤 -1.91%，夏普 2.50，成交 27，平均仓位 34.58%，binding=BINDING，reason=n/a，changed_action_days=1，run_status=PASS
-- grid_tighter: 年化 12.13%，累计 11.62%，回撤 -2.02%，夏普 2.43，成交 26，平均仓位 37.28%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
-- position_conservative: 年化 3.86%，累计 3.70%，回撤 -1.99%，夏普 1.35，成交 13，平均仓位 19.05%，binding=BINDING，reason=n/a，changed_action_days=19，run_status=PASS
+- current_v2: 年化 13.01%，累计 12.47%，回撤 -2.47%，夏普 1.98，成交 18，平均仓位 37.50%，binding=BASELINE，reason=n/a，changed_action_days=0，run_status=PASS
+- universe_large: 年化 13.01%，累计 12.47%，回撤 -2.47%，夏普 1.98，成交 18，平均仓位 37.50%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
+- defensive_valuation_strict: 年化 13.01%，累计 12.47%，回撤 -2.47%，夏普 1.98，成交 18，平均仓位 37.50%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
+- cyclical_pb_strict: 年化 12.64%，累计 12.11%，回撤 -3.20%，夏普 1.93，成交 18，平均仓位 37.30%，binding=BINDING，reason=n/a，changed_action_days=11，run_status=PASS
+- holding_shorter: 年化 13.01%，累计 12.47%，回撤 -2.47%，夏普 1.98，成交 18，平均仓位 37.50%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
+- grid_tighter: 年化 13.01%，累计 12.47%，回撤 -2.47%，夏普 1.98，成交 18，平均仓位 37.50%，binding=NON_BINDING，reason=NO_SIGNAL_COVERAGE，changed_action_days=0，run_status=PASS
+- position_conservative: 年化 12.97%，累计 12.43%，回撤 -2.46%，夏普 1.98，成交 18，平均仓位 37.11%，binding=BINDING，reason=n/a，changed_action_days=1，run_status=PASS

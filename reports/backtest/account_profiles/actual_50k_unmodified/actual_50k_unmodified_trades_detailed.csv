@@ -1,0 +1,1 @@
+date,ts_code,name,bucket,side,action,signal_level,shares,price,amount,fee,tax,slippage,slippage_cost,cash_before,cash_after,position_before,position_after,weight_before,weight_after,target_weight,entry_reason,exit_reason,holding_days,realized_pnl,unrealized_pnl_after_trade,market_regime,execution_mode,fill_price_field,execution_adjustment,execution_reason_code

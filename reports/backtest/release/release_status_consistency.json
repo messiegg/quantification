@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-05-05T12:45:59.485549+00:00",
-  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
-  "branch": "codex/combined-v2-rc-release",
-  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "generated_at": "2026-05-06T07:49:51.834936+00:00",
+  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
+  "branch": "codex/cleanup-stale-artifacts",
+  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
       "exists": true,
-      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9"
     },
     {
       "path": "config/account.yml",
       "exists": true,
-      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+      "sha256": "6482e45ec46ba0609ecf5fa9ca7069fe3a586a017843bf0947239e79728322fd"
     },
     {
       "path": "config/universe_rules_v2.yml",
@@ -40,13 +40,45 @@
       "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
     }
   ],
-  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "data_hash": "c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,
   "auto_trading_approved": false,
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
+  "runtime_profile": {
+    "account_profile": "retail_50k_lot_aware",
+    "research_only": false,
+    "initial_capital": 50000.0,
+    "current_cash": 50000.0,
+    "latest_total_equity": 50000.0,
+    "min_trade_value": 1500.0,
+    "round_lot": 100,
+    "commission_rate": 0.0003,
+    "stamp_duty_rate_sell": 0.0005,
+    "slippage_bps": 5.0,
+    "universe_target_size": 36,
+    "universe_floor": 24,
+    "universe_selected_count": 30,
+    "portfolio_max_positions": 8,
+    "portfolio_equal_weight_target_positions": 8
+  },
+  "account_profile": "retail_50k_lot_aware",
+  "research_only": false,
+  "initial_capital": 50000.0,
+  "current_cash": 50000.0,
+  "latest_total_equity": 50000.0,
+  "min_trade_value": 1500.0,
+  "round_lot": 100,
+  "commission_rate": 0.0003,
+  "stamp_duty_rate_sell": 0.0005,
+  "slippage_bps": 5.0,
+  "universe_target_size": 36,
+  "universe_floor": 24,
+  "universe_selected_count": 30,
+  "portfolio_max_positions": 8,
+  "portfolio_equal_weight_target_positions": 8,
   "status": "PASS",
   "expected_current_release_status": "WARN",
   "expected_status_reasons": [
@@ -57,14 +89,18 @@
     },
     {
       "code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION",
-      "actual": 0.11621621621621622
+      "actual": 0.03656597774244833
+    },
+    {
+      "code": "RETAIL_50K_EXECUTION_RATIO_BELOW_25",
+      "actual": 0.010480349344978166
     },
     {
       "code": "CORE_SENSITIVITY_NON_BINDING",
       "parameters": [
-        "cyclical_pb_threshold",
         "defensive_valuation_threshold",
         "grid_step",
+        "min_holding_days",
         "universe_size"
       ]
     },

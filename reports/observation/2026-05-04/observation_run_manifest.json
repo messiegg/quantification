@@ -1,6 +1,6 @@
 {
   "as_of_date": "2026-05-04",
-  "run_time": "2026-05-05T12:26:41.558936+00:00",
+  "run_time": "2026-05-06T04:12:29.927226+00:00",
   "profile": "combined_v2",
   "mode": "paper",
   "conservative_profile": "combined_v2_1_risk_guard",
@@ -18,8 +18,8 @@
   "benchmark_data_asof": "2026-04-30",
   "financial_data_asof": "2025-12-31",
   "effective_financial_date": "2026-04-04",
-  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
-  "data_hash": "a09eaa5950a5129cd4f6eb5ef89ebb3937b6496ffe79934d97b42ac17f2a4fcd",
+  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
+  "data_hash": "4553718b5c57f153e3ceb378ec7446983974ca9e6b34b203d24924a9b21f6bb7",
   "evidence_chain_status": "WARN",
   "requested_as_of_is_trading_day": false,
   "generated_files": [

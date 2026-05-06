@@ -1,7 +1,7 @@
 # forbidden tracked files check
 
 - overall_status: PASS
-- tracked_files: 577
+- tracked_files: 598
 - allowlisted_exceptions: 4
 - fail_count: 0
 

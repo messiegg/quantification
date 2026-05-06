@@ -112,6 +112,7 @@ class BacktestEngine:
         trades_detailed: list[dict] = []
         daily_diagnostics: list[dict] = []
         blocked_signals: list[dict] = []
+        blocked_intent_state: dict[tuple[str, str, str], dict] = {}
         is_v2 = str(self.strategy_cfg.get("profile", self.strategy_cfg.get("strategy_profile", ""))).startswith("combined_v2")
 
         signal_indices = range(len(dates) - 1) if self.execution_mode == "next_bar" else range(len(dates))
@@ -348,6 +349,7 @@ class BacktestEngine:
                 }
             )
             executed_today = trades[day_trade_count_before:]
+            self._mark_user_visible_actions(decisions, blocked_intent_state, account_state["current_cash"])
             daily_diagnostics.append(self._daily_diagnostic_record(signal_date, todays, decisions, benchmark_until_today, regime, nav, cash_before=account_state["current_cash"], positions=positions, executed_trades=executed_today))
             blocked_signals.extend(self._blocked_signal_records(signal_date, decisions))
 
@@ -648,6 +650,18 @@ class BacktestEngine:
             "close": decision.get("close"),
             "reason_code": reason_code,
             "reason_detail": detail,
+            "lot_notional": decision.get("lot_notional"),
+            "minimum_lot_order_value": decision.get("minimum_lot_order_value"),
+            "max_single_position_value": decision.get("max_single_position_value"),
+            "remaining_single_name_capacity": decision.get("remaining_single_name_capacity"),
+            "execution_eligible_for_new_buy": decision.get("execution_eligible_for_new_buy", False),
+            "execution_ineligible_reason": decision.get("execution_ineligible_reason", reason_code),
+            "pending_add_state": decision.get("pending_add_state", False),
+            "pending_reason": decision.get("pending_reason", ""),
+            "pending_until_condition": decision.get("pending_until_condition", ""),
+            "repeated_blocked_signal_suppressed": decision.get("repeated_blocked_signal_suppressed", False),
+            "user_visible_action": decision.get("user_visible_action", True),
+            "rule_path": decision.get("rule_path"),
         }
 
     @staticmethod
@@ -686,7 +700,10 @@ class BacktestEngine:
             "CYCLE_TRAP": "HARD_ADD_BAN",
             "DATA_STALE_BLOCK": "MISSING_REQUIRED_FIELD",
             "NOT_IN_EFFECTIVE_UNIVERSE": "NOT_IN_EFFECTIVE_UNIVERSE",
-            "DAILY_POSITION_LIMIT": "TOTAL_EXPOSURE_LIMIT",
+            "DAILY_POSITION_LIMIT": "DAILY_NEW_POSITION_LIMIT",
+            "MAX_POSITIONS_LIMIT": "MAX_POSITIONS_LIMIT",
+            "DAILY_NEW_POSITION_LIMIT": "DAILY_NEW_POSITION_LIMIT",
+            "DAILY_ADD_LIMIT": "DAILY_ADD_LIMIT",
             "MISSING_SHARE_COUNT": "UNKNOWN",
             "FROZEN_NOT_BUYABLE": "HARD_ADD_BAN",
             "CASH_INSUFFICIENT_AT_FILL": "CASH_INSUFFICIENT",
@@ -697,6 +714,11 @@ class BacktestEngine:
             "TOTAL_EXPOSURE_CLIPPED_AT_FILL": "TOTAL_EXPOSURE_LIMIT",
             "SINGLE_NAME_CLIPPED_AT_FILL": "SINGLE_NAME_LIMIT",
             "MISSING_FILL_PRICE": "MISSING_REQUIRED_FIELD",
+            "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT": "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+            "CASH_INSUFFICIENT_FOR_ONE_LOT": "CASH_INSUFFICIENT_FOR_ONE_LOT",
+            "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY": "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
+            "LOT_SIZE_ACCUMULATION_REQUIRED": "LOT_SIZE_ACCUMULATION_REQUIRED",
+            "HOLD_WITH_PENDING_ADD": "HOLD_WITH_PENDING_ADD",
             "VALUATION_QUANTILE_MISSING": "VALUATION_QUANTILE_MISSING",
             "INDUSTRY_VALUATION_QUANTILE_MISSING": "INDUSTRY_VALUATION_QUANTILE_MISSING",
         }
@@ -719,8 +741,71 @@ class BacktestEngine:
             "INDUSTRY_VALUATION_QUANTILE_MISSING",
             "PRICE_TRIGGER_FAIL",
             "MISSING_FILL_PRICE",
+            "MAX_POSITIONS_LIMIT",
+            "DAILY_NEW_POSITION_LIMIT",
+            "DAILY_ADD_LIMIT",
+            "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+            "CASH_INSUFFICIENT_FOR_ONE_LOT",
+            "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
+            "LOT_SIZE_ACCUMULATION_REQUIRED",
+            "HOLD_WITH_PENDING_ADD",
             "UNKNOWN",
         } else "UNKNOWN")
+
+    def _mark_user_visible_actions(
+        self,
+        decisions: list[dict],
+        blocked_intent_state: dict[tuple[str, str, str], dict],
+        available_cash: float,
+    ) -> None:
+        rule_path = "hard_filter -> bucket -> valuation -> market_state -> grid -> account_constraints"
+        for decision in decisions:
+            intended = decision.get("intended_action_enum", decision.get("action_enum"))
+            action = decision.get("action_enum")
+            decision["rule_path"] = decision.get("rule_path") or rule_path
+            decision["user_visible_action"] = bool(action in {"BUY_1", "BUY_2", "BUY_3", "REDUCE", "SELL_ALL"})
+            decision["repeated_blocked_signal_suppressed"] = False
+            if intended not in {"BUY_1", "BUY_2", "BUY_3"}:
+                continue
+            if action not in {"BLOCKED", "HOLD_WITH_PENDING_ADD"}:
+                decision["user_visible_action"] = bool(action in {"BUY_1", "BUY_2", "BUY_3"})
+                continue
+            reason = self._stable_reason_code(decision.get("blocked_reason") or decision.get("pending_reason"))
+            lot_notional = float(decision.get("lot_notional") or 0.0)
+            remaining = float(decision.get("remaining_single_name_capacity") or 0.0)
+            price = float(decision.get("close") or 0.0)
+            position_state = (
+                int(decision.get("current_position_tranches") or 0),
+                int(decision.get("current_shares") or 0),
+            )
+            action_type = str(decision.get("action_type") or "")
+            key = (str(decision.get("symbol")), str(decision.get("rule_path")), reason)
+            previous = blocked_intent_state.get(key)
+            repeated = False
+            if previous and self.signal_engine.duplicate_blocked_signal_suppression:
+                previous_price = float(previous.get("price") or 0.0)
+                price_change = abs(price / previous_price - 1.0) if previous_price > 0 and price > 0 else 0.0
+                cash_change = abs(float(available_cash) - float(previous.get("available_cash") or 0.0))
+                capacity_change = abs(remaining - float(previous.get("remaining_single_name_capacity") or 0.0))
+                repeated = (
+                    price_change <= 0.03
+                    and cash_change < max(lot_notional, 1e-9)
+                    and capacity_change < max(lot_notional, 1e-9)
+                    and previous.get("position_state") == position_state
+                    and previous.get("action_type") == action_type
+                )
+            if repeated:
+                decision["repeated_blocked_signal_suppressed"] = True
+                decision["user_visible_action"] = False
+            else:
+                decision["user_visible_action"] = True
+                blocked_intent_state[key] = {
+                    "price": price,
+                    "available_cash": float(available_cash),
+                    "remaining_single_name_capacity": remaining,
+                    "position_state": position_state,
+                    "action_type": action_type,
+                }
 
     def _daily_diagnostic_record(
         self,
@@ -742,8 +827,28 @@ class BacktestEngine:
         actions = decision_frame.get("action_enum", pd.Series(dtype=object)).fillna("")
         blocked = decision_frame.get("blocked_reason", pd.Series(dtype=object))
         reason_codes = blocked.map(self._stable_reason_code) if not blocked.empty else pd.Series(dtype=object)
+        raw_buy_mask = intended.isin(["BUY_1", "BUY_2", "BUY_3"])
+        account_feasibility_blockers = {
+            "MIN_TRADE_AMOUNT",
+            "CASH_INSUFFICIENT",
+            "CASH_INSUFFICIENT_FOR_ONE_LOT",
+            "LOT_SIZE_ZERO",
+            "SINGLE_NAME_LIMIT",
+            "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+            "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
+            "LOT_SIZE_ACCUMULATION_REQUIRED",
+        }
+        account_feasible_buy = int(
+            (
+                raw_buy_mask
+                & ~reason_codes.isin(account_feasibility_blockers).reindex(raw_buy_mask.index, fill_value=False)
+            ).sum()
+        )
         executed_buy = sum(1 for item in executed_trades if item.get("action") in {"BUY_1", "BUY_2", "BUY_3"})
         executed_sell = sum(1 for item in executed_trades if item.get("action") in {"REDUCE", "SELL_ALL"})
+        visible = decision_frame.get("user_visible_action", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
+        repeated_suppressed = decision_frame.get("repeated_blocked_signal_suppressed", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
+        pending_add = decision_frame.get("pending_add_state", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
         is_a_share = todays["is_a_share"].astype(bool) if "is_a_share" in todays.columns else pd.Series(True, index=todays.index)
         is_st = todays["is_st"].astype(bool) if "is_st" in todays.columns else pd.Series(False, index=todays.index)
         industry = todays["industry"] if "industry" in todays.columns else pd.Series(pd.NA, index=todays.index)
@@ -786,17 +891,31 @@ class BacktestEngine:
             "passed_valuation_filter_count": int(len(passed_valuation)),
             "passed_quality_filter_count": int(len(passed_quality)),
             "passed_price_trigger_count": int(len(passed_price)),
-            "raw_buy_signal_count": int(intended.isin(["BUY_1", "BUY_2", "BUY_3"]).sum()),
+            "raw_buy_signal_count": int(raw_buy_mask.sum()),
+            "unique_raw_buy_intent_count": int((raw_buy_mask & ~repeated_suppressed).sum()),
+            "repeated_blocked_buy_signal_count": int((raw_buy_mask & repeated_suppressed).sum()),
             "raw_sell_signal_count": int(intended.isin(["REDUCE", "SELL_ALL"]).sum()),
+            "account_feasible_buy_signal_count": account_feasible_buy,
+            "user_visible_buy_recommendation_count": int((raw_buy_mask & actions.isin(["BUY_1", "BUY_2", "BUY_3"]) & visible).sum()),
+            "user_visible_blocked_buy_count": int((raw_buy_mask & actions.isin(["BLOCKED", "HOLD_WITH_PENDING_ADD"]) & visible).sum()),
+            "pending_buy_intent_count": int((raw_buy_mask & pending_add).sum()),
             "blocked_by_universe_count": int((reason_codes == "NOT_IN_EFFECTIVE_UNIVERSE").sum()),
             "blocked_by_market_regime_count": int((reason_codes == "MARKET_REGIME_BLOCK").sum()),
             "blocked_by_cash_count": int((reason_codes == "CASH_INSUFFICIENT").sum()),
+            "blocked_by_cash_one_lot_count": int((reason_codes == "CASH_INSUFFICIENT_FOR_ONE_LOT").sum()),
             "blocked_by_position_limit_count": int((reason_codes == "TOTAL_EXPOSURE_LIMIT").sum()),
             "blocked_by_single_name_limit_count": int((reason_codes == "SINGLE_NAME_LIMIT").sum()),
             "blocked_by_min_trade_amount_count": int((reason_codes == "MIN_TRADE_AMOUNT").sum()),
             "blocked_by_lot_size_count": int((reason_codes == "LOT_SIZE_ZERO").sum()),
+            "blocked_by_price_too_high_for_account_lot_count": int((reason_codes == "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT").sum()),
+            "blocked_by_price_too_high_for_remaining_capacity_count": int((reason_codes == "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY").sum()),
+            "blocked_by_lot_size_accumulation_required_count": int((reason_codes == "LOT_SIZE_ACCUMULATION_REQUIRED").sum()),
             "blocked_by_existing_position_count": int((reason_codes == "ALREADY_AT_OR_ABOVE_TARGET").sum()),
             "blocked_by_hard_add_ban_count": int((reason_codes == "HARD_ADD_BAN").sum()),
+            "blocked_by_max_positions_count": int((reason_codes == "MAX_POSITIONS_LIMIT").sum()),
+            "blocked_by_daily_new_position_count": int((reason_codes == "DAILY_NEW_POSITION_LIMIT").sum()),
+            "blocked_by_daily_add_count": int((reason_codes == "DAILY_ADD_LIMIT").sum()),
+            "blocked_by_unknown_count": int((reason_codes == "UNKNOWN").sum()),
             "executable_buy_count": int(actions.isin(["BUY_1", "BUY_2", "BUY_3"]).sum()),
             "executable_sell_count": int(actions.isin(["REDUCE", "SELL_ALL"]).sum()),
             "executed_buy_count": int(executed_buy),
@@ -809,7 +928,7 @@ class BacktestEngine:
             intended_action = decision.get("intended_action_enum", decision.get("action_enum"))
             if intended_action not in {"BUY_1", "BUY_2", "BUY_3", "REDUCE", "SELL_ALL"}:
                 continue
-            if decision.get("action_enum") != "BLOCKED":
+            if decision.get("action_enum") not in {"BLOCKED", "HOLD_WITH_PENDING_ADD"}:
                 continue
             reason_code = self._stable_reason_code(decision.get("blocked_reason"))
             records.append(
@@ -832,6 +951,18 @@ class BacktestEngine:
                     "valuation_fallback_reason": decision.get("valuation_fallback_reason", ""),
                     "reason_code": reason_code,
                     "reason_detail": decision.get("action_reason"),
+                    "lot_notional": decision.get("lot_notional"),
+                    "minimum_lot_order_value": decision.get("minimum_lot_order_value"),
+                    "max_single_position_value": decision.get("max_single_position_value"),
+                    "remaining_single_name_capacity": decision.get("remaining_single_name_capacity"),
+                    "execution_eligible_for_new_buy": decision.get("execution_eligible_for_new_buy", False),
+                    "execution_ineligible_reason": decision.get("execution_ineligible_reason", reason_code),
+                    "pending_add_state": decision.get("pending_add_state", False),
+                    "pending_reason": decision.get("pending_reason", ""),
+                    "pending_until_condition": decision.get("pending_until_condition", ""),
+                    "repeated_blocked_signal_suppressed": decision.get("repeated_blocked_signal_suppressed", False),
+                    "user_visible_action": decision.get("user_visible_action", True),
+                    "rule_path": decision.get("rule_path"),
                 }
             )
         return records

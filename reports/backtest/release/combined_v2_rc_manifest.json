@@ -1,7 +1,7 @@
 {
   "run_id": "combined_v2_rc_2023-04-03_2026-04-03_next_bar",
   "created_at": "2026-05-05T08:57:40.644926+00:00",
-  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
   "python_version": "3.14.3",
   "start_date": "2023-04-03",
   "end_date": "2026-04-03",
@@ -16,20 +16,20 @@
   "tax": 0.0005,
   "slippage": 5,
   "lot_size": 100,
-  "min_trade_amount": 5000,
-  "initial_capital": 200000.0,
+  "min_trade_amount": 1500.0,
+  "initial_capital": 50000.0,
   "final_nav": 243928.8809062001,
-  "annual_return": 0.0713520247687258,
-  "cumulative_return": 0.2196444045310004,
-  "max_drawdown": -0.0936454742991675,
-  "sharpe": 0.7782204340639889,
-  "total_trades": 76,
-  "buy_trades": 43,
-  "sell_trades": 33,
+  "annual_return": 0.024846220411411934,
+  "cumulative_return": 0.07326562069200016,
+  "max_drawdown": -0.08876605706976393,
+  "sharpe": 0.35634328938471815,
+  "total_trades": 41,
+  "buy_trades": 23,
+  "sell_trades": 18,
   "avg_daily_exposure": 0.4697743770034566,
   "max_daily_exposure": 0.7569459961603964,
   "avg_positions": 12.287878787878787,
-  "max_positions": 20,
+  "max_positions": 8,
   "realized_pnl": 38533.829894000024,
   "unrealized_pnl": 5395.0510122000705,
   "total_fees": 166.57459004999993,
@@ -69,7 +69,7 @@
   "key_output_file_hashes": [
     {
       "path": "config/strategy_v2.yml",
-      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb",
+      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
       "exists": true
     },
     {
@@ -79,7 +79,7 @@
     },
     {
       "path": "config/account.yml",
-      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f",
+      "sha256": "6482e45ec46ba0609ecf5fa9ca7069fe3a586a017843bf0947239e79728322fd",
       "exists": true
     },
     {
@@ -94,12 +94,12 @@
     },
     {
       "path": "reports/backtest/combined_v2_trades_detailed.csv",
-      "sha256": "6a1e6a6859c8dfa0e399bf0f900aadad6a3920e36ce3e2cb95a090d6c8643cec",
+      "sha256": "34a6eaaddba006b4122093ee0932e47bc094fa9e8e605ca8c3a43ac1af7f05a9",
       "exists": true
     },
     {
       "path": "reports/backtest/combined_v2_signal_funnel.csv",
-      "sha256": "68a417c1438d6925dfc4bfb33832526eb4b28c06811991c7d2df8329b49214f8",
+      "sha256": "d4ea5b59f5af7d927fefc3dcc03f2b2568a4aa253eac72baa4458adc46b73eae",
       "exists": true
     },
     {
@@ -119,62 +119,72 @@
     },
     {
       "path": "reports/audit/config_consistency.json",
-      "sha256": "a2097562b1936594311acf56cfbe7b477e85efbad4c37cd6ac1a344861d9b118",
+      "sha256": "88dafdb7e4d8de930bdf2cdcec4437fa4f0ab3c63369d28c8651601c89fde403",
       "exists": true
     },
     {
       "path": "reports/audit/universe_integrity.json",
-      "sha256": "24ec2ff3ed00f625e63a14635cdc8077935cdc50df4e10c660f5ff2db6be8470",
+      "sha256": "112a43c946641cf3818e4fc0d557c3093c32f13657dbc26e69d74facf2a9077e",
       "exists": true
     },
     {
       "path": "reports/audit/data_freshness.json",
-      "sha256": "56918713265c7e83d5bf97049b8533ea10e5e66786dce99448abd600eea204d8",
+      "sha256": "ac0ddc080361b6efa10dbad1ad900a4be3954fbd9ef03d4bede5acd9d027efd7",
       "exists": true
     },
     {
       "path": "reports/observation/2026-05-04/evidence_chain.json",
-      "sha256": "76d394baaf005f920eeb50d05240d35eac71140e3217ba0bb969f24b8072a5f7",
+      "sha256": "149777b662b806dbb44ace8f92823bcfa99356eaaa6c3df2fbb57be3d249b07a",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_report.json",
-      "sha256": "b6845b1daee4c288107c7b351cb9a0b36c8be5f4621b66b0807ebbae36265fe8",
+      "sha256": "5b76e2629c83b8a39cca895104e6d702bc51d00d9f31694bb02cb873e46ea150",
       "exists": true
     },
     {
       "path": "reports/backtest/account_constraints_report.json",
-      "sha256": "9dfc70561620ec349e7c2ba38afe416095eba314cb6f555391eb5c7af242cc43",
+      "sha256": "8e6920c39d6ddf63467890a26c24ae00fa5932db728f6972b27447599ceda3e8",
       "exists": true
     },
     {
       "path": "reports/backtest/account_suitability_report.json",
-      "sha256": "467053002c31e44afd1aaeed027992b03fe9dfc7e223ba6ca5541b666a925c69",
+      "sha256": "4c85a0f6da6f334456aa1c2ec89c52ff8d9e9e50674719146bd6f03154a60e1f",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/account_profiles/account_profile_comparison.json",
+      "sha256": "e81c5fac9fcf4f64b2659aeb6f5a3f78d23d8bf3a63c0cee5cbf9173b25d55ad",
+      "exists": true
+    },
+    {
+      "path": "reports/backtest/combined_v2_retail_50k_metrics.csv",
+      "sha256": "b4ccd522090029b00aabf60a3b0c18913ad9ea64e3f987099740d66d313ca330",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/baseline_comparison.json",
-      "sha256": "0662216c60f7d7ab899488794e9610af4dd53cc35ca143373e4c288aab313793",
+      "sha256": "4083d52627be6e68fe5516c3c2a973d2e7fc9e0fc19ace95c915a6981b4952d9",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/module_contribution_report.json",
-      "sha256": "96d093efaf089ea50a2b2014939dd841d2051fdf33eff56bd70e809cb082d072",
+      "sha256": "203fe63a2cb4e834b60c52b751a6f78bf7c0d9063616a3e30f81c7f1729ddbfb",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_trigger_coverage.json",
-      "sha256": "0ceb452337de7e6f80c25c4871b15c98e89370480ded6966fd2d4cd9cbc62181",
+      "sha256": "b109d54e5eefd179e1eb0d6d1fcd69f0c77294249963e4e76dada1d2b56dbb28",
       "exists": true
     },
     {
       "path": "reports/audit/universe_shortfall.json",
-      "sha256": "7b5c711388c9fe86033cd4864ee2b1b465e3cfd676471223ee41e54fc50203d5",
+      "sha256": "46226e278cb3a4d0f5bd482c8b865a907b1b6b05fd3e87f89d24b25a6da88c4c",
       "exists": true
     },
     {
       "path": "reports/observation/readiness_report.json",
-      "sha256": "cb59e4b3e3600edcacf953a9a0450854093e8f03e9085aac1b6485b1850209ae",
+      "sha256": "e031c9df7052e30d1d99ceaea8cb9354ee5e400225d44050f77ea13a9a9bce56",
       "exists": true
     },
     {
@@ -184,10 +194,10 @@
     }
   ],
   "status": "WARN",
-  "branch": "codex/combined-v2-rc-release",
-  "generated_at": "2026-05-05T12:45:59.530475+00:00",
-  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
-  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "branch": "codex/cleanup-stale-artifacts",
+  "generated_at": "2026-05-06T07:49:51.887765+00:00",
+  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
+  "data_hash": "c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1",
   "requested_date": "2026-05-04",
   "target_trade_date": "2026-04-30",
   "target_trading_date": "2026-04-30",
@@ -208,6 +218,7 @@
     "data_freshness": "PASS",
     "account_constraints": "WARN",
     "account_suitability": "WARN",
+    "account_profile_comparison": "WARN",
     "evidence_chain": "WARN",
     "sensitivity": "WARN",
     "sensitivity_trigger_coverage": "WARN",
@@ -279,6 +290,15 @@
       "actual": "WARN",
       "evidence": "scripts/build_account_suitability_report.py",
       "recommendation": "base case 执行比例低于观察阈值时保持 WARN，研究场景不得用于 release PASS。"
+    },
+    {
+      "check_id": "RG-ACCOUNT-003",
+      "check_name": "account profile comparison uses configured default profile",
+      "status": "WARN",
+      "expected": "default profile present; executable/raw >=0.25 and buy_trades >=10 for PASS",
+      "actual": "default=actual_50k_lot_aware; ratio=0.03656597774244833; report_status=WARN",
+      "evidence": "reports/backtest/account_profiles/account_profile_comparison.json",
+      "recommendation": "默认 release 账户必须来自 comparison 采纳结果；低于 25% 或交易数过少只能 WARN，违反上限必须 FAIL。"
     },
     {
       "check_id": "RG-EVIDENCE-001",
@@ -384,7 +404,7 @@
       "check_name": "combined_v2 RC hash-only verification",
       "status": "WARN",
       "expected": "no FAIL",
-      "actual": "PASS=20 WARN=10 FAIL=0",
+      "actual": "PASS=22 WARN=10 FAIL=0",
       "evidence": "scripts/verify_combined_v2_rc.py --mode hash-only",
       "recommendation": "CI 只验证 manifest/hash/已提交小型报告，不重跑完整回测。"
     },
@@ -446,8 +466,8 @@
       "check_id": "CFG-HASH-strategy_v2",
       "check_name": "config/strategy_v2.yml hash matches RC manifest",
       "status": "PASS",
-      "expected": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb",
-      "actual": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb",
+      "expected": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
+      "actual": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
       "evidence": "config/strategy_v2.yml",
       "recommendation": "配置 hash 漂移意味着 RC 口径不再冻结，必须停止发布。"
     },
@@ -477,17 +497,13 @@
         "code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION",
         "message": "account constraints dominate buy execution",
         "expected": "executable/raw >= 0.25",
-        "actual": 0.11621621621621622
-      },
-      {
-        "code": "MIN_TRADE_AMOUNT_DOMINATES_EXECUTION",
-        "message": "min_trade_amount dominates execution",
-        "expected": "<=50% raw buy signals",
-        "actual": 0.5945945945945946
+        "actual": 0.03656597774244833
       }
     ],
     "account_suitability_status": "WARN",
-    "account_suitability_base_executable_raw_buy_ratio": 0.11621621621621622,
+    "account_suitability_base_executable_raw_buy_ratio": 0.03656597774244833,
+    "account_profile_comparison_status": "WARN",
+    "account_profile_comparison_retail_ratio": 0.010480349344978166,
     "universe_shortfall_status": "WARN",
     "universe_shortfall_to_target": 6,
     "sensitivity_trigger_coverage_status": "WARN",
@@ -503,9 +519,9 @@
         "variant_id": "defensive_valuation_strict"
       },
       {
-        "param_path": "cyclical_pb_threshold",
+        "param_path": "min_holding_days",
         "classification": "NO_SIGNAL_COVERAGE",
-        "variant_id": "cyclical_pb_strict"
+        "variant_id": "holding_shorter"
       },
       {
         "param_path": "grid_step",
@@ -534,5 +550,27 @@
     "observation_readiness_status": "NOT_READY",
     "minimum_backtest_years_warning": "sample is about three years; keep as manual observation candidate only",
     "auto_trading_approved": false
-  }
+  },
+  "account_profile": "retail_50k_lot_aware",
+  "min_trade_value": 1500.0,
+  "portfolio_max_positions": 8,
+  "portfolio_equal_weight_target_positions": 8,
+  "universe_target_size": 36,
+  "universe_selected_count": 30,
+  "account_profile_comparison_status": "WARN",
+  "turnover": 2.04219921,
+  "transaction_cost_total": 103.71896539999412,
+  "transaction_cost_pct": 0.0020743793079998,
+  "lot_aware_sizing_enabled": true,
+  "equal_weight_target_universe_size": 8,
+  "round_lot": 100,
+  "raw_buy_signal_count": 629,
+  "unique_raw_buy_intent_count": 159,
+  "executable_buy_count": 23,
+  "executable_raw_buy_ratio": 0.03656597774244833,
+  "executable_account_feasible_buy_ratio": 0.0539906103286385,
+  "lot_size_zero_block_count": 0,
+  "price_too_high_for_account_lot_count": 30,
+  "repeated_blocked_buy_signal_count": 470,
+  "pending_buy_intent_count": 47
 }

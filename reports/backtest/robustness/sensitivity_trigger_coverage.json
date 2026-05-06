@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-05-05T12:45:59.021959+00:00",
-  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
-  "branch": "codex/combined-v2-rc-release",
-  "config_hash": "737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2",
+  "generated_at": "2026-05-06T07:49:51.197979+00:00",
+  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
+  "branch": "codex/cleanup-stale-artifacts",
+  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
       "exists": true,
-      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9"
     },
     {
       "path": "config/account.yml",
       "exists": true,
-      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+      "sha256": "6482e45ec46ba0609ecf5fa9ca7069fe3a586a017843bf0947239e79728322fd"
     },
     {
       "path": "config/universe_rules_v2.yml",
@@ -40,13 +40,45 @@
       "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
     }
   ],
-  "data_hash": "2d3b46f11646b501ccf291979d554e3216c3199b8735ade5126a398552fb469b",
+  "data_hash": "c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,
   "auto_trading_approved": false,
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
+  "runtime_profile": {
+    "account_profile": "retail_50k_lot_aware",
+    "research_only": false,
+    "initial_capital": 50000.0,
+    "current_cash": 50000.0,
+    "latest_total_equity": 50000.0,
+    "min_trade_value": 1500.0,
+    "round_lot": 100,
+    "commission_rate": 0.0003,
+    "stamp_duty_rate_sell": 0.0005,
+    "slippage_bps": 5.0,
+    "universe_target_size": 36,
+    "universe_floor": 24,
+    "universe_selected_count": 30,
+    "portfolio_max_positions": 8,
+    "portfolio_equal_weight_target_positions": 8
+  },
+  "account_profile": "retail_50k_lot_aware",
+  "research_only": false,
+  "initial_capital": 50000.0,
+  "current_cash": 50000.0,
+  "latest_total_equity": 50000.0,
+  "min_trade_value": 1500.0,
+  "round_lot": 100,
+  "commission_rate": 0.0003,
+  "stamp_duty_rate_sell": 0.0005,
+  "slippage_bps": 5.0,
+  "universe_target_size": 36,
+  "universe_floor": 24,
+  "universe_selected_count": 30,
+  "portfolio_max_positions": 8,
+  "portfolio_equal_weight_target_positions": 8,
   "status": "WARN",
   "mode": "ci",
   "source_sensitivity_report": "reports/backtest/robustness/sensitivity_report.json",
@@ -57,11 +89,11 @@
       "variant_id": "universe_large",
       "base_value": "configured_base",
       "variant_value": "target_size=48, floor_size=36, ceiling_size=60",
-      "variant_config_hash": "59aa8c9e884eeb0b28deb0b7a360b2f2f84554da7984ad2dd75044fa4f1ef618",
+      "variant_config_hash": "d1db600fb207bdf3cd1e935d522d6e7dea63108accb86151d2d5230d2a453c6a",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 172,
+          "line": 335,
           "text": "self.universe_rules_cfg.get(\"target_universe_size\", strategy_cfg[\"execution\"].get(\"equal_weight_target_universe_size\", 16))"
         },
         {
@@ -75,9 +107,24 @@
           "text": "\"universe_target\": universe_rules.get(\"target_size\", universe_rules.get(\"target_universe_size\")),"
         },
         {
+          "path": "scripts/run_release_guard.py",
+          "line": 449,
+          "text": "\"equal_weight_target_universe_size\": default_profile_row.get(\"equal_weight_target_universe_size\", account_constraints.get(\"portfolio_equal_weight_target_positions\")),"
+        },
+        {
           "path": "scripts/audit_universe_integrity.py",
           "line": 609,
           "text": "target_size = int(rules.get(\"target_size\", rules.get(\"target_universe_size\", 0)) or 0)"
+        },
+        {
+          "path": "scripts/report_metadata.py",
+          "line": 106,
+          "text": "universe_target = rules.get(\"target_size\", rules.get(\"target_universe_size\"))"
+        },
+        {
+          "path": "scripts/run_account_profile_backtests.py",
+          "line": 53,
+          "text": "\"equal_weight_target_universe_size\","
         },
         {
           "path": "scripts/build_sensitivity_trigger_coverage_report.py",
@@ -91,7 +138,7 @@
         },
         {
           "path": "scripts/check_release_status_consistency.py",
-          "line": 82,
+          "line": 85,
           "text": "target = universe.get(\"target_size\")"
         },
         {
@@ -102,7 +149,7 @@
         {
           "path": "config/strategy_v2.yml",
           "line": 39,
-          "text": "equal_weight_target_universe_size: 36"
+          "text": "equal_weight_target_universe_size: 8"
         },
         {
           "path": "config/universe_rules_v2.yml",
@@ -123,13 +170,28 @@
           "path": "config/strategy_v2_1_risk_guard.yml",
           "line": 42,
           "text": "equal_weight_target_universe_size: 36"
+        },
+        {
+          "path": "config/strategy_profiles/retail_50k_lot_aware_execution.yml",
+          "line": 12,
+          "text": "equal_weight_target_universe_size: 8"
+        },
+        {
+          "path": "config/strategy_profiles/retail_50k_execution.yml",
+          "line": 11,
+          "text": "equal_weight_target_universe_size: 12"
+        },
+        {
+          "path": "config/strategy_profiles/reference_200k_execution.yml",
+          "line": 11,
+          "text": "equal_weight_target_universe_size: 36"
         }
       ],
       "rule_name": "universe_size",
       "trigger_condition": "target_size=48, floor_size=36, ceiling_size=60",
-      "trigger_count_base": 53,
-      "trigger_count_variant": 53,
-      "blocked_by_account_constraints_count": 27,
+      "trigger_count_base": 83,
+      "trigger_count_variant": 83,
+      "blocked_by_account_constraints_count": 65,
       "dominated_by_higher_priority_rule_count": 0,
       "no_signal_coverage_days": 242,
       "action_path_changed": false,
@@ -143,16 +205,16 @@
       "variant_id": "defensive_valuation_strict",
       "base_value": "configured_base",
       "variant_value": "defensive stock/industry thresholds -5",
-      "variant_config_hash": "826296dbe240e1147f09b2905a12cfbe07ee9e9e0fbb994d0f32086b8f753034",
+      "variant_config_hash": "26d90f18af30803aca72e6baa62c2205fa4e6740ac45406e5924830cb9910f14",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 43,
+          "line": 55,
           "text": "return _safe_float(row.get(\"stock_q_blended\"), default=100.0) <= float(risk_off_cfg[\"defensive_dividend_max_stock_q_blended\"])"
         },
         {
           "path": "src/strategy/backtest_reports.py",
-          "line": 206,
+          "line": 232,
           "text": "defensive_count = int((candidate_pool[\"bucket\"] == \"defensive_dividend\").sum())"
         },
         {
@@ -238,9 +300,9 @@
       ],
       "rule_name": "defensive_valuation_threshold",
       "trigger_condition": "defensive stock/industry thresholds -5",
-      "trigger_count_base": 53,
-      "trigger_count_variant": 53,
-      "blocked_by_account_constraints_count": 27,
+      "trigger_count_base": 83,
+      "trigger_count_variant": 83,
+      "blocked_by_account_constraints_count": 65,
       "dominated_by_higher_priority_rule_count": 0,
       "no_signal_coverage_days": 242,
       "action_path_changed": false,
@@ -250,118 +312,38 @@
       "non_binding_reason": "NO_SIGNAL_COVERAGE"
     },
     {
-      "param_path": "cyclical_pb_threshold",
-      "variant_id": "cyclical_pb_strict",
+      "param_path": "min_holding_days",
+      "variant_id": "holding_shorter",
       "base_value": "configured_base",
-      "variant_value": "cyclical PB stock/industry thresholds -5",
-      "variant_config_hash": "ae375b1d024df903cff5fb3d9a8ba50904f2a3a77fc9e5243539766707a9c652",
+      "variant_value": "soft_trim=30, soft_exit=45",
+      "variant_config_hash": "0193f56ab925ee0bf55f3abbf722be44dbe3aafb6392c07fad00d838503d4184",
       "code_read_locations": [
         {
-          "path": "src/pipeline/features.py",
-          "line": 875,
-          "text": "cyclical_industries = set(strategy_cfg[\"buckets\"][\"cyclical_rotation\"][\"allowed_industries\"])"
-        },
-        {
           "path": "src/strategy/signals.py",
-          "line": 55,
-          "text": "if _safe_float(row.get(\"stock_q_blended\"), default=100.0) <= float(rule[\"stock_q_blended_max\"]):"
-        },
-        {
-          "path": "src/strategy/backtest_reports.py",
-          "line": 207,
-          "text": "cyclical_count = int((candidate_pool[\"bucket\"] == \"cyclical_rotation\").sum())"
-        },
-        {
-          "path": "src/strategy/valuation_resolution.py",
-          "line": 51,
-          "text": "if bucket == \"cyclical_rotation\":"
-        },
-        {
-          "path": "src/strategy/universe.py",
-          "line": 124,
-          "text": "if bucket == \"cyclical_rotation\":"
-        },
-        {
-          "path": "scripts/run_backtest_compare.py",
-          "line": 113,
-          "text": "cyclical = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"cyclical_rotation\"] if not detailed.empty else pd.DataFrame()"
-        },
-        {
-          "path": "scripts/run_backtest_attribution.py",
-          "line": 411,
-          "text": "cyclical_weight = _safe_div(float(values_today.loc[values_today[\"bucket\"] == \"cyclical_rotation\", \"market_value\"].sum()), invested)"
-        },
-        {
-          "path": "scripts/audit_universe_integrity.py",
-          "line": 423,
-          "text": "if bucket == \"cyclical_rotation\":"
-        },
-        {
-          "path": "scripts/audit_common.py",
-          "line": 113,
-          "text": "cyclical = detailed[detailed.get(\"bucket\", pd.Series(dtype=object)) == \"cyclical_rotation\"] if not detailed.empty else pd.DataFrame()"
-        },
-        {
-          "path": "scripts/run_backtest_controls.py",
-          "line": 385,
-          "text": "row[\"cyclical_pnl\"] = _bucket_total_pnl(\"cyclical_rotation\", detailed, final)"
-        },
-        {
-          "path": "scripts/backtest.py",
-          "line": 24,
-          "text": "parser.add_argument(\"--bucket\", default=\"combined\", choices=[\"defensive_dividend\", \"cyclical_rotation\", \"combined\"], help=\"Backtest bucket.\")"
-        },
-        {
-          "path": "scripts/build_sensitivity_trigger_coverage_report.py",
-          "line": 27,
-          "text": "\"defensive_valuation_threshold\": [\"defensive_dividend\", \"stock_q_blended_max\", \"industry_q_blended_max\"],"
+          "line": 533,
+          "text": "min_trim_days = int(self.strategy_cfg[\"execution\"].get(\"min_holding_days_for_soft_trim\", 40))"
         },
         {
           "path": "scripts/run_backtest_sensitivity.py",
-          "line": 84,
-          "text": "rule[\"stock_q_blended_max\"] = float(rule[\"stock_q_blended_max\"]) + stock_delta"
+          "line": 139,
+          "text": "strategy[\"execution\"][\"min_holding_days_for_soft_trim\"] = trim"
         },
         {
           "path": "config/strategy_v2.yml",
-          "line": 30,
-          "text": "- cyclical_rotation"
-        },
-        {
-          "path": "config/universe_rules_v2.yml",
-          "line": 24,
-          "text": "cyclical_rotation:"
-        },
-        {
-          "path": "config/strategy.yml",
-          "line": 82,
-          "text": "stock_q_blended_max: 20"
-        },
-        {
-          "path": "config/universe_rules.yml",
-          "line": 53,
-          "text": "cyclical_rotation:"
-        },
-        {
-          "path": "config/universe.yml",
-          "line": 11,
-          "text": "bucket: cyclical_rotation"
-        },
-        {
-          "path": "config/metric_map.yml",
-          "line": 11,
-          "text": "煤炭: cyclical_rotation"
+          "line": 46,
+          "text": "min_holding_days_for_soft_trim: 40"
         },
         {
           "path": "config/strategy_v2_1_risk_guard.yml",
-          "line": 33,
-          "text": "- cyclical_rotation"
+          "line": 46,
+          "text": "min_holding_days_for_soft_trim: 40"
         }
       ],
-      "rule_name": "cyclical_pb_threshold",
-      "trigger_condition": "cyclical PB stock/industry thresholds -5",
-      "trigger_count_base": 53,
-      "trigger_count_variant": 53,
-      "blocked_by_account_constraints_count": 27,
+      "rule_name": "min_holding_days",
+      "trigger_condition": "soft_trim=30, soft_exit=45",
+      "trigger_count_base": 83,
+      "trigger_count_variant": 83,
+      "blocked_by_account_constraints_count": 65,
       "dominated_by_higher_priority_rule_count": 0,
       "no_signal_coverage_days": 242,
       "action_path_changed": false,
@@ -375,11 +357,11 @@
       "variant_id": "grid_tighter",
       "base_value": "configured_base",
       "variant_value": "clip(1.0*ATR20/close,0.03,0.07)",
-      "variant_config_hash": "6ede5845f715d65cb458abd754d91e24743d332a9bba3cf243fa1565ba834d22",
+      "variant_config_hash": "2dddb9accef2e73fe7bb2c04e860bd498d93377a84f327ff59a36a0bb23f26d3",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 228,
+          "line": 397,
           "text": "grid_cfg = self.strategy_cfg[\"execution\"][\"grid_execution\"]"
         },
         {
@@ -399,7 +381,7 @@
         },
         {
           "path": "config/strategy_v2.yml",
-          "line": 45,
+          "line": 48,
           "text": "grid_execution:"
         },
         {
@@ -415,9 +397,9 @@
       ],
       "rule_name": "grid_step",
       "trigger_condition": "clip(1.0*ATR20/close,0.03,0.07)",
-      "trigger_count_base": 53,
-      "trigger_count_variant": 53,
-      "blocked_by_account_constraints_count": 27,
+      "trigger_count_base": 83,
+      "trigger_count_variant": 83,
+      "blocked_by_account_constraints_count": 65,
       "dominated_by_higher_priority_rule_count": 0,
       "no_signal_coverage_days": 242,
       "action_path_changed": false,

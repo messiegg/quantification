@@ -1,18 +1,18 @@
 {
-  "generated_at": "2026-05-05T12:24:08.092409+00:00",
-  "git_commit": "2d64f444960ceb631de8430a8f406b14d0703010",
+  "generated_at": "2026-05-06T04:09:48.756376+00:00",
+  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
   "branch": "codex/combined-v2-rc-release",
-  "config_hash": "8c13e12504fc46f862ba1c4b608474e5284c224bd65e6c202e6373add46fe28c",
+  "config_hash": "eb792e643251d38f424832c1aaba19a61841c3fff96cc5fd824ebdcda072010e",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
       "exists": true,
-      "sha256": "7957dae7b8671c0c19cad3712f02d642e684a8be3c445f73c8b32455543c7ccb"
+      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9"
     },
     {
       "path": "config/account.yml",
       "exists": true,
-      "sha256": "997c8fa175dc5562aaed18a944df6447ff67e92be222cecd35b60655025feb7f"
+      "sha256": "6482e45ec46ba0609ecf5fa9ca7069fe3a586a017843bf0947239e79728322fd"
     },
     {
       "path": "config/universe_rules_v2.yml",
@@ -45,13 +45,45 @@
       "sha256": "8d6cbd94c171648d0008defa11778c13ea3f4894415b220784f73c2a6329c851"
     }
   ],
-  "data_hash": "a09eaa5950a5129cd4f6eb5ef89ebb3937b6496ffe79934d97b42ac17f2a4fcd",
+  "data_hash": "4553718b5c57f153e3ceb378ec7446983974ca9e6b34b203d24924a9b21f6bb7",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,
   "auto_trading_approved": false,
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
+  "runtime_profile": {
+    "account_profile": "retail_50k_lot_aware",
+    "research_only": false,
+    "initial_capital": 50000.0,
+    "current_cash": 50000.0,
+    "latest_total_equity": 50000.0,
+    "min_trade_value": 1500.0,
+    "round_lot": 100,
+    "commission_rate": 0.0003,
+    "stamp_duty_rate_sell": 0.0005,
+    "slippage_bps": 5.0,
+    "universe_target_size": 36,
+    "universe_floor": 24,
+    "universe_selected_count": 30,
+    "portfolio_max_positions": 8,
+    "portfolio_equal_weight_target_positions": 8
+  },
+  "account_profile": "retail_50k_lot_aware",
+  "research_only": false,
+  "initial_capital": 50000.0,
+  "current_cash": 50000.0,
+  "latest_total_equity": 50000.0,
+  "min_trade_value": 1500.0,
+  "round_lot": 100,
+  "commission_rate": 0.0003,
+  "stamp_duty_rate_sell": 0.0005,
+  "slippage_bps": 5.0,
+  "universe_target_size": 36,
+  "universe_floor": 24,
+  "universe_selected_count": 30,
+  "portfolio_max_positions": 8,
+  "portfolio_equal_weight_target_positions": 8,
   "status": "WARN",
   "baseline_source": "documented_dianjinshu_like_baseline",
   "strict_external_original_reproduction": false,

@@ -5,6 +5,21 @@
 - target_size: 36
 - floor_size: 24
 - selected_count: 30
+
+## runtime profile
+
+- account_profile: retail_50k_lot_aware
+- initial_capital: 50000.0
+- min_trade_value: 1500.0
+- round_lot: 100
+- universe_target_size: 36
+- universe_floor: 24
+- universe_selected_count: 30
+- portfolio_max_positions: 8
+- portfolio_equal_weight_target_positions: 8
+
+## shortfall
+
 - shortfall_to_target: 6
 - candidate_pool_raw_count: 5151
 - candidate_pool_count: 72

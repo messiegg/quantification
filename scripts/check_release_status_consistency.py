@@ -71,10 +71,13 @@ def _latest_project_status_doc() -> str | None:
 
 def _expected_status() -> tuple[str, list[dict[str, Any]]]:
     reasons: list[dict[str, Any]] = []
-    manifest = _read_json(MANIFEST_JSON)
-    audit_statuses = {k: str(v).upper() for k, v in (manifest.get("audit_statuses") or {}).items()}
-    if "FAIL" in audit_statuses.values():
-        reasons.append({"code": "CORE_AUDIT_FAIL", "actual": audit_statuses})
+    current_audits = {
+        "config_consistency": _read_json("reports/audit/config_consistency.json"),
+        "data_freshness": _read_json("reports/audit/data_freshness.json"),
+    }
+    failed_current = {key: value.get("status") for key, value in current_audits.items() if str(value.get("status", "")).upper() == "FAIL"}
+    if failed_current:
+        reasons.append({"code": "CORE_AUDIT_FAIL", "actual": failed_current})
         return "FAIL", reasons
 
     universe = _read_json("reports/audit/universe_integrity.json")
@@ -87,6 +90,15 @@ def _expected_status() -> tuple[str, list[dict[str, Any]]]:
     for warning in account.get("warnings", []) or []:
         if warning.get("code") == "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION":
             reasons.append({"code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION", "actual": warning.get("actual")})
+
+    comparison = _read_json("reports/backtest/account_profiles/account_profile_comparison.json")
+    retail = next((item for item in comparison.get("profiles", []) or [] if item.get("profile") == "actual_50k_retail"), {})
+    retail_ratio = retail.get("executable_raw_buy_ratio")
+    if comparison and str(comparison.get("status", "")).upper() == "FAIL":
+        reasons.append({"code": "ACCOUNT_PROFILE_COMPARISON_FAIL", "actual": comparison.get("status")})
+        return "FAIL", reasons
+    if retail_ratio is not None and float(retail_ratio) < 0.25:
+        reasons.append({"code": "RETAIL_50K_EXECUTION_RATIO_BELOW_25", "actual": retail_ratio})
 
     sensitivity = _read_json("reports/backtest/robustness/sensitivity_report.json")
     non_binding = sensitivity.get("non_binding_parameters") or []

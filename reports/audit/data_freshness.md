@@ -1,9 +1,9 @@
 # data freshness audit
 
 - status: PASS
-- checked_at: 2026-05-05T12:45:58.606613+00:00
-- git_commit: 2d64f444960ceb631de8430a8f406b14d0703010
-- config_hash: 737f7484fbffc7d8084cd990831e73048187ea298be039a784f0a2550145d8d2
+- checked_at: 2026-05-06T07:49:50.497628+00:00
+- git_commit: c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad
+- config_hash: 77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7
 - requested_date: 2026-05-04
 - target_trade_date: 2026-04-30
 - market_data_asof: 2026-04-30

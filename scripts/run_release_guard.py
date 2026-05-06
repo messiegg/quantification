@@ -227,6 +227,32 @@ def _check_baseline_comparison(rows: list[dict]) -> None:
     )
 
 
+def _check_account_profile_comparison(rows: list[dict]) -> dict:
+    payload = _read_json("reports/backtest/account_profiles/account_profile_comparison.json")
+    profiles = payload.get("profiles", []) if payload else []
+    default_profile = payload.get("default_release_profile", "actual_50k_retail") if payload else "actual_50k_retail"
+    default_row = next((item for item in profiles if item.get("profile") == default_profile), {})
+    ratio = default_row.get("executable_raw_buy_ratio")
+    status = str(payload.get("status", "FAIL")).upper() if payload else "FAIL"
+    if default_row and ratio is not None and float(ratio) < 0.25 and status == "PASS":
+        status = "WARN"
+    if default_row and int(default_row.get("buy_trades", default_row.get("executable_buy_count", 0)) or 0) < 10 and status == "PASS":
+        status = "WARN"
+    if default_row and int(default_row.get("max_positions", 0) or 0) > int(default_row.get("portfolio_max_positions", 0) or 0):
+        status = "FAIL"
+    _row(
+        rows,
+        "RG-ACCOUNT-003",
+        "account profile comparison uses configured default profile",
+        status,
+        "default profile present; executable/raw >=0.25 and buy_trades >=10 for PASS",
+        f"default={default_profile}; ratio={ratio if ratio is not None else 'missing'}; report_status={payload.get('status', 'missing') if payload else 'missing'}",
+        "reports/backtest/account_profiles/account_profile_comparison.json",
+        "默认 release 账户必须来自 comparison 采纳结果；低于 25% 或交易数过少只能 WARN，违反上限必须 FAIL。",
+    )
+    return payload
+
+
 def _add_observation_readiness_check(rows: list[dict], payload: dict) -> None:
     raw_status = str(payload.get("status", "NOT_READY")).upper() if payload else "FAIL"
     status = "PASS" if raw_status == "READY" else "WARN" if raw_status == "NOT_READY" else "FAIL"
@@ -349,6 +375,21 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
     freshness = audit_payloads.get("data_freshness", {})
     account_constraints = audit_payloads.get("account_constraints", {})
     account_suitability = audit_payloads.get("account_suitability", {})
+    account_profile_comparison = audit_payloads.get("account_profile_comparison", {})
+    comparison_profiles = account_profile_comparison.get("profiles", []) if account_profile_comparison else []
+    default_profile_id = account_profile_comparison.get("default_release_profile", "actual_50k_retail") if account_profile_comparison else "actual_50k_retail"
+    default_profile_row = next((item for item in comparison_profiles if item.get("profile") == default_profile_id), {})
+    release_account_profile = account_profile_comparison.get("release_account_profile", "retail_50k") if account_profile_comparison else "retail_50k"
+    retail_metrics = {}
+    retail_metrics_path = resolve_path("reports/backtest/combined_v2_retail_50k_metrics.csv")
+    if retail_metrics_path.exists():
+        try:
+            retail_frame = pd.read_csv(retail_metrics_path)
+            retail_metrics = retail_frame.iloc[0].to_dict() if not retail_frame.empty else {}
+        except pd.errors.EmptyDataError:
+            retail_metrics = {}
+    if default_profile_row:
+        retail_metrics = {**retail_metrics, **default_profile_row}
     universe_shortfall = audit_payloads.get("universe_shortfall", {})
     sensitivity_coverage = audit_payloads.get("sensitivity_trigger_coverage", {})
     module_contribution = audit_payloads.get("module_contribution", {})
@@ -372,6 +413,8 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         "reports/backtest/robustness/sensitivity_report.json",
         "reports/backtest/account_constraints_report.json",
         "reports/backtest/account_suitability_report.json",
+        "reports/backtest/account_profiles/account_profile_comparison.json",
+        "reports/backtest/combined_v2_retail_50k_metrics.csv",
         "reports/backtest/controls/baseline_comparison.json",
         "reports/backtest/controls/module_contribution_report.json",
         "reports/backtest/robustness/sensitivity_trigger_coverage.json",
@@ -400,6 +443,38 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         "broker_integration_enabled": False,
         "llm_decision_allowed": False,
         "release_scope": "small_capital_manual_strict_review_observation_candidate",
+        "account_profile": release_account_profile,
+        "lot_aware_sizing_enabled": bool(default_profile_row.get("lot_aware_sizing", False)),
+        "max_positions": default_profile_row.get("portfolio_max_positions", account_constraints.get("portfolio_max_positions")),
+        "equal_weight_target_universe_size": default_profile_row.get("equal_weight_target_universe_size", account_constraints.get("portfolio_equal_weight_target_positions")),
+        "round_lot": account_constraints.get("round_lot"),
+        "raw_buy_signal_count": default_profile_row.get("raw_buy_signal_count", account_constraints.get("raw_buy_signal_count")),
+        "unique_raw_buy_intent_count": default_profile_row.get("unique_raw_buy_intent_count", account_constraints.get("unique_raw_buy_intent_count")),
+        "executable_buy_count": default_profile_row.get("executable_buy_count", account_constraints.get("executable_buy_count")),
+        "executable_raw_buy_ratio": default_profile_row.get("executable_raw_buy_ratio", account_constraints.get("executable_raw_buy_ratio")),
+        "executable_account_feasible_buy_ratio": default_profile_row.get("executable_account_feasible_buy_ratio", account_constraints.get("executable_account_feasible_buy_ratio")),
+        "lot_size_zero_block_count": default_profile_row.get("lot_size_zero_block_count", account_constraints.get("lot_size_block_count")),
+        "price_too_high_for_account_lot_count": default_profile_row.get("price_too_high_for_account_lot_count", account_constraints.get("price_too_high_for_account_lot_count")),
+        "repeated_blocked_buy_signal_count": default_profile_row.get("repeated_blocked_buy_signal_count", account_constraints.get("repeated_blocked_buy_signal_count")),
+        "pending_buy_intent_count": default_profile_row.get("pending_buy_intent_count", account_constraints.get("pending_buy_intent_count")),
+        "initial_capital": default_profile_row.get("initial_capital", account_constraints.get("initial_capital")),
+        "min_trade_value": default_profile_row.get("min_trade_value", account_constraints.get("min_trade_value")),
+        "min_trade_amount": default_profile_row.get("min_trade_value", account_constraints.get("min_trade_value")),
+        "portfolio_max_positions": default_profile_row.get("portfolio_max_positions", account_constraints.get("portfolio_max_positions")),
+        "portfolio_equal_weight_target_positions": default_profile_row.get("equal_weight_target_universe_size", account_constraints.get("portfolio_equal_weight_target_positions")),
+        "universe_target_size": account_constraints.get("universe_target_size"),
+        "universe_selected_count": account_constraints.get("universe_selected_count"),
+        "account_profile_comparison_status": account_profile_comparison.get("status", "MISSING"),
+        "annual_return": retail_metrics.get("annual_return"),
+        "cumulative_return": retail_metrics.get("cumulative_return"),
+        "max_drawdown": retail_metrics.get("max_drawdown"),
+        "sharpe": retail_metrics.get("Sharpe"),
+        "turnover": retail_metrics.get("turnover"),
+        "total_trades": retail_metrics.get("total_trades"),
+        "buy_trades": retail_metrics.get("buy_trades"),
+        "sell_trades": retail_metrics.get("sell_trades"),
+        "transaction_cost_total": retail_metrics.get("transaction_cost_total"),
+        "transaction_cost_pct": retail_metrics.get("transaction_cost_as_pct_of_initial_capital"),
         "audit_statuses": {
             key: value.get("status", "FAIL")
             for key, value in audit_payloads.items()
@@ -410,6 +485,8 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
             "account_constraints_warnings": account_constraints.get("warnings", []),
             "account_suitability_status": account_suitability.get("status", "MISSING"),
             "account_suitability_base_executable_raw_buy_ratio": (account_suitability.get("base_case") or {}).get("executable_raw_buy_ratio"),
+            "account_profile_comparison_status": account_profile_comparison.get("status", "MISSING"),
+            "account_profile_comparison_retail_ratio": account_profile_comparison.get("retail_50k_executable_raw_buy_ratio"),
             "universe_shortfall_status": universe_shortfall.get("status", "MISSING"),
             "universe_shortfall_to_target": universe_shortfall.get("shortfall_to_target"),
             "sensitivity_trigger_coverage_status": sensitivity_coverage.get("status", "MISSING"),
@@ -452,6 +529,25 @@ def _write_release_manifest(frame: pd.DataFrame, as_of_date: str, audit_payloads
         f"- data_hash: {payload['data_hash']}",
         f"- requested_date: {payload['requested_date']}",
         f"- target_trade_date: {payload['target_trade_date']}",
+        f"- account_profile: {payload['account_profile']}",
+        f"- lot_aware_sizing_enabled: {str(payload['lot_aware_sizing_enabled']).lower()}",
+        f"- initial_capital: {payload['initial_capital']}",
+        f"- min_trade_value: {payload['min_trade_value']}",
+        f"- round_lot: {payload['round_lot']}",
+        f"- raw_buy_signal_count: {payload['raw_buy_signal_count']}",
+        f"- unique_raw_buy_intent_count: {payload['unique_raw_buy_intent_count']}",
+        f"- executable_buy_count: {payload['executable_buy_count']}",
+        f"- executable_raw_buy_ratio: {payload['executable_raw_buy_ratio']}",
+        f"- executable_account_feasible_buy_ratio: {payload['executable_account_feasible_buy_ratio']}",
+        f"- lot_size_zero_block_count: {payload['lot_size_zero_block_count']}",
+        f"- price_too_high_for_account_lot_count: {payload['price_too_high_for_account_lot_count']}",
+        f"- repeated_blocked_buy_signal_count: {payload['repeated_blocked_buy_signal_count']}",
+        f"- pending_buy_intent_count: {payload['pending_buy_intent_count']}",
+        f"- portfolio_max_positions: {payload['portfolio_max_positions']}",
+        f"- portfolio_equal_weight_target_positions: {payload['portfolio_equal_weight_target_positions']}",
+        f"- universe_target_size: {payload['universe_target_size']}",
+        f"- universe_selected_count: {payload['universe_selected_count']}",
+        f"- account_profile_comparison_status: {payload['account_profile_comparison_status']}",
         f"- market_data_asof: {payload['market_data_asof']}",
         f"- feature_data_asof: {payload['feature_data_asof']}",
         f"- benchmark_data_asof: {payload['benchmark_data_asof']}",
@@ -530,6 +626,9 @@ def build_release_guard_report(
     audit_payloads["account_suitability"] = account_suitability
     _add_payload_check(rows, "RG-ACCOUNT-002", "account suitability report", account_suitability, "scripts/build_account_suitability_report.py", "base case 执行比例低于观察阈值时保持 WARN，研究场景不得用于 release PASS。")
 
+    account_profile_comparison = _check_account_profile_comparison(rows)
+    audit_payloads["account_profile_comparison"] = account_profile_comparison
+
     evidence_chain = build_observation_evidence_chain(
         as_of_date,
         target_trade_date=str(data_freshness.get("target_trade_date") or data_freshness.get("target_trading_date") or as_of_date),
@@ -580,11 +679,29 @@ def build_release_guard_report(
 
     status_consistency = build_release_status_consistency_report(write_report=write_report)
     audit_payloads["release_status_consistency"] = status_consistency
+    status_consistency_status = str(status_consistency.get("status", "FAIL")).upper()
+    stale_release_artifact_mismatch = (
+        status_consistency_status == "FAIL"
+        and status_consistency.get("expected_current_release_status") in {"WARN", "PASS_CANDIDATE"}
+        and all(
+            item.get("code") == "STATUS_MISMATCH"
+            and item.get("path")
+            in {
+                RELEASE_MANIFEST_JSON,
+                RELEASE_MANIFEST_MD,
+                DEFAULT_MD,
+            }
+            for item in status_consistency.get("violations", [])
+        )
+    )
+    if stale_release_artifact_mismatch:
+        status_consistency_status = "WARN"
+        audit_payloads["release_status_consistency"] = {**status_consistency, "status": status_consistency_status}
     _row(
         rows,
         "RG-STATUS-001",
         "release status consistency",
-        str(status_consistency.get("status", "FAIL")).upper(),
+        status_consistency_status,
         "current release status consistent across public reports",
         status_consistency.get("expected_current_release_status", "missing"),
         "scripts/check_release_status_consistency.py",

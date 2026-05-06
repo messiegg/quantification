@@ -1,12 +1,14 @@
 mode: live_manual
+account_profile: retail_50k_lot_aware
+research_only: false
 base_currency: CNY
 as_of_date: 2026-04-30
 
 account:
-  initial_capital: 200000
+  initial_capital: 50000
   current_cash: 50000
   reserved_cash: 0
-  latest_total_equity: 200000
+  latest_total_equity: 50000
 
 execution:
   commission_rate: 0.0003
@@ -21,4 +23,4 @@ position_sizing:
     2: 0.06
     3: 0.09
   max_single_stock_weight: 0.12
-  min_trade_value: 5000
+  min_trade_value: 1500

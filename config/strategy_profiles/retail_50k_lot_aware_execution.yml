@@ -1,0 +1,17 @@
+profile_name: retail_50k_lot_aware_execution
+research_only: true
+candidate_default: true
+
+execution:
+  min_trade_value: 1500
+  round_lot: 100
+  commission_rate: 0.0003
+  stamp_duty_rate_sell: 0.0005
+  slippage_bps: 5
+  max_positions: 8
+  equal_weight_target_universe_size: 8
+  max_new_positions_per_day: 1
+  max_adds_per_day: 2
+  lot_aware_sizing: true
+  pending_add_state: true
+  duplicate_blocked_signal_suppression: true

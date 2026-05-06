@@ -18,6 +18,9 @@ def _v2_configs(configs: dict) -> tuple[dict, dict, dict]:
     account_cfg["account"]["latest_total_equity"] = 200000
     account_cfg["execution"]["round_lot"] = 1
     account_cfg["position_sizing"]["min_trade_value"] = 0
+    strategy_cfg["execution"]["lot_aware_sizing"] = False
+    strategy_cfg["execution"]["pending_add_state"] = False
+    strategy_cfg["execution"]["duplicate_blocked_signal_suppression"] = False
     return strategy_cfg, universe_rules_cfg, account_cfg
 
 

@@ -27,16 +27,30 @@ DAILY_FUNNEL_COLUMNS = [
     "passed_quality_filter_count",
     "passed_price_trigger_count",
     "raw_buy_signal_count",
+    "unique_raw_buy_intent_count",
+    "repeated_blocked_buy_signal_count",
     "raw_sell_signal_count",
+    "account_feasible_buy_signal_count",
+    "user_visible_buy_recommendation_count",
+    "user_visible_blocked_buy_count",
+    "pending_buy_intent_count",
     "blocked_by_universe_count",
     "blocked_by_market_regime_count",
     "blocked_by_cash_count",
+    "blocked_by_cash_one_lot_count",
     "blocked_by_position_limit_count",
     "blocked_by_single_name_limit_count",
     "blocked_by_min_trade_amount_count",
     "blocked_by_lot_size_count",
+    "blocked_by_price_too_high_for_account_lot_count",
+    "blocked_by_price_too_high_for_remaining_capacity_count",
+    "blocked_by_lot_size_accumulation_required_count",
     "blocked_by_existing_position_count",
     "blocked_by_hard_add_ban_count",
+    "blocked_by_max_positions_count",
+    "blocked_by_daily_new_position_count",
+    "blocked_by_daily_add_count",
+    "blocked_by_unknown_count",
     "executable_buy_count",
     "executable_sell_count",
     "executed_buy_count",
@@ -61,6 +75,18 @@ BLOCKED_COLUMNS = [
     "valuation_fallback_reason",
     "reason_code",
     "reason_detail",
+    "lot_notional",
+    "minimum_lot_order_value",
+    "max_single_position_value",
+    "remaining_single_name_capacity",
+    "execution_eligible_for_new_buy",
+    "execution_ineligible_reason",
+    "pending_add_state",
+    "pending_reason",
+    "pending_until_condition",
+    "repeated_blocked_signal_suppressed",
+    "user_visible_action",
+    "rule_path",
 ]
 
 TRADES_DETAILED_COLUMNS = [
@@ -270,10 +296,14 @@ def build_universe_funnel(
 
 def _monthly_counts(daily: pd.DataFrame) -> pd.DataFrame:
     if daily.empty:
-        return pd.DataFrame(columns=["month", "raw_buy_signal_count", "executable_buy_count", "executed_buy_count"])
+        return pd.DataFrame(columns=["month", "raw_buy_signal_count", "account_feasible_buy_signal_count", "executable_buy_count", "executed_buy_count"])
     frame = daily.copy()
     frame["month"] = pd.to_datetime(frame["date"]).dt.strftime("%Y-%m")
-    return frame.groupby("month", as_index=False)[["raw_buy_signal_count", "executable_buy_count", "executed_buy_count"]].sum()
+    columns = ["raw_buy_signal_count", "account_feasible_buy_signal_count", "executable_buy_count", "executed_buy_count"]
+    for column in columns:
+        if column not in frame.columns:
+            frame[column] = 0
+    return frame.groupby("month", as_index=False)[columns].sum()
 
 
 def write_diagnostic_outputs(
@@ -357,10 +387,28 @@ def _render_diagnostic_report(
         "",
     ]
     if not daily.empty:
-        totals = daily[["raw_buy_signal_count", "executable_buy_count", "executed_buy_count", "blocked_by_market_regime_count", "blocked_by_cash_count", "blocked_by_min_trade_amount_count", "blocked_by_lot_size_count", "blocked_by_position_limit_count"]].sum()
+        needed = [
+            "raw_buy_signal_count",
+            "account_feasible_buy_signal_count",
+            "executable_buy_count",
+            "executed_buy_count",
+            "blocked_by_market_regime_count",
+            "blocked_by_cash_count",
+            "blocked_by_min_trade_amount_count",
+            "blocked_by_lot_size_count",
+            "blocked_by_position_limit_count",
+            "blocked_by_max_positions_count",
+            "blocked_by_daily_new_position_count",
+            "blocked_by_daily_add_count",
+        ]
+        for column in needed:
+            if column not in daily.columns:
+                daily[column] = 0
+        totals = daily[needed].sum()
         lines.extend(
             [
                 f"- 原始买入信号合计: {int(totals['raw_buy_signal_count'])}",
+                f"- 账户初筛可行买入信号合计: {int(totals['account_feasible_buy_signal_count'])}",
                 f"- 可执行买入信号合计: {int(totals['executable_buy_count'])}",
                 f"- 实际买入成交合计: {int(totals['executed_buy_count'])}",
                 f"- 市场状态阻断: {int(totals['blocked_by_market_regime_count'])}",
@@ -368,6 +416,9 @@ def _render_diagnostic_report(
                 f"- 最小交易额阻断: {int(totals['blocked_by_min_trade_amount_count'])}",
                 f"- 整手阻断: {int(totals['blocked_by_lot_size_count'])}",
                 f"- 总仓位/每日数量限制阻断: {int(totals['blocked_by_position_limit_count'])}",
+                f"- 最大持仓数阻断: {int(totals['blocked_by_max_positions_count'])}",
+                f"- 每日新开仓限制阻断: {int(totals['blocked_by_daily_new_position_count'])}",
+                f"- 每日加仓限制阻断: {int(totals['blocked_by_daily_add_count'])}",
             ]
         )
         avg_universe = float(universe["effective_universe_size"].mean()) if not universe.empty else 0.0
@@ -405,7 +456,7 @@ def _render_diagnostic_report(
     if not monthly_buy.empty:
         for row in monthly_buy.to_dict(orient="records"):
             lines.append(
-                f"- {row['month']}: raw_buy={int(row['raw_buy_signal_count'])}, executable_buy={int(row['executable_buy_count'])}, executed_buy={int(row['executed_buy_count'])}"
+                f"- {row['month']}: raw_buy={int(row['raw_buy_signal_count'])}, account_feasible={int(row['account_feasible_buy_signal_count'])}, executable_buy={int(row['executable_buy_count'])}, executed_buy={int(row['executed_buy_count'])}"
             )
     else:
         lines.append("- 无买入信号记录。")

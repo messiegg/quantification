@@ -13,7 +13,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.build_account_constraints_report import build_account_constraints_report
-from scripts.report_metadata import metadata_header, write_json
+from scripts.report_metadata import metadata_header, runtime_profile_lines, runtime_profile_metadata, write_json
 from src.utils.config import load_yaml, resolve_path
 
 
@@ -87,12 +87,26 @@ def _scenario_rows(
 def build_account_suitability_report(
     *,
     account_config: str = "config/account.yml",
+    strategy_config: str = "config/strategy_v2.yml",
+    universe_rules_config: str = "config/universe_rules_v2.yml",
+    signal_funnel_path: str = "reports/backtest/combined_v2_signal_funnel.csv",
     blocked_signals_path: str = "reports/backtest/combined_v2_blocked_signals.csv",
+    trades_path: str = "reports/backtest/combined_v2_trades_detailed.csv",
+    output_json: str = OUT_JSON,
+    output_md: str = OUT_MD,
     write_report: bool = True,
 ) -> dict[str, Any]:
     account = load_yaml(account_config)
-    strategy = load_yaml("config/strategy_v2.yml")
-    base_report = build_account_constraints_report(write_report=False)
+    strategy = load_yaml(strategy_config)
+    base_report = build_account_constraints_report(
+        signal_funnel_path=signal_funnel_path,
+        blocked_signals_path=blocked_signals_path,
+        trades_path=trades_path,
+        account_config=account_config,
+        strategy_config=strategy_config,
+        universe_rules_config=universe_rules_config,
+        write_report=False,
+    )
     blocked = _read_csv(blocked_signals_path)
     account_cfg = account.get("account", {}) or {}
     execution_cfg = account.get("execution", {}) or {}
@@ -100,6 +114,7 @@ def build_account_suitability_report(
     initial_capital = _safe_float(account_cfg.get("initial_capital"))
     min_trade_amount = _safe_float(sizing_cfg.get("min_trade_value"))
     raw_buy = int(base_report.get("raw_buy_signal_count", 0) or 0)
+    account_feasible_buy = int(base_report.get("account_feasible_buy_signal_count", 0) or 0)
     executable_buy = int(base_report.get("executable_buy_count", 0) or 0)
     buy_ratio = base_report.get("executable_raw_buy_ratio")
     blocker_counts = base_report.get("blocker_counts", {}) or {}
@@ -138,8 +153,15 @@ def build_account_suitability_report(
                 "actual": min_trade_blocks / raw_buy,
             }
         )
+    profile_meta = runtime_profile_metadata(
+        account_config=account_config,
+        strategy_config=strategy_config,
+        universe_rules_config=universe_rules_config,
+    )
     payload = {
-        **metadata_header(extra_config_paths=[account_config]),
+        **metadata_header(extra_config_paths=[account_config, strategy_config, universe_rules_config]),
+        **profile_meta,
+        "runtime_profile": profile_meta,
         "status": "WARN" if warnings else "PASS",
         "base_case": {
             "research_only": False,
@@ -153,13 +175,23 @@ def build_account_suitability_report(
             "max_position_weight": sizing_cfg.get("max_single_stock_weight"),
             "max_total_exposure": None,
             "raw_buy_signal_count": raw_buy,
+            "unique_raw_buy_intent_count": base_report.get("unique_raw_buy_intent_count"),
+            "repeated_blocked_buy_signal_count": base_report.get("repeated_blocked_buy_signal_count"),
+            "account_feasible_buy_signal_count": account_feasible_buy,
             "executable_buy_count": executable_buy,
             "executable_raw_buy_ratio": buy_ratio,
+            "executable_account_feasible_buy_ratio": base_report.get("executable_account_feasible_buy_ratio"),
+            "user_visible_buy_recommendation_count": base_report.get("user_visible_buy_recommendation_count"),
+            "user_visible_blocked_buy_count": base_report.get("user_visible_blocked_buy_count"),
+            "pending_buy_intent_count": base_report.get("pending_buy_intent_count"),
             "blocker_counts": blocker_counts,
             "min_trade_amount_block_ratio": min_trade_blocks / raw_buy if raw_buy else None,
             "cash_block_ratio": int(base_report.get("cash_block_count", 0) or 0) / raw_buy if raw_buy else None,
             "exposure_block_ratio": int(base_report.get("exposure_block_count", 0) or 0) / raw_buy if raw_buy else None,
+            "max_positions_block_ratio": int(base_report.get("max_positions_block_count", 0) or 0) / raw_buy if raw_buy else None,
             "lot_size_block_ratio": int(base_report.get("lot_size_block_count", 0) or 0) / raw_buy if raw_buy else None,
+            "price_too_high_for_account_lot_ratio": int(base_report.get("price_too_high_for_account_lot_count", 0) or 0) / raw_buy if raw_buy else None,
+            "cash_insufficient_for_one_lot_ratio": int(base_report.get("cash_one_lot_block_count", 0) or 0) / raw_buy if raw_buy else None,
             "avg_positions": None,
             "max_positions": current_max_positions,
             "avg_exposure": base_report.get("average_exposure"),
@@ -176,26 +208,40 @@ def build_account_suitability_report(
         ],
         "warnings": warnings,
         "violations": [],
-        "source_files": [blocked_signals_path, "reports/backtest/account_constraints_report.json", account_config],
+        "source_files": [blocked_signals_path, signal_funnel_path, trades_path, account_config, strategy_config],
     }
     if write_report:
-        write_json(OUT_JSON, payload)
-        _write_md(payload)
+        write_json(output_json, payload)
+        _write_md(payload, output_md)
     return payload
 
 
-def _write_md(payload: dict[str, Any]) -> None:
+def _write_md(payload: dict[str, Any], path_like: str | Path = OUT_MD) -> None:
     base = payload["base_case"]
     lines = [
         "# account suitability report",
         "",
         f"- status: {payload['status']}",
         f"- generated_at: {payload['generated_at']}",
+        "",
+        "## runtime profile",
+        "",
+        *runtime_profile_lines(payload),
+        "",
+        "## base case",
+        "",
         f"- initial_capital: {base['initial_capital']}",
         f"- min_trade_amount: {base['min_trade_amount']}",
         f"- raw_buy_signal_count: {base['raw_buy_signal_count']}",
+        f"- unique_raw_buy_intent_count: {base.get('unique_raw_buy_intent_count')}",
+        f"- repeated_blocked_buy_signal_count: {base.get('repeated_blocked_buy_signal_count')}",
+        f"- account_feasible_buy_signal_count: {base['account_feasible_buy_signal_count']}",
         f"- executable_buy_count: {base['executable_buy_count']}",
         f"- executable_raw_buy_ratio: {base['executable_raw_buy_ratio']}",
+        f"- executable_account_feasible_buy_ratio: {base['executable_account_feasible_buy_ratio']}",
+        f"- user_visible_buy_recommendation_count: {base.get('user_visible_buy_recommendation_count')}",
+        f"- user_visible_blocked_buy_count: {base.get('user_visible_blocked_buy_count')}",
+        f"- pending_buy_intent_count: {base.get('pending_buy_intent_count')}",
         f"- estimated_capital_required_to_reach_executable_raw_25: {payload['estimated_capital_required_to_reach_executable_raw_25']}",
         f"- estimated_capital_required_to_reach_executable_raw_50: {payload['estimated_capital_required_to_reach_executable_raw_50']}",
         "",
@@ -204,7 +250,10 @@ def _write_md(payload: dict[str, Any]) -> None:
         f"- min_trade_amount_block_ratio: {base['min_trade_amount_block_ratio']}",
         f"- cash_block_ratio: {base['cash_block_ratio']}",
         f"- exposure_block_ratio: {base['exposure_block_ratio']}",
+        f"- max_positions_block_ratio: {base['max_positions_block_ratio']}",
         f"- lot_size_block_ratio: {base['lot_size_block_ratio']}",
+        f"- price_too_high_for_account_lot_ratio: {base.get('price_too_high_for_account_lot_ratio')}",
+        f"- cash_insufficient_for_one_lot_ratio: {base.get('cash_insufficient_for_one_lot_ratio')}",
         "",
         "## scenario notes",
         "",
@@ -218,7 +267,7 @@ def _write_md(payload: dict[str, Any]) -> None:
     lines.extend([f"- {item}" for item in payload["missing_data_for_exact_capital_estimate"]])
     lines.extend(["", "## warnings", ""])
     lines.extend([f"- {item['code']}: actual={item.get('actual')}" for item in payload["warnings"]] or ["- none"])
-    resolve_path(OUT_MD).write_text("\n".join(lines) + "\n", encoding="utf-8")
+    resolve_path(path_like).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
 def main() -> int:
