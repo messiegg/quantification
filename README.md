@@ -66,10 +66,15 @@
 - 日常执行读取 `current_cash`、`reserved_cash`、`latest_total_equity`，因为现实账户的可买金额取决于当前现金和当前总权益，而不是历史初始资金。
 - `target_position_tranches -> target_weight` 的映射由 `config/account.yml -> position_sizing.tranche_weights` 决定。
 - `combined_v2` 的 universe target 仍是 36，只代表候选股票池目标；小账户组合执行层的最大持仓数是 8，不能把它当作 universe target 下调。
+- `action_enum` 继续保持向后兼容；执行层会额外输出 `strategy_intent`、`execution_status`、`execution_reason`，避免把策略买入意图和账户暂不可执行混在一个字段里。
+- `strategy_intent` 表示 Python 策略和风控规则完成之后、账户执行约束应用之前的动作意图；有效 `BUY_1 / BUY_2 / BUY_3` 即使今天不执行也会被保留。
+- `execution_status` 区分 `EXECUTABLE / WATCH / PENDING / BLOCKED / NO_ACTION`：`WATCH` 是组合选择、持仓槽位、行业集中、compact rank 或日内节奏导致今天不执行；`PENDING` 是现金、整手、目标缺口累计或单票剩余额度暂时不足；`BLOCKED` 只用于策略/风控明确禁止或一手金额超过账户单票上限等结构性不可执行。
+- `retail_50k_lot_aware` 的 NEW_BUY 由组合级 allocator 在 8 个持仓上限内选择订单，而不是把所有未入选买入意图直接改写为 `BLOCKED`。
 - `retail_50k_lot_aware` 的 NEW_BUY 会先检查一手名义金额、现金、最小成交额和单票上限；只要一手不超过单票上限且现金足够，就允许把目标订单抬到至少一手。
-- ADD 不会为了凑整手突破单票上限；若目标缺口、现金或剩余单票容量暂时不足一手，会输出 `HOLD_WITH_PENDING_ADD`，并保留 pending 条件供人工观察。
+- ADD 不会为了凑整手突破单票上限；若目标缺口、现金或剩余单票容量暂时不足一手，会输出 `PENDING` 和 `HOLD_WITH_PENDING_ADD`，并保留 pending 条件供人工观察。
+- `WATCH` / `PENDING` 不进入 `user_visible_action=true` 的人工执行清单，但会保留 `unblock_hint`，说明等待持仓退出、排名进入 compact 候选、现金补足或目标缺口累计等条件。
 - orders 会显式输出 `target_shares`、`delta_shares`、`rounded_lots`、`estimated_turnover`、`estimated_commission`、`estimated_stamp_duty`、`estimated_total_cash_impact`、`target_price_reference`。
-- 若整手约束、最小成交额、一手过贵或现金不足导致不可执行，`action_enum` 会改为 `BLOCKED`，并写入 `blocked_reason`；重复阻断仍计入 raw blocker，但每日人工清单会用 `user_visible_action=false` 去重。
+- 若一手过贵导致结构性不可执行，`action_enum` 会改为 `BLOCKED`，并写入 `blocked_reason`；现金暂时不足或加仓缺口未累计到一手不再污染 `BLOCKED` 统计。
 - 若缺少 `account.yml` 或关键字段缺失，系统仍输出 `action_enum`，但 orders 会进入 degraded mode：
   - 不输出精确 `target_order_value`
   - 报告显式提示“仅有方向性建议，未完成金额约束”
@@ -92,6 +97,9 @@
 
 每日 orders 至少包含：
 
+- `strategy_intent`
+- `execution_status`
+- `execution_reason`
 - 当前/目标 tranche
 - 当前/目标权重
 - 目标仓位变化
@@ -99,6 +107,7 @@
 - `target_order_value`
 - `priority_score`
 - `blocked_reason`
+- `unblock_hint`
 - `reason_codes`
 - `risk_flags`
 

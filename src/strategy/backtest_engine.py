@@ -718,6 +718,21 @@ class BacktestEngine:
             "CASH_INSUFFICIENT_FOR_ONE_LOT": "CASH_INSUFFICIENT_FOR_ONE_LOT",
             "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY": "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
             "LOT_SIZE_ACCUMULATION_REQUIRED": "LOT_SIZE_ACCUMULATION_REQUIRED",
+            "WATCH_PORTFOLIO_FULL": "MAX_POSITIONS_LIMIT",
+            "WATCH_COMPACT_RANK_OUT": "WATCH_COMPACT_RANK_OUT",
+            "WATCH_DAILY_NEW_LIMIT": "DAILY_NEW_POSITION_LIMIT",
+            "WATCH_DAILY_ADD_LIMIT": "DAILY_ADD_LIMIT",
+            "WATCH_INDUSTRY_CONCENTRATION": "WATCH_INDUSTRY_CONCENTRATION",
+            "WATCH_REPLACEMENT_NOT_WORTH_IT": "WATCH_REPLACEMENT_NOT_WORTH_IT",
+            "PENDING_CASH_INSUFFICIENT_FOR_ONE_LOT": "CASH_INSUFFICIENT_FOR_ONE_LOT",
+            "PENDING_CASH_RESERVED": "CASH_RESERVED",
+            "PENDING_LOT_ACCUMULATION_REQUIRED": "LOT_SIZE_ACCUMULATION_REQUIRED",
+            "PENDING_SINGLE_NAME_CAPACITY": "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
+            "BLOCK_PRICE_TOO_HIGH_FOR_ACCOUNT_LOT": "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+            "BLOCK_MISSING_FILL_PRICE": "MISSING_REQUIRED_FIELD",
+            "BLOCK_MIN_TRADE_VALUE": "MIN_TRADE_AMOUNT",
+            "BLOCK_LOT_SIZE_ZERO": "LOT_SIZE_ZERO",
+            "BLOCK_INVALID_INPUT": "UNKNOWN",
             "HOLD_WITH_PENDING_ADD": "HOLD_WITH_PENDING_ADD",
             "VALUATION_QUANTILE_MISSING": "VALUATION_QUANTILE_MISSING",
             "INDUSTRY_VALUATION_QUANTILE_MISSING": "INDUSTRY_VALUATION_QUANTILE_MISSING",
@@ -748,6 +763,10 @@ class BacktestEngine:
             "CASH_INSUFFICIENT_FOR_ONE_LOT",
             "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
             "LOT_SIZE_ACCUMULATION_REQUIRED",
+            "WATCH_COMPACT_RANK_OUT",
+            "WATCH_INDUSTRY_CONCENTRATION",
+            "WATCH_REPLACEMENT_NOT_WORTH_IT",
+            "CASH_RESERVED",
             "HOLD_WITH_PENDING_ADD",
             "UNKNOWN",
         } else "UNKNOWN")
@@ -760,9 +779,13 @@ class BacktestEngine:
     ) -> None:
         rule_path = "hard_filter -> bucket -> valuation -> market_state -> grid -> account_constraints"
         for decision in decisions:
-            intended = decision.get("intended_action_enum", decision.get("action_enum"))
+            intended = decision.get("strategy_intent", decision.get("intended_action_enum", decision.get("action_enum")))
             action = decision.get("action_enum")
             decision["rule_path"] = decision.get("rule_path") or rule_path
+            if decision.get("execution_status") in {"WATCH", "PENDING"}:
+                decision["user_visible_action"] = False
+                decision["repeated_blocked_signal_suppressed"] = False
+                continue
             decision["user_visible_action"] = bool(action in {"BUY_1", "BUY_2", "BUY_3", "REDUCE", "SELL_ALL"})
             decision["repeated_blocked_signal_suppressed"] = False
             if intended not in {"BUY_1", "BUY_2", "BUY_3"}:
@@ -823,10 +846,15 @@ class BacktestEngine:
         if decision_frame.empty:
             decision_frame = pd.DataFrame(columns=["action_enum", "intended_action_enum", "blocked_reason"])
         current_exposure = max(0.0, nav - cash_before) / max(nav, 1e-9)
-        intended = decision_frame.get("intended_action_enum", pd.Series(dtype=object)).fillna("")
+        intended = decision_frame.get("strategy_intent", decision_frame.get("intended_action_enum", pd.Series(dtype=object))).fillna("")
         actions = decision_frame.get("action_enum", pd.Series(dtype=object)).fillna("")
         blocked = decision_frame.get("blocked_reason", pd.Series(dtype=object))
-        reason_codes = blocked.map(self._stable_reason_code) if not blocked.empty else pd.Series(dtype=object)
+        execution_status = decision_frame.get("execution_status", pd.Series("", index=decision_frame.index)).fillna("")
+        execution_reason = decision_frame.get("execution_reason", pd.Series("", index=decision_frame.index)).fillna("")
+        reason_source = blocked.fillna("") if not blocked.empty else pd.Series("", index=decision_frame.index)
+        structural_execution_reason = execution_reason.where(execution_status.eq("BLOCKED"), "")
+        reason_source = reason_source.mask(reason_source.astype(str) == "", structural_execution_reason)
+        reason_codes = reason_source.map(self._stable_reason_code) if not reason_source.empty else pd.Series(dtype=object)
         raw_buy_mask = intended.isin(["BUY_1", "BUY_2", "BUY_3"])
         account_feasibility_blockers = {
             "MIN_TRADE_AMOUNT",
@@ -848,7 +876,10 @@ class BacktestEngine:
         executed_sell = sum(1 for item in executed_trades if item.get("action") in {"REDUCE", "SELL_ALL"})
         visible = decision_frame.get("user_visible_action", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
         repeated_suppressed = decision_frame.get("repeated_blocked_signal_suppressed", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
-        pending_add = decision_frame.get("pending_add_state", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
+        pending_add = (
+            decision_frame.get("pending_add_state", pd.Series(False, index=decision_frame.index)).fillna(False).astype(bool)
+            | decision_frame.get("execution_status", pd.Series("", index=decision_frame.index)).fillna("").eq("PENDING")
+        )
         is_a_share = todays["is_a_share"].astype(bool) if "is_a_share" in todays.columns else pd.Series(True, index=todays.index)
         is_st = todays["is_st"].astype(bool) if "is_st" in todays.columns else pd.Series(False, index=todays.index)
         industry = todays["industry"] if "industry" in todays.columns else pd.Series(pd.NA, index=todays.index)
@@ -916,6 +947,16 @@ class BacktestEngine:
             "blocked_by_daily_new_position_count": int((reason_codes == "DAILY_NEW_POSITION_LIMIT").sum()),
             "blocked_by_daily_add_count": int((reason_codes == "DAILY_ADD_LIMIT").sum()),
             "blocked_by_unknown_count": int((reason_codes == "UNKNOWN").sum()),
+            "execution_status_executable_count": int((execution_status == "EXECUTABLE").sum()),
+            "execution_status_watch_count": int((execution_status == "WATCH").sum()),
+            "execution_status_pending_count": int((execution_status == "PENDING").sum()),
+            "execution_status_blocked_count": int((execution_status == "BLOCKED").sum()),
+            "execution_status_no_action_count": int((execution_status == "NO_ACTION").sum()),
+            "execution_reason_watch_portfolio_full_count": int((execution_reason == "WATCH_PORTFOLIO_FULL").sum()),
+            "execution_reason_watch_compact_rank_out_count": int((execution_reason == "WATCH_COMPACT_RANK_OUT").sum()),
+            "execution_reason_pending_cash_one_lot_count": int((execution_reason == "PENDING_CASH_INSUFFICIENT_FOR_ONE_LOT").sum()),
+            "execution_reason_pending_lot_accumulation_required_count": int((execution_reason == "PENDING_LOT_ACCUMULATION_REQUIRED").sum()),
+            "execution_reason_block_price_too_high_for_account_lot_count": int((execution_reason == "BLOCK_PRICE_TOO_HIGH_FOR_ACCOUNT_LOT").sum()),
             "executable_buy_count": int(actions.isin(["BUY_1", "BUY_2", "BUY_3"]).sum()),
             "executable_sell_count": int(actions.isin(["REDUCE", "SELL_ALL"]).sum()),
             "executed_buy_count": int(executed_buy),
@@ -925,12 +966,13 @@ class BacktestEngine:
     def _blocked_signal_records(self, signal_date: str, decisions: list[dict]) -> list[dict]:
         records: list[dict] = []
         for decision in decisions:
-            intended_action = decision.get("intended_action_enum", decision.get("action_enum"))
+            intended_action = decision.get("strategy_intent", decision.get("intended_action_enum", decision.get("action_enum")))
             if intended_action not in {"BUY_1", "BUY_2", "BUY_3", "REDUCE", "SELL_ALL"}:
                 continue
-            if decision.get("action_enum") not in {"BLOCKED", "HOLD_WITH_PENDING_ADD"}:
+            execution_status = str(decision.get("execution_status") or "")
+            if decision.get("action_enum") not in {"BLOCKED", "HOLD_WITH_PENDING_ADD"} and execution_status not in {"WATCH", "PENDING", "BLOCKED"}:
                 continue
-            reason_code = self._stable_reason_code(decision.get("blocked_reason"))
+            reason_code = str(decision.get("execution_reason") or "") or self._stable_reason_code(decision.get("blocked_reason") or decision.get("pending_reason"))
             records.append(
                 {
                     "date": signal_date,
@@ -951,10 +993,25 @@ class BacktestEngine:
                     "valuation_fallback_reason": decision.get("valuation_fallback_reason", ""),
                     "reason_code": reason_code,
                     "reason_detail": decision.get("action_reason"),
+                    "strategy_intent": decision.get("strategy_intent"),
+                    "original_action_enum": decision.get("original_action_enum"),
+                    "execution_status": decision.get("execution_status"),
+                    "execution_reason": decision.get("execution_reason"),
+                    "execution_reason_detail": decision.get("execution_reason_detail"),
+                    "all_failed_checks": decision.get("all_failed_checks"),
+                    "unblock_hint": decision.get("unblock_hint"),
+                    "execution_action_type": decision.get("execution_action_type"),
                     "lot_notional": decision.get("lot_notional"),
                     "minimum_lot_order_value": decision.get("minimum_lot_order_value"),
                     "max_single_position_value": decision.get("max_single_position_value"),
                     "remaining_single_name_capacity": decision.get("remaining_single_name_capacity"),
+                    "compact_rank": decision.get("compact_rank"),
+                    "replacement_candidate_symbol": decision.get("replacement_candidate_symbol"),
+                    "replacement_required": decision.get("replacement_required"),
+                    "pending_add_value": decision.get("pending_add_value"),
+                    "required_lot_notional": decision.get("required_lot_notional"),
+                    "required_cash": decision.get("required_cash"),
+                    "required_capacity": decision.get("required_capacity"),
                     "execution_eligible_for_new_buy": decision.get("execution_eligible_for_new_buy", False),
                     "execution_ineligible_reason": decision.get("execution_ineligible_reason", reason_code),
                     "pending_add_state": decision.get("pending_add_state", False),

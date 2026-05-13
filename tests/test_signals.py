@@ -253,8 +253,38 @@ def test_lot_aware_add_enters_pending_when_remaining_capacity_below_one_lot() ->
         max_adds_per_day=2,
     )
     assert result["pending_add_state"] is True
-    assert result["pending_reason"] == "LOT_SIZE_ACCUMULATION_REQUIRED"
+    assert result["execution_status"] == "PENDING"
+    assert result["execution_reason"] == "PENDING_SINGLE_NAME_CAPACITY"
+    assert result["pending_reason"] == "SINGLE_NAME_CAPACITY"
     assert result["executable"] is False
+
+
+def test_portfolio_full_preserves_buy_intent_as_watch(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _engine_configs(configs)
+    strategy_cfg["execution"]["lot_aware_sizing"] = True
+    strategy_cfg["execution"]["max_positions"] = 1
+    account_cfg["account"]["current_cash"] = 50000
+    account_cfg["account"]["latest_total_equity"] = 50000
+    snapshot = pd.DataFrame([base_snapshot_row("defensive_dividend")])
+    decisions = SignalEngine(strategy_cfg, universe_rules_cfg, account_cfg).generate(
+        snapshot,
+        pd.DataFrame(columns=["symbol", "current_position_tranches", "current_weight", "current_shares", "extra_tranches", "last_fill_price"]),
+        {"regime": "risk_on", "max_total_position": 1.0},
+        account_state={
+            "current_cash": 50000,
+            "reserved_cash": 0,
+            "latest_total_equity": 50000,
+            "current_invested_value": 0,
+            "holdings_count": 1,
+        },
+    )
+
+    assert decisions[0]["strategy_intent"] == "BUY_1"
+    assert decisions[0]["action_enum"] == "HOLD"
+    assert decisions[0]["execution_status"] == "WATCH"
+    assert decisions[0]["execution_reason"] == "WATCH_PORTFOLIO_FULL"
+    assert decisions[0]["user_visible_action"] is False
+    assert decisions[0].get("blocked_reason") in (None, "")
 
 
 def test_lot_aware_repeated_blocked_signal_suppression_preserves_raw_intent(configs: dict) -> None:

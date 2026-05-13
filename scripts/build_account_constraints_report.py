@@ -42,6 +42,10 @@ BLOCKER_COLUMNS = {
     "DAILY_POSITION_LIMIT": "daily_new_position_block_count",
     "DAILY_NEW_POSITION_LIMIT": "daily_new_position_block_count",
     "DAILY_ADD_LIMIT": "daily_add_block_count",
+    "WATCH_COMPACT_RANK_OUT": "watch_compact_rank_out_count",
+    "WATCH_INDUSTRY_CONCENTRATION": "watch_industry_concentration_count",
+    "WATCH_REPLACEMENT_NOT_WORTH_IT": "watch_replacement_not_worth_it_count",
+    "CASH_RESERVED": "cash_reserved_pending_count",
     "UNKNOWN": "unknown_block_count",
 }
 
@@ -59,6 +63,10 @@ CANONICAL_BLOCKERS = [
     "MAX_POSITIONS_LIMIT",
     "DAILY_NEW_POSITION_LIMIT",
     "DAILY_ADD_LIMIT",
+    "WATCH_COMPACT_RANK_OUT",
+    "WATCH_INDUSTRY_CONCENTRATION",
+    "WATCH_REPLACEMENT_NOT_WORTH_IT",
+    "CASH_RESERVED",
     "UNKNOWN",
 ]
 
@@ -81,6 +89,20 @@ CANONICAL_MAP = {
     "SINGLE_NAME_LIMIT_AT_FILL": "SINGLE_NAME_LIMIT",
     "SINGLE_NAME_CLIPPED_AT_FILL": "SINGLE_NAME_LIMIT",
     "DAILY_POSITION_LIMIT": "DAILY_NEW_POSITION_LIMIT",
+    "WATCH_PORTFOLIO_FULL": "MAX_POSITIONS_LIMIT",
+    "WATCH_DAILY_NEW_LIMIT": "DAILY_NEW_POSITION_LIMIT",
+    "WATCH_DAILY_ADD_LIMIT": "DAILY_ADD_LIMIT",
+    "WATCH_COMPACT_RANK_OUT": "WATCH_COMPACT_RANK_OUT",
+    "WATCH_INDUSTRY_CONCENTRATION": "WATCH_INDUSTRY_CONCENTRATION",
+    "WATCH_REPLACEMENT_NOT_WORTH_IT": "WATCH_REPLACEMENT_NOT_WORTH_IT",
+    "PENDING_CASH_INSUFFICIENT_FOR_ONE_LOT": "CASH_INSUFFICIENT_FOR_ONE_LOT",
+    "PENDING_CASH_RESERVED": "CASH_RESERVED",
+    "PENDING_LOT_ACCUMULATION_REQUIRED": "LOT_SIZE_ACCUMULATION_REQUIRED",
+    "PENDING_SINGLE_NAME_CAPACITY": "PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY",
+    "BLOCK_PRICE_TOO_HIGH_FOR_ACCOUNT_LOT": "PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+    "BLOCK_MISSING_FILL_PRICE": "MISSING_REQUIRED_FIELD",
+    "BLOCK_MIN_TRADE_VALUE": "MIN_TRADE_AMOUNT",
+    "BLOCK_LOT_SIZE_ZERO": "LOT_SIZE_ZERO",
 }
 
 BUY_ACTIONS = {"BUY_1", "BUY_2", "BUY_3", "HOLD_WITH_PENDING_ADD", "BLOCKED"}
@@ -144,6 +166,30 @@ def _is_buy_blocked_frame(blocked: pd.DataFrame) -> pd.Series:
     return intended.str.startswith("BUY_") | level.str.startswith("BUY_") | (intended == "HOLD_WITH_PENDING_ADD")
 
 
+def _structural_block_frame(blocked: pd.DataFrame) -> pd.DataFrame:
+    if blocked.empty:
+        return blocked
+    status = _series(blocked, "execution_status").astype(str)
+    reason = _series(blocked, "execution_reason", _series(blocked, "reason_code", "")).astype(str)
+    if "execution_status" not in blocked.columns:
+        return blocked.loc[~reason.str.startswith(("WATCH_", "PENDING_"))].copy()
+    return blocked.loc[
+        (status == "BLOCKED")
+        | (
+            status.isin({"", "nan", "None"})
+            & ~reason.str.startswith(("WATCH_", "PENDING_"))
+        )
+    ].copy()
+
+
+def _execution_reason_counts(blocked: pd.DataFrame) -> dict[str, int]:
+    if blocked.empty:
+        return {}
+    reason = _series(blocked, "execution_reason", _series(blocked, "reason_code", "UNKNOWN")).astype(str)
+    reason = reason.replace({"": "UNKNOWN", "nan": "UNKNOWN", "None": "UNKNOWN"})
+    return {str(key): int(value) for key, value in reason.value_counts().sort_index().items()}
+
+
 def _new_position_mask_from_blocked(blocked: pd.DataFrame) -> pd.Series:
     if blocked.empty:
         return pd.Series(dtype=bool)
@@ -187,7 +233,9 @@ def _add_position_mask_from_trades(trades: pd.DataFrame) -> pd.Series:
 def _block_reason_breakdown(blocked: pd.DataFrame, *, raw_buy: int) -> list[dict[str, Any]]:
     if blocked.empty:
         return []
-    frame = blocked.copy()
+    frame = _structural_block_frame(blocked)
+    if frame.empty:
+        return []
     frame["reason_code"] = _series(frame, "reason_code", "UNKNOWN").map(_canonical_reason)
     blocked_count = len(frame)
     rows: list[dict[str, Any]] = []
@@ -248,11 +296,13 @@ def build_account_constraints_report(
     executable_add = int(_add_position_mask_from_trades(buy_trades).sum()) if not buy_trades.empty else 0
     new_position_raw_intent_count = blocked_new + executable_new
     add_position_raw_intent_count = blocked_add + executable_add
+    structural_blocked = _structural_block_frame(blocked)
     blocker_counts = (
-        blocked["reason_code"].map(_canonical_reason).value_counts().to_dict()
-        if not blocked.empty and "reason_code" in blocked.columns
+        structural_blocked["reason_code"].map(_canonical_reason).value_counts().to_dict()
+        if not structural_blocked.empty and "reason_code" in structural_blocked.columns
         else {}
     )
+    execution_reason_counts = _execution_reason_counts(blocked)
     normalized_counts = {value: 0 for value in BLOCKER_COLUMNS.values()}
     for reason, count in blocker_counts.items():
         target = BLOCKER_COLUMNS.get(str(reason))
@@ -337,6 +387,7 @@ def build_account_constraints_report(
         "new_position_raw_intent_count": new_position_raw_intent_count,
         "add_position_raw_intent_count": add_position_raw_intent_count,
         "blocker_counts": blocker_counts,
+        "execution_reason_counts": execution_reason_counts,
         **normalized_counts,
         "executable_raw_buy_ratio": buy_ratio,
         "executable_unique_raw_intent_ratio": executable_unique_raw_intent_ratio,

@@ -157,7 +157,11 @@ def prepare_daily_snapshot(
     buy_candidates = [
         item
         for item in decisions
-        if item["action_enum"] in {"BUY_1", "BUY_2", "BUY_3", "BLOCKED"} and item["current_position_tranches"] == 0
+        if (
+            item["action_enum"] in {"BUY_1", "BUY_2", "BUY_3", "BLOCKED"}
+            or item.get("strategy_intent") in {"BUY_1", "BUY_2", "BUY_3"}
+        )
+        and item["current_position_tranches"] == 0
     ]
     frozen_holdings = [item for item in decisions if item["holding_state"] == "FROZEN" and item["current_position_tranches"] > 0]
     force_exit_list = [item for item in decisions if item["holding_state"] == "FORCE_EXIT"]

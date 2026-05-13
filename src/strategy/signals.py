@@ -5,6 +5,8 @@ from math import ceil
 
 import pandas as pd
 
+from src.execution.allocator import apply_portfolio_execution_allocator
+from src.execution.sizer import compute_lot_aware_order as execution_compute_lot_aware_order
 from src.strategy.grid import can_add_grid_tranche, can_reduce_grid_tranche, compute_grid_step
 from src.strategy.valuation_resolution import resolve_industry_valuation_quantile, resolve_stock_valuation_quantile
 
@@ -267,134 +269,26 @@ def compute_lot_aware_order(
     daily_add_count: int,
     max_adds_per_day: int,
 ) -> dict:
-    price = _safe_float(latest_price)
-    lot = max(1, int(round_lot or 1))
-    equity = max(0.0, _safe_float(account_equity))
-    cash = max(0.0, _safe_float(available_cash))
-    min_trade = max(0.0, _safe_float(min_trade_value))
-    current_value = max(0.0, _safe_float(current_position_value))
-    target_value = max(0.0, _safe_float(target_position_value))
-    intended_value = max(0.0, _safe_float(intended_order_value))
-    max_single_weight = max(0.0, _safe_float(max_single_stock_weight))
-    action = str(action_type).upper()
-    lot_notional = price * lot if price > 0 else 0.0
-    max_single_value = equity * max_single_weight
-    remaining_capacity = max(0.0, max_single_value - current_value)
-    minimum_order_value = max(min_trade, lot_notional)
-    minimum_lots = ceil(minimum_order_value / lot_notional) if lot_notional > 0 else 0
-    minimum_lot_order_value = minimum_lots * lot_notional
-    payload = {
-        "symbol": symbol,
-        "action_type": action,
-        "lot_notional": lot_notional,
-        "minimum_lot_order_value": minimum_lot_order_value,
-        "minimum_lots": minimum_lots,
-        "max_single_position_value": max_single_value,
-        "remaining_single_name_capacity": remaining_capacity,
-        "executable": False,
-        "executable_amount": 0.0,
-        "executable_shares": 0,
-        "block_reason": "",
-        "pending_add_state": False,
-        "pending_reason": "",
-        "pending_until_condition": "",
-        "execution_eligible_for_new_buy": False,
-        "execution_ineligible_reason": "",
-    }
-    if price <= 0 or lot_notional <= 0 or equity <= 0:
-        payload["block_reason"] = "MISSING_FILL_PRICE"
-        payload["execution_ineligible_reason"] = "MISSING_FILL_PRICE"
-        return payload
-
-    def block(reason: str) -> dict:
-        payload["block_reason"] = reason
-        payload["execution_ineligible_reason"] = reason
-        return payload
-
-    if action == "NEW_BUY":
-        if current_positions_count >= max_positions:
-            return block("MAX_POSITIONS_LIMIT")
-        if daily_new_position_count >= max_new_positions_per_day:
-            return block("DAILY_NEW_POSITION_LIMIT")
-        if lot_notional > max_single_value + 1e-9:
-            return block("PRICE_TOO_HIGH_FOR_ACCOUNT_LOT")
-        if lot_notional > cash + 1e-9:
-            return block("CASH_INSUFFICIENT_FOR_ONE_LOT")
-        if minimum_lot_order_value > max_single_value + 1e-9:
-            return block("PRICE_TOO_HIGH_FOR_ACCOUNT_LOT")
-        if minimum_lot_order_value > cash + 1e-9:
-            return block("CASH_INSUFFICIENT")
-        desired_value = min(target_value, max_single_value, cash)
-        desired_lots = int(desired_value // lot_notional)
-        if desired_lots < minimum_lots:
-            desired_lots = minimum_lots
-        order_value = desired_lots * lot_notional
-        if order_value > max_single_value + 1e-9 or order_value > cash + 1e-9:
-            order_value = minimum_lot_order_value
-            desired_lots = minimum_lots
-        if order_value > max_single_value + 1e-9:
-            return block("PRICE_TOO_HIGH_FOR_ACCOUNT_LOT")
-        if order_value > cash + 1e-9:
-            return block("CASH_INSUFFICIENT")
-        if desired_lots <= 0:
-            return block("LOT_SIZE_ZERO")
-        payload["executable"] = True
-        payload["execution_eligible_for_new_buy"] = True
-        payload["executable_amount"] = float(order_value)
-        payload["executable_shares"] = int(desired_lots * lot)
-        return payload
-
-    if action == "ADD":
-        payload["pending_until_condition"] = (
-            "remaining_single_name_capacity >= lot_notional and available_cash >= lot_notional "
-            "and accumulated_target_gap >= lot_notional"
-        )
-        if daily_add_count >= max_adds_per_day:
-            return block("DAILY_ADD_LIMIT")
-        if remaining_capacity < lot_notional - 1e-9:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY")
-        if lot_notional > cash + 1e-9:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("CASH_INSUFFICIENT_FOR_ONE_LOT")
-        accumulated_gap = min(max(target_value - current_value, intended_value), intended_value if intended_value > 0 else target_value)
-        if accumulated_gap < lot_notional - 1e-9:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("LOT_SIZE_ACCUMULATION_REQUIRED")
-        desired_value = min(accumulated_gap, remaining_capacity, cash)
-        desired_lots = int(desired_value // lot_notional)
-        if desired_lots <= 0:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("LOT_SIZE_ACCUMULATION_REQUIRED")
-        order_value = desired_lots * lot_notional
-        if order_value < min_trade - 1e-9:
-            minimum_add_lots = ceil(min_trade / lot_notional)
-            minimum_add_value = minimum_add_lots * lot_notional
-            if minimum_add_value <= remaining_capacity + 1e-9 and minimum_add_value <= cash + 1e-9:
-                desired_lots = minimum_add_lots
-                order_value = minimum_add_value
-            else:
-                payload["pending_add_state"] = True
-                payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-                return block("LOT_SIZE_ACCUMULATION_REQUIRED")
-        if order_value > remaining_capacity + 1e-9:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("PRICE_TOO_HIGH_FOR_REMAINING_CAPACITY")
-        if order_value > cash + 1e-9:
-            payload["pending_add_state"] = True
-            payload["pending_reason"] = "LOT_SIZE_ACCUMULATION_REQUIRED"
-            return block("CASH_INSUFFICIENT")
-        payload["executable"] = True
-        payload["executable_amount"] = float(order_value)
-        payload["executable_shares"] = int(desired_lots * lot)
-        return payload
-
-    return block("UNKNOWN")
+    return execution_compute_lot_aware_order(
+        symbol=symbol,
+        latest_price=latest_price,
+        current_position_shares=current_position_shares,
+        current_position_value=current_position_value,
+        account_equity=account_equity,
+        available_cash=available_cash,
+        min_trade_value=min_trade_value,
+        round_lot=round_lot,
+        max_single_stock_weight=max_single_stock_weight,
+        target_position_value=target_position_value,
+        intended_order_value=intended_order_value,
+        action_type=action_type,
+        current_positions_count=current_positions_count,
+        max_positions=max_positions,
+        daily_new_position_count=daily_new_position_count,
+        max_new_positions_per_day=max_new_positions_per_day,
+        daily_add_count=daily_add_count,
+        max_adds_per_day=max_adds_per_day,
+    )
 
 
 class SignalEngine:
@@ -1297,102 +1191,122 @@ class SignalEngine:
             initial_buying_power = round(min(cash_room_value, gross_room_value), 2)
             available_buying_power = initial_buying_power
 
-        if self.is_v2:
-            signal_rank = {"BUY_3": 3, "BUY_2": 2, "BUY_1": 1}
-            ordered_requests = sorted(
-                buy_requests,
-                key=lambda item: (
-                    -signal_rank.get(str(item.get("signal_level", item.get("intended_action_enum"))), 0),
-                    -float(item.get("priority_score", 0.0)),
-                    _stock_valuation_quantile(item, str(item.get("bucket"))),
-                    -_safe_float(item.get("dv_ttm")),
-                    -_safe_float(item.get("market_cap_billion")),
-                    item["symbol"],
-                ),
-            )
-        else:
-            ordered_requests = sorted(
-                buy_requests,
-                key=lambda item: (
-                    0 if int(item["current_position_tranches"]) > 0 else 1,
-                    -float(item["priority_score"]),
-                    item["symbol"],
-                ),
-            )
-        new_buys_today = 0
-        adds_today = 0
-        max_new = int(self.strategy_cfg["execution"].get("max_new_positions_per_day", 10**9))
-        max_adds = int(self.strategy_cfg["execution"].get("max_adds_per_day", 10**9))
-        max_positions = int(self.strategy_cfg["execution"].get("max_positions", 10**9))
-        for decision in ordered_requests:
-            current_tranches = int(decision["current_position_tranches"])
-            target_tranches = int(decision["desired_target_tranches"])
-            decision["target_position_tranches"] = target_tranches
-            decision["target_weight"] = round(self._weight_for_tranches(target_tranches, str(decision.get("bucket"))), 6)
-            decision["target_position_change"] = round(decision["target_weight"] - decision["current_weight"], 6)
-            decision, required_cash = self._execution_plan(
-                decision,
-                _action_for_target(current_tranches, target_tranches, decision.get("holding_state", "NONE")),
-                latest_total_equity,
-                orders_degraded,
-                available_cash=available_buying_power,
-                current_positions_count=holdings_count + new_buys_today,
-                max_positions=max_positions,
-                daily_new_position_count=new_buys_today,
-                max_new_positions_per_day=max_new,
-                daily_add_count=adds_today,
-                max_adds_per_day=max_adds,
-            )
-            requested_weight = max(0.0, decision["target_weight"] - _safe_float(decision["current_weight"]))
-            cash_blocked = available_buying_power is not None and required_cash > available_buying_power + 1e-9
-            daily_limit_blocked = False
-            daily_limit_reason = ""
-            if self.is_v2 and decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}:
-                if current_tranches == 0 and new_buys_today >= max_new:
-                    daily_limit_blocked = True
-                    daily_limit_reason = "DAILY_NEW_POSITION_LIMIT"
-                if current_tranches == 0 and holdings_count + new_buys_today >= max_positions:
-                    daily_limit_blocked = True
-                    daily_limit_reason = "MAX_POSITIONS_LIMIT"
-                if current_tranches > 0 and adds_today >= max_adds:
-                    daily_limit_blocked = True
-                    daily_limit_reason = "DAILY_ADD_LIMIT"
-            if (
-                decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}
-                and requested_weight <= capacity + 1e-9
-                and not decision.get("blocked_reason")
-                and not cash_blocked
-                and not daily_limit_blocked
-            ):
-                capacity = round(max(0.0, capacity - requested_weight), 6)
-                if self.is_v2:
-                    if current_tranches == 0:
-                        new_buys_today += 1
-                    else:
-                        adds_today += 1
-                if available_buying_power is not None:
-                    available_buying_power = round(max(0.0, available_buying_power - required_cash), 2)
-                continue
-
-            if decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}:
+        remaining_buying_power = initial_buying_power if initial_buying_power is not None else None
+        if self.lot_aware_sizing:
+            for decision in buy_requests:
+                current_tranches = int(decision["current_position_tranches"])
+                target_tranches = int(decision["desired_target_tranches"])
+                target_weight = round(self._weight_for_tranches(target_tranches, str(decision.get("bucket"))), 6)
+                action_enum = _action_for_target(current_tranches, target_tranches, decision.get("holding_state", "NONE"))
+                decision["action_enum"] = action_enum
+                decision["strategy_intent"] = action_enum
+                decision["original_action_enum"] = action_enum
+                decision["target_position_tranches"] = target_tranches
+                decision["target_weight"] = target_weight
+                decision["target_position_change"] = round(target_weight - decision["current_weight"], 6)
+                requested_weight = max(0.0, target_weight - _safe_float(decision["current_weight"]))
                 if requested_weight > capacity + 1e-9:
                     decision["blocked_reason"] = "REGIME_CAP_BLOCK"
                     decision["reason_codes"].append("REGIME_CAP_BLOCK")
-                elif cash_blocked:
-                    decision["blocked_reason"] = "INSUFFICIENT_CASH"
-                    decision["reason_codes"].append("INSUFFICIENT_CASH")
-                elif daily_limit_blocked:
-                    decision["blocked_reason"] = daily_limit_reason or "DAILY_POSITION_LIMIT"
-                    decision["reason_codes"].append(daily_limit_reason or "DAILY_POSITION_LIMIT")
-                elif not decision.get("blocked_reason"):
-                    decision["blocked_reason"] = "REGIME_CAP_BLOCK"
-                    decision["reason_codes"].append("REGIME_CAP_BLOCK")
-                decision["action_enum"] = "BLOCKED"
-                self._reset_to_current(decision, "买入请求因仓位上限、资金约束或执行约束被阻断。")
+                    decision["action_enum"] = "BLOCKED"
+                    decision["original_action_enum"] = "BLOCKED"
+                    decision["strategy_intent"] = "BLOCKED"
+                    self._reset_to_current(decision, "买入请求因市场 regime 总仓位上限被阻断。")
+            decisions = apply_portfolio_execution_allocator(
+                decisions,
+                {
+                    **account_state,
+                    "current_cash": current_cash,
+                    "reserved_cash": reserved_cash,
+                    "latest_total_equity": latest_total_equity,
+                    "holdings_count": holdings_count,
+                },
+                self.strategy_cfg,
+                self.account_cfg,
+            )
+            if initial_buying_power is not None:
+                used_cash = sum(max(0.0, -_safe_float(item.get("estimated_total_cash_impact"))) for item in decisions)
+                remaining_buying_power = round(max(0.0, initial_buying_power - used_cash), 2)
+        else:
+            if self.is_v2:
+                signal_rank = {"BUY_3": 3, "BUY_2": 2, "BUY_1": 1}
+                ordered_requests = sorted(
+                    buy_requests,
+                    key=lambda item: (
+                        -signal_rank.get(str(item.get("signal_level", item.get("intended_action_enum"))), 0),
+                        -float(item.get("priority_score", 0.0)),
+                        _stock_valuation_quantile(item, str(item.get("bucket"))),
+                        -_safe_float(item.get("dv_ttm")),
+                        -_safe_float(item.get("market_cap_billion")),
+                        item["symbol"],
+                    ),
+                )
+            else:
+                ordered_requests = sorted(
+                    buy_requests,
+                    key=lambda item: (
+                        0 if int(item["current_position_tranches"]) > 0 else 1,
+                        -float(item["priority_score"]),
+                        item["symbol"],
+                    ),
+                )
+            new_buys_today = 0
+            adds_today = 0
+            max_new = int(self.strategy_cfg["execution"].get("max_new_positions_per_day", 10**9))
+            max_adds = int(self.strategy_cfg["execution"].get("max_adds_per_day", 10**9))
+            max_positions = int(self.strategy_cfg["execution"].get("max_positions", 10**9))
+            for decision in ordered_requests:
+                current_tranches = int(decision["current_position_tranches"])
+                target_tranches = int(decision["desired_target_tranches"])
+                decision["target_position_tranches"] = target_tranches
+                decision["target_weight"] = round(self._weight_for_tranches(target_tranches, str(decision.get("bucket"))), 6)
+                decision["target_position_change"] = round(decision["target_weight"] - decision["current_weight"], 6)
+                decision, required_cash = self._execution_plan(
+                    decision,
+                    _action_for_target(current_tranches, target_tranches, decision.get("holding_state", "NONE")),
+                    latest_total_equity,
+                    orders_degraded,
+                    available_cash=available_buying_power,
+                    current_positions_count=holdings_count + new_buys_today,
+                    max_positions=max_positions,
+                    daily_new_position_count=new_buys_today,
+                    max_new_positions_per_day=max_new,
+                    daily_add_count=adds_today,
+                    max_adds_per_day=max_adds,
+                )
+                requested_weight = max(0.0, decision["target_weight"] - _safe_float(decision["current_weight"]))
+                cash_blocked = available_buying_power is not None and required_cash > available_buying_power + 1e-9
+                if (
+                    decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}
+                    and requested_weight <= capacity + 1e-9
+                    and not decision.get("blocked_reason")
+                    and not cash_blocked
+                ):
+                    capacity = round(max(0.0, capacity - requested_weight), 6)
+                    if self.is_v2:
+                        if current_tranches == 0:
+                            new_buys_today += 1
+                        else:
+                            adds_today += 1
+                    if available_buying_power is not None:
+                        available_buying_power = round(max(0.0, available_buying_power - required_cash), 2)
+                    continue
 
-        remaining_buying_power = initial_buying_power if initial_buying_power is not None else None
-        if available_buying_power is not None:
-            remaining_buying_power = available_buying_power
+                if decision["action_enum"] in {"BUY_1", "BUY_2", "BUY_3"}:
+                    if requested_weight > capacity + 1e-9:
+                        decision["blocked_reason"] = "REGIME_CAP_BLOCK"
+                        decision["reason_codes"].append("REGIME_CAP_BLOCK")
+                    elif cash_blocked:
+                        decision["blocked_reason"] = "INSUFFICIENT_CASH"
+                        decision["reason_codes"].append("INSUFFICIENT_CASH")
+                    elif not decision.get("blocked_reason"):
+                        decision["blocked_reason"] = "REGIME_CAP_BLOCK"
+                        decision["reason_codes"].append("REGIME_CAP_BLOCK")
+                    decision["action_enum"] = "BLOCKED"
+                    self._reset_to_current(decision, "买入请求因仓位上限、资金约束或执行约束被阻断。")
+
+            if available_buying_power is not None:
+                remaining_buying_power = available_buying_power
         for decision in decisions:
             decision["action_enum"] = decision.get("action_enum", "EMPTY")
             if decision["action_enum"] not in ACTIONS:

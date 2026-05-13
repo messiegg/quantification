@@ -1,8 +1,13 @@
 {
-  "created_at": "2026-05-13T02:47:54.335323+00:00",
+  "created_at": "2026-05-13T04:44:56.519779+00:00",
   "scope_version": "combined_v2_rc_code_scope_v1",
   "description": "combined_v2 RC code hash covers strategy/backtest/release verification code that can change current default release behavior, metrics, account diagnostics, or RC validation. Research-only account execution experiments, the combined_v2_50k_compact profile, README/docs, and generated executable/raw or compact research matrices are excluded from the RC code hash and must not be used to change release PASS/WARN status.",
   "included_files": [
+    "src/execution/__init__.py",
+    "src/execution/models.py",
+    "src/execution/sizer.py",
+    "src/execution/allocator.py",
+    "src/execution/pending.py",
     "src/strategy/signals.py",
     "src/strategy/backtest_engine.py",
     "src/strategy/universe.py",
@@ -36,13 +41,38 @@
   ],
   "files": [
     {
+      "path": "src/execution/__init__.py",
+      "sha256": "8f053a671cbf0a45d194bd33dac5672567b6c958a3d9e5aec3ef6180670c93a6",
+      "exists": true
+    },
+    {
+      "path": "src/execution/models.py",
+      "sha256": "612949e7b8e3ad5b22a6128ffbeaaba0b9a9714439278a1bf609390f66d26a5b",
+      "exists": true
+    },
+    {
+      "path": "src/execution/sizer.py",
+      "sha256": "f49ae532c3b9a20117f944e654ab292d681983e745d8b696995872d0c84c0509",
+      "exists": true
+    },
+    {
+      "path": "src/execution/allocator.py",
+      "sha256": "42c4b7013e84f667eaf14e3be292d06f06f177398aabaee4813bed59260ce1be",
+      "exists": true
+    },
+    {
+      "path": "src/execution/pending.py",
+      "sha256": "e375c37e2cf10bc7ca187a7c97c8c8f2ba7eb52feecb703da96e493858d6607d",
+      "exists": true
+    },
+    {
       "path": "src/strategy/signals.py",
-      "sha256": "99a361903de9e8c869785eee739deda7e677fbcfd576df17ffbda09c8d94f195",
+      "sha256": "23c7b2443e5582adc978f96ac923fdde20004328138f8e2ac6dc736e6cbddf6b",
       "exists": true
     },
     {
       "path": "src/strategy/backtest_engine.py",
-      "sha256": "fe4e5c228ee898bfe65adf2b81f406dcdf1ac44352470ae6ef400f9a5f0587a4",
+      "sha256": "48c1bee4d42e59a33e0756f4bb9d39c1b556404402771b44f190f28e9c3d2c9c",
       "exists": true
     },
     {
@@ -62,7 +92,7 @@
     },
     {
       "path": "src/strategy/backtest_reports.py",
-      "sha256": "7af7897e4ba0d02a00b877f651a094661fd92812bcea12d5ce305a60c0452561",
+      "sha256": "b0061fcef1a1009ccf9318a32fccd01331419c39aceedfd98dada88a7cf008f9",
       "exists": true
     },
     {
@@ -97,7 +127,7 @@
     },
     {
       "path": "scripts/build_account_constraints_report.py",
-      "sha256": "95fca8a33dd44b9ab4afffe0f8f4a94fe9873348c3a4b02f8783ef1caf43cb5c",
+      "sha256": "6276b2204f63fbdad553a189f8bd5fe565b0baedc1556a7c50c20eb3301945bd",
       "exists": true
     },
     {
@@ -112,7 +142,7 @@
     },
     {
       "path": "scripts/rc_hash_scope.py",
-      "sha256": "b9726415ca03cffa94c518d54932fe4118fdacf96a8a12b0f6fcfb29c23a24e4",
+      "sha256": "5edad189cb97f7e324290c1386ff2afddd0585f14084cc694a0f0448579c46f7",
       "exists": true
     },
     {

@@ -24,3 +24,13 @@ position_sizing:
     3: 0.09
   max_single_stock_weight: 0.12
   min_trade_value: 1500
+
+portfolio_execution:
+  enabled: true
+  compact_candidate_limit: 12
+  cash_reserve_ratio: 0.10
+  industry_max_positions: 2
+  replacement:
+    enabled: true
+    score_threshold: 5.0
+    advisory_only: true

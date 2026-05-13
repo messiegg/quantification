@@ -2,7 +2,7 @@ generated_at: '2026-04-30T15:00:00Z'
 as_of_date: '2026-04-30'
 effective_from: '2026-05-01'
 effective_to: '2026-05-31'
-methodology_version: effective_universe_v2
+methodology_version: combined_v2
 rebalance_frequency: monthly
 rebalance_day: true
 stocks:
@@ -11,46 +11,46 @@ stocks:
   bucket: cyclical_rotation
   industry_l1: 煤炭
   main_metric: pb
-  final_score: 87.9625
+  final_score: 89.9667
   stock_q_blended: 15.0
   industry_q_blended: 20.0
+  stock_pb_q_blended: 15.0
+  industry_pb_q_blended: 20.0
+  stock_pe_ttm_q_blended: 16.0
+  industry_pe_ttm_q_blended: 22.0
+  pb: 1.0
+  pe_ttm: 9.0
   roe: 13.0
   dv_ttm: 0.06
+  latest_net_profit: 160.0
+  debt_to_assets: 35.0
+  cfo_ttm: 200.0
   market_cap_billion: 550.0
   avg_amount_60d_million: 220.0
+  listed_days: 4500.0
+  industry_market_cap_rank: 1.0
+  industry_market_cap_percentile: 0.1
+  is_a_share: true
+  is_st: false
+  data_asof: '2026-04-30'
+  financial_effective_date: null
   industry_rank: 1
   selected_as: new_entry
   cycle_trap: false
   force_exit_reasons: []
-- symbol: 600000.sh
-  name: 浦发银行
-  bucket: defensive_dividend
-  industry_l1: 银行
-  main_metric: pb
-  final_score: 77.95
-  stock_q_blended: 18.0
-  industry_q_blended: 25.0
-  roe: 10.5
-  dv_ttm: 0.045
-  market_cap_billion: 260.0
-  avg_amount_60d_million: 180.0
-  industry_rank: 1
-  selected_as: new_entry
-  cycle_trap: false
-  force_exit_reasons: []
+  alternate_bucket: null
+  valuation_score: 82.75
+  quality_score: 96.6667
+  leader_score: 88.5
+  dividend_score: 100.0
+  cycle_safety_score: 100.0
 changes:
-- symbol: 600000.sh
-  name: 浦发银行
-  industry: 银行
-  change_tag: added
-  selected_as: new_entry
-  final_score: 77.95
 - symbol: 601088.sh
   name: 中国神华
   industry: 煤炭
   change_tag: added
   selected_as: new_entry
-  final_score: 87.9625
+  final_score: 89.9667
 - symbol: 600036.sh
   name: 招商银行
   industry: 银行

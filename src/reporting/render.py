@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from pathlib import Path
 
 import pandas as pd
@@ -24,6 +25,9 @@ def _format_action_line(item: dict) -> str:
 def render_markdown(report: dict) -> str:
     regime = report["portfolio_state"]["market_regime"]
     account_state = report["portfolio_state"].get("account_state", {})
+    decisions = report.get("decisions") or report.get("orders", [])
+    status_counts = Counter(str(item.get("execution_status", "NO_ACTION") or "NO_ACTION") for item in decisions)
+    reason_counts = Counter(str(item.get("execution_reason", "NO_ACTION") or "NO_ACTION") for item in decisions)
     lines = [
         "# 今日总览",
         "",
@@ -68,6 +72,23 @@ def render_markdown(report: dict) -> str:
     else:
         lines.append("- 无")
 
+    lines.extend(["", "# 账户执行诊断 / Execution diagnostics", ""])
+    for status in ("EXECUTABLE", "WATCH", "PENDING", "BLOCKED", "NO_ACTION"):
+        lines.append(f"- {status}: {status_counts.get(status, 0)}")
+    top_reasons = reason_counts.most_common(5)
+    if top_reasons:
+        lines.append("- top execution_reason: " + " / ".join(f"{reason}:{count}" for reason, count in top_reasons))
+    else:
+        lines.append("- top execution_reason: 无")
+    for reason in (
+        "WATCH_PORTFOLIO_FULL",
+        "WATCH_COMPACT_RANK_OUT",
+        "PENDING_LOT_ACCUMULATION_REQUIRED",
+        "BLOCK_PRICE_TOO_HIGH_FOR_ACCOUNT_LOT",
+    ):
+        lines.append(f"- {reason}: {reason_counts.get(reason, 0)}")
+    lines.append("- WATCH/PENDING 不等于策略失效，只表示小账户执行层今天暂不进入人工执行清单。")
+
     lines.extend(["", "# 强制退出列表", ""])
     if report["force_exit_list"]:
         for item in report["force_exit_list"]:
@@ -108,6 +129,15 @@ def _orders_frame(report: dict) -> pd.DataFrame:
         "delta_shares",
         "rounded_lots",
         "action_enum",
+        "strategy_intent",
+        "original_action_enum",
+        "execution_status",
+        "execution_reason",
+        "execution_reason_detail",
+        "all_failed_checks",
+        "unblock_hint",
+        "execution_action_type",
+        "user_visible_action",
         "priority_score",
         "action_reason",
         "blocked_reason",
@@ -116,6 +146,16 @@ def _orders_frame(report: dict) -> pd.DataFrame:
         "current_cash",
         "available_buying_power",
         "target_order_value",
+        "lot_notional",
+        "minimum_lot_order_value",
+        "remaining_single_name_capacity",
+        "compact_rank",
+        "replacement_candidate_symbol",
+        "replacement_required",
+        "pending_add_value",
+        "required_lot_notional",
+        "required_cash",
+        "required_capacity",
         "estimated_turnover",
         "estimated_commission",
         "estimated_stamp_duty",

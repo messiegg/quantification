@@ -11,6 +11,11 @@ from src.utils.config import resolve_path
 CODE_HASH_SCOPE_VERSION = "combined_v2_rc_code_scope_v1"
 
 CODE_HASH_FILES = [
+    "src/execution/__init__.py",
+    "src/execution/models.py",
+    "src/execution/sizer.py",
+    "src/execution/allocator.py",
+    "src/execution/pending.py",
     "src/strategy/signals.py",
     "src/strategy/backtest_engine.py",
     "src/strategy/universe.py",
