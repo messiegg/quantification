@@ -1,41 +1,52 @@
 # combined_v2_1_risk_guard 回测诊断报告
 
+## 元数据
+
+- git_commit: fcbad4f7fd70542596dcb7537dba4e7ea41a84c9
+- config_hash: 6817ac43cf178fea81d0976750c1269eba0c1b2f4a2e0e6c4f4e7c1f16eaf1d5
+- data_hash: ea7c14af5f4b454e5e18df55b7c8851fcaa28170542dccc4a7d598f0b7426c7e
+- manual_review_required: true
+- auto_trading_approved: false
+
 ## 三年绩效摘要
 
-- 年化收益: 5.60%
-- 累计收益: 17.01%
-- 最大回撤: -8.88%
-- 夏普: 0.68
-- 胜率: 48.15%
-- 成交笔数: 64，买入 37，卖出 27
+- 年化收益: 1.99%
+- 累计收益: 5.83%
+- 最大回撤: -4.27%
+- 夏普: 0.49
+- 胜率: 55.56%
+- 成交笔数: 21，买入 12，卖出 9
 
 ## 仓位与持仓
 
-- 平均日仓位: 43.03%
-- 最大日仓位: 67.70%
-- 平均持仓数量: 11.16
-- 最大持仓数量: 18
-- 平均持有天数: 192.59
-- 持有天数中位数: 155.00
+- 平均日仓位: 14.82%
+- 最大日仓位: 26.28%
+- 平均持仓数量: 3.69
+- 最大持仓数量: 6
+- 平均持有天数: 231.11
+- 持有天数中位数: 116.00
 
 ## 为什么交易稀疏
 
-- 原始买入信号合计: 149
-- 可执行买入信号合计: 37
-- 实际买入成交合计: 37
-- 市场状态阻断: 274
+- 原始买入信号合计: 737
+- 账户初筛可行买入信号合计: 12
+- 可执行买入信号合计: 12
+- 实际买入成交合计: 12
+- 市场状态阻断: 395
 - 资金阻断: 0
-- 最小交易额阻断: 82
-- 整手阻断: 3
-- 总仓位/每日数量限制阻断: 28
+- 最小交易额阻断: 174
+- 整手阻断: 551
+- 总仓位/每日数量限制阻断: 0
+- 最大持仓数阻断: 0
+- 每日新开仓限制阻断: 0
+- 每日加仓限制阻断: 0
 
 ## 诊断结论
 
-- 原始买入信号有 149 个，主要流失发生在执行层：可执行买入 37 个。
+- 原始买入信号有 737 个，主要流失发生在执行层：可执行买入 12 个。
 - 历史 effective universe 平均 24.16 只，最小 12 只，最大 33 只。
-- 执行约束中，最小交易额阻断 82 次，整手阻断 3 次。
-- 仓位或每日数量限制阻断 28 次，说明信号密度已高于可执行容量。
-- 市场状态阻断 274 次；这些是日常决策层阻断，并不等同于已形成 raw buy 后被拦截。
+- 执行约束中，最小交易额阻断 174 次，整手阻断 551 次。
+- 市场状态阻断 395 次；这些是日常决策层阻断，并不等同于已形成 raw buy 后被拦截。
 
 ## 每月 effective universe size
 
@@ -79,49 +90,48 @@
 
 ## 每月买入漏斗
 
-- 2023-04: raw_buy=7, executable_buy=7, executed_buy=7
-- 2023-05: raw_buy=23, executable_buy=6, executed_buy=6
-- 2023-06: raw_buy=0, executable_buy=0, executed_buy=0
-- 2023-07: raw_buy=0, executable_buy=0, executed_buy=0
-- 2023-08: raw_buy=1, executable_buy=1, executed_buy=1
-- 2023-09: raw_buy=9, executable_buy=0, executed_buy=0
-- 2023-10: raw_buy=18, executable_buy=0, executed_buy=0
-- 2023-11: raw_buy=19, executable_buy=0, executed_buy=0
-- 2023-12: raw_buy=3, executable_buy=0, executed_buy=0
-- 2024-01: raw_buy=2, executable_buy=0, executed_buy=0
-- 2024-02: raw_buy=8, executable_buy=1, executed_buy=1
-- 2024-03: raw_buy=5, executable_buy=0, executed_buy=0
-- 2024-04: raw_buy=3, executable_buy=1, executed_buy=1
-- 2024-05: raw_buy=1, executable_buy=1, executed_buy=1
-- 2024-06: raw_buy=1, executable_buy=1, executed_buy=1
-- 2024-07: raw_buy=10, executable_buy=1, executed_buy=1
-- 2024-08: raw_buy=0, executable_buy=0, executed_buy=0
-- 2024-09: raw_buy=8, executable_buy=5, executed_buy=5
-- 2024-10: raw_buy=1, executable_buy=1, executed_buy=1
-- 2024-11: raw_buy=0, executable_buy=0, executed_buy=0
-- 2024-12: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-01: raw_buy=2, executable_buy=2, executed_buy=2
-- 2025-02: raw_buy=1, executable_buy=1, executed_buy=1
-- 2025-03: raw_buy=2, executable_buy=2, executed_buy=2
-- 2025-04: raw_buy=20, executable_buy=2, executed_buy=2
-- 2025-05: raw_buy=2, executable_buy=2, executed_buy=2
-- 2025-06: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-07: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-08: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-09: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-10: raw_buy=0, executable_buy=0, executed_buy=0
-- 2025-11: raw_buy=1, executable_buy=1, executed_buy=1
-- 2025-12: raw_buy=2, executable_buy=2, executed_buy=2
-- 2026-01: raw_buy=0, executable_buy=0, executed_buy=0
-- 2026-02: raw_buy=0, executable_buy=0, executed_buy=0
-- 2026-03: raw_buy=0, executable_buy=0, executed_buy=0
-- 2026-04: raw_buy=0, executable_buy=0, executed_buy=0
+- 2023-04: raw_buy=51, account_feasible=2, executable_buy=2, executed_buy=2
+- 2023-05: raw_buy=69, account_feasible=1, executable_buy=1, executed_buy=1
+- 2023-06: raw_buy=19, account_feasible=0, executable_buy=0, executed_buy=0
+- 2023-07: raw_buy=5, account_feasible=0, executable_buy=0, executed_buy=0
+- 2023-08: raw_buy=8, account_feasible=1, executable_buy=1, executed_buy=1
+- 2023-09: raw_buy=2, account_feasible=1, executable_buy=1, executed_buy=1
+- 2023-10: raw_buy=32, account_feasible=0, executable_buy=0, executed_buy=0
+- 2023-11: raw_buy=23, account_feasible=0, executable_buy=0, executed_buy=0
+- 2023-12: raw_buy=3, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-01: raw_buy=2, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-02: raw_buy=10, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-03: raw_buy=7, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-04: raw_buy=12, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-05: raw_buy=9, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-06: raw_buy=29, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-07: raw_buy=15, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-08: raw_buy=30, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-09: raw_buy=16, account_feasible=1, executable_buy=1, executed_buy=1
+- 2024-10: raw_buy=13, account_feasible=0, executable_buy=0, executed_buy=0
+- 2024-11: raw_buy=22, account_feasible=1, executable_buy=1, executed_buy=1
+- 2024-12: raw_buy=10, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-01: raw_buy=25, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-02: raw_buy=37, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-03: raw_buy=41, account_feasible=2, executable_buy=2, executed_buy=2
+- 2025-04: raw_buy=78, account_feasible=1, executable_buy=1, executed_buy=1
+- 2025-05: raw_buy=22, account_feasible=1, executable_buy=1, executed_buy=1
+- 2025-06: raw_buy=4, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-07: raw_buy=1, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-08: raw_buy=0, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-09: raw_buy=3, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-10: raw_buy=8, account_feasible=0, executable_buy=0, executed_buy=0
+- 2025-11: raw_buy=19, account_feasible=1, executable_buy=1, executed_buy=1
+- 2025-12: raw_buy=32, account_feasible=0, executable_buy=0, executed_buy=0
+- 2026-01: raw_buy=39, account_feasible=0, executable_buy=0, executed_buy=0
+- 2026-02: raw_buy=23, account_feasible=0, executable_buy=0, executed_buy=0
+- 2026-03: raw_buy=18, account_feasible=0, executable_buy=0, executed_buy=0
+- 2026-04: raw_buy=0, account_feasible=0, executable_buy=0, executed_buy=0
 
 ## 拦截原因排序
 
-- MIN_TRADE_AMOUNT: 82
-- TOTAL_EXPOSURE_LIMIT: 28
-- LOT_SIZE_ZERO: 3
+- LOT_SIZE_ZERO: 551
+- MIN_TRADE_AMOUNT: 174
 
 ## 重点个股逐笔解释
 

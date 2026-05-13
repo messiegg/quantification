@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-05-06T03:58:24.052933+00:00",
-  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
-  "branch": "codex/combined-v2-rc-release",
-  "config_hash": "98d128a06d4b76e3a52714f8a10933a8ff9c31ba47b08fe17d27d36ee7028c89",
+  "generated_at": "2026-05-07T07:21:13.233141+00:00",
+  "git_commit": "fcbad4f7fd70542596dcb7537dba4e7ea41a84c9",
+  "branch": "codex/cleanup-stale-artifacts",
+  "config_hash": "834ddfbe25f70220cbe613782bc24cabcc3ddd6159f37aa4fd5bd8848f14aaa3",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
       "exists": true,
-      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9"
+      "sha256": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b"
     },
     {
       "path": "config/account.yml",
@@ -47,10 +47,10 @@
     {
       "path": "reports/backtest/account_profiles/actual_50k_retail/strategy_config_effective.yml",
       "exists": true,
-      "sha256": "7e09d018fe089e018a04c12638f9c455b1bad316f4c814f34469201bea70024c"
+      "sha256": "695d93d1219cc2e76242e61e33aab9e92ed0d2ae1d688ee3bad11b5243f4c445"
     }
   ],
-  "data_hash": "5be25d49c66a833d206e1423f0bbf17d92552dcab1fa38a6081dd70f41caf79a",
+  "data_hash": "ea7c14af5f4b454e5e18df55b7c8851fcaa28170542dccc4a7d598f0b7426c7e",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,
@@ -107,20 +107,88 @@
     "max_total_exposure": null,
     "raw_buy_signal_count": 1145,
     "unique_raw_buy_intent_count": 1145,
+    "repeat_raw_buy_intent_count": 0,
+    "repeat_raw_buy_intent_ratio": 0.0,
     "repeated_blocked_buy_signal_count": 0,
     "account_feasible_buy_signal_count": 12,
     "executable_buy_count": 12,
+    "executable_new_position_buy_count": 12,
+    "executable_add_buy_count": 0,
     "executable_raw_buy_ratio": 0.010480349344978166,
+    "executable_unique_raw_intent_ratio": 0.010480349344978166,
     "executable_account_feasible_buy_ratio": 1.0,
     "user_visible_buy_recommendation_count": 12,
     "user_visible_blocked_buy_count": 1133,
     "pending_buy_intent_count": 0,
+    "full_portfolio_raw_buy_intent_count": 0,
+    "full_portfolio_raw_buy_intent_ratio": 0.0,
+    "new_position_raw_intent_count": 1111,
+    "add_position_raw_intent_count": 34,
     "blocker_counts": {
       "LOT_SIZE_ZERO": 783,
       "MIN_TRADE_AMOUNT": 350
     },
+    "block_reason_breakdown": [
+      {
+        "reason_code": "LOT_SIZE_ZERO",
+        "description_zh": "目标股数低于整手后为零。",
+        "count": 783,
+        "count_pct_of_raw": 0.6838427947598253,
+        "count_pct_of_blocked": 0.6910856134157105,
+        "affected_unique_symbols": 19,
+        "affected_trade_dates": 439,
+        "dominant_bucket": "defensive_dividend",
+        "example_symbols": [
+          "600036.sh",
+          "601318.sh",
+          "002032.sz",
+          "000651.sz",
+          "000333.sz",
+          "600585.sh",
+          "601336.sh",
+          "601601.sh",
+          "601021.sh",
+          "600309.sh"
+        ]
+      },
+      {
+        "reason_code": "MIN_TRADE_AMOUNT",
+        "description_zh": "目标成交额低于最小成交额。",
+        "count": 350,
+        "count_pct_of_raw": 0.3056768558951965,
+        "count_pct_of_blocked": 0.3089143865842895,
+        "affected_unique_symbols": 18,
+        "affected_trade_dates": 239,
+        "dominant_bucket": "cyclical_rotation",
+        "example_symbols": [
+          "000877.sz",
+          "601166.sh",
+          "600346.sh",
+          "600999.sh",
+          "601211.sh",
+          "601018.sh",
+          "000932.sz",
+          "600018.sh",
+          "600989.sh",
+          "600233.sh"
+        ]
+      }
+    ],
+    "metric_denominators": {
+      "executable_raw_buy_ratio": "executable_buy_count / raw_buy_signal_count",
+      "executable_unique_raw_intent_ratio": "executable_buy_count / unique_raw_buy_intent_count",
+      "executable_account_feasible_buy_ratio": "executable_buy_count / account_feasible_buy_signal_count",
+      "repeat_raw_buy_intent_ratio": "repeat_raw_buy_intent_count / raw_buy_signal_count",
+      "full_portfolio_raw_buy_intent_ratio": "full_portfolio_raw_buy_intent_count / raw_buy_signal_count",
+      "max_positions_block_ratio": "max_positions_block_count / raw_buy_signal_count",
+      "cash_block_ratio": "cash_block_count / raw_buy_signal_count; excludes CASH_INSUFFICIENT_FOR_ONE_LOT",
+      "cash_liquidity_block_ratio": "(cash_block_count + cash_insufficient_for_one_lot_count) / raw_buy_signal_count",
+      "block_reason_breakdown.count_pct_of_raw": "reason_code count / raw_buy_signal_count",
+      "block_reason_breakdown.count_pct_of_blocked": "reason_code count / total blocked_signals rows"
+    },
     "min_trade_amount_block_ratio": 0.3056768558951965,
     "cash_block_ratio": 0.0,
+    "cash_liquidity_block_ratio": 0.0,
     "exposure_block_ratio": 0.0,
     "max_positions_block_ratio": 0.0,
     "lot_size_block_ratio": 0.6838427947598253,

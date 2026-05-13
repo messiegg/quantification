@@ -127,6 +127,12 @@ def _expected_status() -> tuple[str, list[dict[str, Any]]]:
     return "PASS_CANDIDATE", reasons
 
 
+def expected_current_release_status() -> tuple[str, list[dict[str, Any]]]:
+    """Return the current release status implied by audit reports."""
+
+    return _expected_status()
+
+
 def _check_forbidden_positive_wording(paths: list[str]) -> list[dict[str, Any]]:
     violations: list[dict[str, Any]] = []
     for path in paths:

@@ -1,0 +1,12 @@
+check_id,status,expected,actual,blocking,recommendation
+OBS-FILE-MANIFEST,PASS,manifest exists,/Users/meseg/shu/stocks/quantile/reports/backtest/release/combined_v2_rc_manifest.json,True,缺少 RC manifest 时暂停 observation。
+OBS-FILE-VERIFY,PASS,verify csv exists,/Users/meseg/shu/stocks/quantile/reports/backtest/release/combined_v2_rc_verify.csv,True,缺少 RC verify 输出时暂停 observation。
+OBS-FILE-GUARD,PASS,release guard csv exists,/Users/meseg/shu/stocks/quantile/reports/backtest/release/release_guard_report.csv,True,缺少 release guard 输出时暂停 observation。
+OBS-MANIFEST-STATUS,PASS,"['PASS_CANDIDATE', 'WARN']",WARN,True,manifest status 只能是 WARN 或 PASS_CANDIDATE；未知状态暂停 observation。
+OBS-DEFAULT-ACCOUNT,PASS,"['actual_50k_lot_aware', 'retail_50k_lot_aware']",retail_50k_lot_aware,True,默认 release/account profile 必须保持 50k lot-aware。
+OBS-RC-VERIFY-PASS,PASS,PASS,PASS,True,RC verify 必须整体 PASS；WARN/FAIL 都需要先解释或重建 RC。
+OBS-RC-VERIFY-NO-FAIL,PASS,0,0,True,verify FAIL > 0 时暂停 observation。
+OBS-RELEASE-GUARD-NO-FAIL,PASS,0,0,True,release guard FAIL > 0 时暂停 observation；WARN 可保留但必须解释。
+OBS-CODE-HASH-DRIFT,PASS,no code drift,none,True,存在 CODE drift 时暂停 observation，先重建 RC。
+OBS-CONFIG-HASH-DRIFT,PASS,no config drift,none,True,存在 CONFIG drift 时暂停 observation，先重建 RC。
+OBS-SAFETY-BOUNDARY,PASS,manual-only; no broker; no LLM decisions,"{'auto_trading_approved': False, 'broker_integration_enabled': False, 'llm_decision_allowed': False}",True,observation smoke check 不能被解释为自动交易批准。

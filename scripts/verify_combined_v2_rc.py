@@ -28,6 +28,7 @@ from scripts.audit_common import (
     run_profile,
     status_from_rows,
 )
+from scripts.rc_hash_scope import CODE_HASH_SCOPE_VERSION, code_hash_manifest, sha256_path
 from src.utils.config import resolve_path
 
 
@@ -41,31 +42,7 @@ LEGACY_EXPECTED_METRICS = {
     "max_drawdown": (-0.0936454742991675, 1e-10),
     "final_nav": (243928.8809062001, 1e-6),
 }
-LEGACY_EXPECTED_TOTAL_TRADES = 76
 EXPECTED_METRICS = LEGACY_EXPECTED_METRICS
-EXPECTED_TOTAL_TRADES = LEGACY_EXPECTED_TOTAL_TRADES
-CODE_FILES = [
-    "src/strategy/signals.py",
-    "src/strategy/backtest_engine.py",
-    "src/strategy/universe.py",
-    "src/strategy/grid.py",
-    "src/strategy/valuation_resolution.py",
-    "src/strategy/backtest_reports.py",
-    "scripts/backtest.py",
-    "scripts/run_backtest_compare.py",
-    "scripts/run_backtest_execution_compare.py",
-    "scripts/run_backtest_attribution.py",
-    "scripts/audit_backtest_lookahead.py",
-    "scripts/audit_backtest_integrity.py",
-]
-
-
-def sha256_path(path_like: str | Path) -> str:
-    path = resolve_path(path_like)
-    if not path.exists():
-        return ""
-    return hashlib.sha256(path.read_bytes()).hexdigest()
-
 
 def sha256_frame(frame: pd.DataFrame) -> str:
     buffer = StringIO()
@@ -112,7 +89,10 @@ def _read_manifest(path_like: str | Path) -> dict:
 
 
 def _is_small_retail_profile(manifest: dict) -> bool:
-    return str(manifest.get("account_profile", "")) in {"retail_50k", "retail_50k_lot_aware"}
+    profile = str(manifest.get("account_profile", ""))
+    if profile in {"retail_50k", "retail_50k_lot_aware"}:
+        return True
+    return float(manifest.get("initial_capital", 0.0) or 0.0) <= 50_000.0 and str(manifest.get("account_config_path", "")) == "config/account.yml"
 
 
 def _load_existing_metrics(manifest: dict) -> tuple[dict, pd.DataFrame]:
@@ -143,18 +123,26 @@ def _load_existing_metrics(manifest: dict) -> tuple[dict, pd.DataFrame]:
 
 
 def _expected_metrics_from_manifest(manifest: dict, actual: dict) -> tuple[dict[str, tuple[float, float]], int]:
-    if _is_small_retail_profile(manifest):
+    if all(key in manifest for key in ("annual_return", "cumulative_return", "max_drawdown", "total_trades")):
+        fallback_final_nav = float(manifest.get("initial_capital", 50000.0)) * (
+            1.0 + float(manifest.get("cumulative_return", actual["cumulative_return"]) or 0.0)
+        )
         expected = {
             "annual_return": (float(manifest.get("annual_return", actual["annual_return"]) or 0.0), 1e-10),
             "cumulative_return": (float(manifest.get("cumulative_return", actual["cumulative_return"]) or 0.0), 1e-10),
             "max_drawdown": (float(manifest.get("max_drawdown", actual["max_drawdown"]) or 0.0), 1e-10),
-            "final_nav": (
-                float(manifest.get("initial_capital", 50000.0)) * (1.0 + float(manifest.get("cumulative_return", actual["cumulative_return"]) or 0.0)),
-                1e-6,
-            ),
+            "final_nav": (float(manifest.get("final_nav", fallback_final_nav) or fallback_final_nav), 1e-6),
         }
         return expected, int(float(manifest.get("total_trades", actual["total_trades"]) or 0))
-    return LEGACY_EXPECTED_METRICS, LEGACY_EXPECTED_TOTAL_TRADES
+    control = next(
+        (
+            item
+            for item in manifest.get("control_metrics_snapshot", [])
+            if item.get("control_id") == "combined_v2_next_bar"
+        ),
+        {},
+    )
+    return LEGACY_EXPECTED_METRICS, int(float(control.get("total_trades", actual["total_trades"]) or 0))
 
 
 def _rerun_metrics(manifest: dict) -> tuple[dict, str]:
@@ -184,10 +172,7 @@ def _rerun_metrics(manifest: dict) -> tuple[dict, str]:
 
 
 def _current_code_hashes() -> dict:
-    return {
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "files": [{"path": path, "sha256": sha256_path(path), "exists": resolve_path(path).exists()} for path in CODE_FILES],
-    }
+    return code_hash_manifest()
 
 
 def _verify_code_manifest(rows: list[dict], code_manifest_path: str | Path) -> None:
@@ -199,6 +184,20 @@ def _verify_code_manifest(rows: list[dict], code_manifest_path: str | Path) -> N
         _row(rows, "CODE-001", "code hash manifest exists", "PASS", "created", str(path), "", str(path), "首次生成代码哈希基线。")
         return
     expected_payload = json.loads(path.read_text(encoding="utf-8"))
+    expected_scope = str(expected_payload.get("scope_version", ""))
+    current_scope = str(current.get("scope_version", ""))
+    if expected_scope != current_scope:
+        _row(
+            rows,
+            "CODE-SCOPE-001",
+            "code hash scope version",
+            "FAIL",
+            expected_scope,
+            current_scope,
+            "",
+            str(path),
+            "build 与 verify 的 code hash scope 版本不一致，必须先重建 RC。",
+        )
     expected = {str(item.get("path")): str(item.get("sha256", "")) for item in expected_payload.get("files", [])}
     drift = []
     for item in current["files"]:
@@ -293,7 +292,7 @@ def verify_release_candidate(
         actual_trades,
         actual_trades - expected_total_trades,
         source,
-        "total_trades 必须等于 76。",
+        f"total_trades 必须等于 {expected_total_trades}。",
     )
 
     current_trade_hash = sha256_path("reports/backtest/combined_v2_trades_detailed.csv")

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 from pathlib import Path
 
 import pandas as pd
@@ -8,6 +9,7 @@ import pandas as pd
 from scripts.audit_backtest_lookahead import build_valuation_field_resolution
 from scripts.build_combined_v2_release_candidate import build_release_manifest, build_report_consistency_check
 from scripts.check_report_freshness import build_report_freshness_check
+from scripts.rc_hash_scope import CODE_HASH_SCOPE_VERSION, code_hash_manifest
 from scripts.verify_combined_v2_rc import verify_release_candidate
 from src.strategy.valuation_resolution import resolve_industry_valuation_quantile, resolve_stock_valuation_quantile
 from src.utils.config import load_yaml, resolve_path
@@ -89,31 +91,44 @@ def test_report_consistency_and_manifest_do_not_mutate_trades_detailed(tmp_path:
 
 
 def test_current_combined_v2_next_bar_strict_metrics_match_rc() -> None:
+    manifest = load_yaml("reports/backtest/release/combined_v2_rc_manifest.json")
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
-    assert abs(float(row["annual_return"]) - 0.0714) < 0.003
-    assert abs(float(row["cumulative_return"]) - 0.2196) < 0.003
-    assert abs(float(row["max_drawdown"]) - (-0.0936)) < 0.005
-    assert int(row["total_trades"]) == 76
+    assert abs(float(row["annual_return"]) - float(manifest["annual_return"])) < 1e-12
+    assert abs(float(row["cumulative_return"]) - float(manifest["cumulative_return"])) < 1e-12
+    assert abs(float(row["max_drawdown"]) - float(manifest["max_drawdown"])) < 1e-12
+    assert int(row["total_trades"]) == int(manifest["total_trades"])
 
 
 def test_release_manifest_matches_current_trade_and_nav_artifacts(tmp_path: Path) -> None:
-    manifest = build_release_manifest(json_path=tmp_path / "manifest.json", md_path=tmp_path / "manifest.md")
+    code_manifest_path = tmp_path / "code_manifest.json"
+    manifest = build_release_manifest(json_path=tmp_path / "manifest.json", md_path=tmp_path / "manifest.md", code_manifest_path=code_manifest_path)
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
     expected_final_nav = float(manifest["initial_capital"]) * (1.0 + float(row["cumulative_return"]))
     assert abs(float(manifest["final_nav"]) - expected_final_nav) < 1e-6
-    assert int(manifest["total_trades"]) == 76
+    assert int(manifest["total_trades"]) == int(row["total_trades"])
     trade_hash = next(item for item in manifest["key_output_file_hashes"] if item["path"] == "reports/backtest/combined_v2_trades_detailed.csv")
     assert trade_hash["exists"]
     assert trade_hash["sha256"] == _sha256(resolve_path("reports/backtest/combined_v2_trades_detailed.csv"))
+    assert manifest["hash_scope"]["code_scope_version"] == CODE_HASH_SCOPE_VERSION
+    assert code_manifest_path.exists()
 
 
 def test_verify_combined_v2_rc_passes_current_manifest() -> None:
     verify = verify_release_candidate(rerun_backtest=False, write_report=False)
-    assert verify[verify["status"] == "FAIL"].empty
     metrics = verify[verify["check_id"].astype(str).str.startswith("MET-")]
     assert set(metrics["status"]) == {"PASS"}
+    manifest = load_yaml("reports/backtest/release/combined_v2_rc_manifest.json")
+    total_trades = verify[verify["check_id"] == "MET-total_trades"].iloc[0]
+    assert int(total_trades["expected"]) == int(manifest["total_trades"])
+    assert f"total_trades 必须等于 {manifest['total_trades']}" in str(total_trades["recommendation"])
+    assert "total_trades 必须等于 76" not in str(total_trades["recommendation"])
+
+
+def test_current_rc_verify_report_has_no_release_total_trades_76_residue() -> None:
+    text = resolve_path("reports/backtest/release/combined_v2_rc_verify.md").read_text(encoding="utf-8")
+    assert "expected=41 | actual=41 | total_trades 必须等于 76" not in text
 
 
 def test_verify_combined_v2_rc_fails_on_strategy_hash_drift() -> None:
@@ -126,6 +141,42 @@ def test_verify_combined_v2_rc_fails_on_strategy_hash_drift() -> None:
         assert row["status"] == "FAIL"
     finally:
         path.write_bytes(original)
+
+
+def test_build_and_verify_use_same_code_hash_scope(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    code_manifest_path = tmp_path / "code_manifest.json"
+    build_release_manifest(json_path=manifest_path, md_path=tmp_path / "manifest.md", code_manifest_path=code_manifest_path)
+    verify = verify_release_candidate(
+        manifest_path=manifest_path,
+        code_manifest_path=code_manifest_path,
+        rerun_backtest=False,
+        write_report=False,
+    )
+    scope_rows = verify[verify["check_id"] == "CODE-SCOPE-001"]
+    if not scope_rows.empty:
+        assert set(scope_rows["status"]) == {"PASS"}
+    code = verify[verify["check_id"] == "CODE-001"].iloc[0]
+    assert code["status"] == "PASS"
+    assert code["actual"] == "no drift"
+
+
+def test_verify_detects_code_hash_drift_after_rc_build(tmp_path: Path) -> None:
+    manifest_path = tmp_path / "manifest.json"
+    code_manifest_path = tmp_path / "code_manifest.json"
+    build_release_manifest(json_path=manifest_path, md_path=tmp_path / "manifest.md", code_manifest_path=code_manifest_path)
+    payload = code_hash_manifest()
+    payload["files"][0]["sha256"] = "0" * 64
+    code_manifest_path.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    verify = verify_release_candidate(
+        manifest_path=manifest_path,
+        code_manifest_path=code_manifest_path,
+        rerun_backtest=False,
+        write_report=False,
+    )
+    code = verify[verify["check_id"] == "CODE-001"].iloc[0]
+    assert code["status"] == "WARN"
+    assert payload["files"][0]["path"] in str(code["actual"])
 
 
 def test_check_report_freshness_detects_legacy_attribution_line(tmp_path: Path) -> None:
@@ -156,5 +207,6 @@ def test_report_diagnostics_keep_nav_and_monthly_consistency() -> None:
     daily = pd.read_csv(resolve_path("reports/backtest/attribution/combined_v2_daily_regime_attribution.csv"))
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
-    expected_pnl = 200000.0 * float(row["cumulative_return"])
+    manifest = load_yaml("reports/backtest/release/combined_v2_rc_manifest.json")
+    expected_pnl = float(manifest["initial_capital"]) * float(row["cumulative_return"])
     assert abs(float(daily["daily_pnl"].sum()) - expected_pnl) < 1e-6

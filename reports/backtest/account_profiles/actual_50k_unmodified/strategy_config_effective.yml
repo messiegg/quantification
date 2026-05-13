@@ -42,6 +42,14 @@ execution:
   duplicate_blocked_signal_suppression: false
   min_holding_days_for_soft_trim: 40
   min_holding_days_for_soft_exit: 60
+  hard_add_ban:
+    close_to_ma250_min: 1.0
+    ma120_slope_20d_min: 0
+  trend_stop:
+    disabled_by_control_flag: disable_trend_stop
+    close_lt_ma: ma250
+    ma120_slope_20d_lt: 0
+    unrealized_pnl_pct_lte: -0.12
   grid_execution:
     enabled: true
     atr_multiplier: 1.2
@@ -81,17 +89,55 @@ buckets:
     max_single_name_weight: 0.12
     buy_levels:
       BUY_1:
+        final_score_min: 55
         stock_q_blended_max: 40
         industry_q_blended_max: 55
         close_to_ma120_max: 1.0
+        dv_ttm_min: 0.025
+        latest_net_profit_gt: 0
       BUY_2:
+        final_score_min: 60
         stock_q_blended_max: 30
         industry_q_blended_max: 45
         close_to_ma120_max: 0.96
+        require_grid_or_elapsed: true
+        elapsed_fallback:
+          days_since_last_buy_min: 20
+          close_to_ma120_max: 1.0
       BUY_3:
+        final_score_min: 65
         stock_q_blended_max: 20
         industry_q_blended_max: 35
         close_to_ma120_max: 0.92
+        require_grid_add_ok: true
+        fundamental_break_must_be_false: true
+    high_dividend_supplement:
+      enabled: true
+      disabled_by_control_flag: disable_high_dividend_supplement
+      only_current_tranches: 0
+      target_tranches: 1
+      dv_ttm_min: 0.045
+      final_score_min: 65
+      stock_q_blended_max: 45
+      close_to_ma120_max: 1.03
+    exit_rules:
+      valuation_reversion_exit:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_exit
+        any:
+        - all:
+          - stock_q_blended_gte: 90
+          - close_to_ma120_gte: 1.1
+        - all:
+          - industry_q_blended_gte: 90
+          - stock_q_blended_gte: 80
+      soft_trim:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_trim
+        current_tranches_gt: 1
+        any:
+        - all:
+          - stock_q_blended_gte: 65
+          - close_to_ma120_gte: 1.05
+        - grid_trim_ok: true
     reduce:
       stock_q_blended_min: 65
       close_to_ma120_min: 1.05
@@ -121,14 +167,51 @@ buckets:
       lookback_quarters: 12
     buy_levels:
       BUY_1:
+        final_score_min: 55
         stock_q_blended_max: 35
         industry_q_blended_max: 45
+        close_to_ma120_max: 1.08
+        momentum:
+          any:
+          - close_gte_ma: ma20
+          - ma20_slope_10d_gte: 0
       BUY_2:
+        final_score_min: 60
         stock_q_blended_max: 25
         industry_q_blended_max: 35
+        momentum:
+          any:
+          - close_gte_ma: ma60
+          - all:
+            - close_gte_ma: ma20
+            - ma20_slope_10d_gt: 0
+        require_grid_or_elapsed: true
+        elapsed_fallback:
+          days_since_last_buy_min: 20
+          ma20_slope_10d_gte: 0
       BUY_3:
+        final_score_min: 65
         stock_q_blended_max: 15
         industry_q_blended_max: 25
+        momentum:
+          all:
+          - close_gte_ma: ma60
+          - ma20_slope_10d_gte: 0
+        require_grid_add_ok: true
+    exit_rules:
+      valuation_reversion_exit:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_exit
+        any:
+        - stock_q_blended_gte: 85
+        - industry_q_blended_gte: 90
+      soft_trim:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_trim
+        current_tranches_gt: 1
+        any:
+        - all:
+          - stock_q_blended_gte: 60
+          - close_gte_ma: ma20
+        - grid_trim_ok: true
     reduce:
       stock_q_blended_min: 60
       close_gte_ma20: true

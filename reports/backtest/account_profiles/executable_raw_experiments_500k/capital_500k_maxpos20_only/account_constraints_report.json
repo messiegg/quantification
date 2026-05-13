@@ -1,0 +1,244 @@
+{
+  "generated_at": "2026-05-08T00:48:09.519338+00:00",
+  "git_commit": "fcbad4f7fd70542596dcb7537dba4e7ea41a84c9",
+  "branch": "codex/cleanup-stale-artifacts",
+  "config_hash": "d0e7722a931764444728afd66dcc9b800aaea3e3f4f22893bd04e551c606d74a",
+  "config_files": [
+    {
+      "path": "config/strategy_v2.yml",
+      "exists": true,
+      "sha256": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b"
+    },
+    {
+      "path": "config/account.yml",
+      "exists": true,
+      "sha256": "6482e45ec46ba0609ecf5fa9ca7069fe3a586a017843bf0947239e79728322fd"
+    },
+    {
+      "path": "config/universe_rules_v2.yml",
+      "exists": true,
+      "sha256": "edf1b3ed04cd63dca1ca546f1a07641e84e1f3808aac166abef34e895264c2a8"
+    },
+    {
+      "path": "config/metric_map.yml",
+      "exists": true,
+      "sha256": "5d01eaf16b945566c3686dd66fd2c52f6184ee7afa2712890571982fd35901ce"
+    },
+    {
+      "path": "config/data_sources.yml",
+      "exists": true,
+      "sha256": "7fbaa95bacdac5ed7cc1acda832661a0925cdd1da9ca6550bf791f44254ca5d9"
+    },
+    {
+      "path": "config/observation.yml",
+      "exists": true,
+      "sha256": "d8c632ef4363e733065213a98a8b9b328b87281745ec7cd67d98582448b6e31b"
+    },
+    {
+      "path": "config/observation_readiness.yml",
+      "exists": true,
+      "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
+    },
+    {
+      "path": "reports/backtest/account_profiles/executable_raw_experiments_500k/capital_500k_maxpos20_only/account_config_effective.yml",
+      "exists": true,
+      "sha256": "ba0bd2a35f28dda25f9039f636f7ee06ed78607eff9b69bad15910f623be45b9"
+    },
+    {
+      "path": "reports/backtest/account_profiles/executable_raw_experiments_500k/capital_500k_maxpos20_only/strategy_config_effective.yml",
+      "exists": true,
+      "sha256": "02da8e4dde84b27bc5b036f07b5ded4c659678170532b7913489aeb796f7e14f"
+    }
+  ],
+  "data_hash": "edd05b59034e62c932310e928117ccf8703ed97a7bf7d8da8c33d991705fe34d",
+  "requested_date": "",
+  "target_trade_date": "",
+  "manual_review_required": true,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "runtime_profile": {
+    "account_profile": "capital_500k_maxpos20_only",
+    "research_only": true,
+    "initial_capital": 500000.0,
+    "current_cash": 500000.0,
+    "latest_total_equity": 500000.0,
+    "min_trade_value": 1500.0,
+    "round_lot": 100,
+    "commission_rate": 0.0003,
+    "stamp_duty_rate_sell": 0.0005,
+    "slippage_bps": 5.0,
+    "universe_target_size": 36,
+    "universe_floor": 24,
+    "universe_selected_count": 30,
+    "portfolio_max_positions": 20,
+    "portfolio_equal_weight_target_positions": 20
+  },
+  "account_profile": "capital_500k_maxpos20_only",
+  "research_only": true,
+  "initial_capital": 500000.0,
+  "current_cash": 500000.0,
+  "latest_total_equity": 500000.0,
+  "min_trade_value": 1500.0,
+  "round_lot": 100,
+  "commission_rate": 0.0003,
+  "stamp_duty_rate_sell": 0.0005,
+  "slippage_bps": 5.0,
+  "universe_target_size": 36,
+  "universe_floor": 24,
+  "universe_selected_count": 30,
+  "portfolio_max_positions": 20,
+  "portfolio_equal_weight_target_positions": 20,
+  "status": "WARN",
+  "raw_buy_signal_count": 268,
+  "unique_raw_buy_intent_count": 114,
+  "repeated_blocked_buy_signal_count": 154,
+  "repeat_raw_buy_intent_count": 154,
+  "repeat_raw_buy_intent_ratio": 0.5746268656716418,
+  "raw_sell_signal_count": 33,
+  "account_feasible_buy_signal_count": 63,
+  "user_visible_buy_recommendation_count": 46,
+  "user_visible_blocked_buy_count": 68,
+  "pending_buy_intent_count": 41,
+  "executable_buy_count": 46,
+  "executable_new_position_buy_count": 39,
+  "executable_add_buy_count": 6,
+  "executable_sell_count": 33,
+  "blocked_buy_count": 222,
+  "blocked_sell_count": 0,
+  "full_portfolio_raw_buy_intent_count": 17,
+  "full_portfolio_raw_buy_intent_ratio": 0.06343283582089553,
+  "new_position_raw_intent_count": 220,
+  "add_position_raw_intent_count": 48,
+  "blocker_counts": {
+    "CASH_INSUFFICIENT_FOR_ONE_LOT": 202,
+    "MAX_POSITIONS_LIMIT": 17,
+    "CASH_INSUFFICIENT": 3,
+    "TOTAL_EXPOSURE_LIMIT": 1
+  },
+  "min_trade_amount_block_count": 0,
+  "cash_block_count": 3,
+  "cash_one_lot_block_count": 202,
+  "exposure_block_count": 1,
+  "single_name_block_count": 0,
+  "lot_size_block_count": 0,
+  "price_too_high_for_account_lot_count": 0,
+  "price_too_high_for_remaining_capacity_count": 0,
+  "lot_size_accumulation_required_count": 0,
+  "pending_add_block_count": 0,
+  "max_positions_block_count": 17,
+  "daily_new_position_block_count": 0,
+  "daily_add_block_count": 0,
+  "unknown_block_count": 0,
+  "executable_raw_buy_ratio": 0.17164179104477612,
+  "executable_unique_raw_intent_ratio": 0.40350877192982454,
+  "executable_account_feasible_buy_ratio": 0.7301587301587301,
+  "executable_raw_sell_ratio": 1.0,
+  "max_positions_block_ratio": 0.06343283582089553,
+  "cash_block_ratio": 0.011194029850746268,
+  "cash_liquidity_block_count": 205,
+  "cash_liquidity_block_ratio": 0.7649253731343284,
+  "cash_insufficient_for_one_lot_ratio": 0.753731343283582,
+  "lot_size_accumulation_required_ratio": 0.0,
+  "price_too_high_for_account_lot_ratio": 0.0,
+  "average_cash_ratio": 0.5190053452945862,
+  "average_exposure": 0.505230908448619,
+  "max_exposure": 0.7464174595410944,
+  "turnover": 1434475.676,
+  "metric_denominators": {
+    "executable_raw_buy_ratio": "executable_buy_count / raw_buy_signal_count",
+    "executable_unique_raw_intent_ratio": "executable_buy_count / unique_raw_buy_intent_count",
+    "executable_account_feasible_buy_ratio": "executable_buy_count / account_feasible_buy_signal_count",
+    "repeat_raw_buy_intent_ratio": "repeat_raw_buy_intent_count / raw_buy_signal_count",
+    "full_portfolio_raw_buy_intent_ratio": "full_portfolio_raw_buy_intent_count / raw_buy_signal_count",
+    "max_positions_block_ratio": "max_positions_block_count / raw_buy_signal_count",
+    "cash_block_ratio": "cash_block_count / raw_buy_signal_count; excludes CASH_INSUFFICIENT_FOR_ONE_LOT",
+    "cash_liquidity_block_ratio": "(cash_block_count + cash_insufficient_for_one_lot_count) / raw_buy_signal_count",
+    "block_reason_breakdown.count_pct_of_raw": "reason_code count / raw_buy_signal_count",
+    "block_reason_breakdown.count_pct_of_blocked": "reason_code count / total blocked_signals rows"
+  },
+  "block_reason_breakdown": [
+    {
+      "reason_code": "CASH_INSUFFICIENT_FOR_ONE_LOT",
+      "description_zh": "当前可用现金不足以买入一手。",
+      "count": 202,
+      "count_pct_of_raw": 0.753731343283582,
+      "count_pct_of_blocked": 0.905829596412556,
+      "affected_unique_symbols": 16,
+      "affected_trade_dates": 61,
+      "dominant_bucket": "defensive_dividend",
+      "example_symbols": [
+        "600585.sh",
+        "600926.sh",
+        "601336.sh",
+        "601601.sh",
+        "601318.sh",
+        "000333.sz",
+        "601018.sh",
+        "000807.sz",
+        "600233.sh",
+        "300628.sz"
+      ]
+    },
+    {
+      "reason_code": "MAX_POSITIONS_LIMIT",
+      "description_zh": "组合已达到最大持仓数，新的买入意图被阻断。",
+      "count": 17,
+      "count_pct_of_raw": 0.06343283582089553,
+      "count_pct_of_blocked": 0.07623318385650224,
+      "affected_unique_symbols": 6,
+      "affected_trade_dates": 12,
+      "dominant_bucket": "cyclical_rotation",
+      "example_symbols": [
+        "600585.sh",
+        "000708.sz",
+        "600426.sh",
+        "601688.sh",
+        "601601.sh",
+        "601021.sh"
+      ]
+    },
+    {
+      "reason_code": "CASH_INSUFFICIENT",
+      "description_zh": "现金不足以满足目标订单金额。",
+      "count": 3,
+      "count_pct_of_raw": 0.011194029850746268,
+      "count_pct_of_blocked": 0.013452914798206279,
+      "affected_unique_symbols": 3,
+      "affected_trade_dates": 2,
+      "dominant_bucket": "cyclical_rotation",
+      "example_symbols": [
+        "601018.sh",
+        "000708.sz",
+        "601688.sh"
+      ]
+    },
+    {
+      "reason_code": "TOTAL_EXPOSURE_LIMIT",
+      "description_zh": "未知或未归类阻断原因。",
+      "count": 1,
+      "count_pct_of_raw": 0.0037313432835820895,
+      "count_pct_of_blocked": 0.004484304932735426,
+      "affected_unique_symbols": 1,
+      "affected_trade_dates": 1,
+      "dominant_bucket": "defensive_dividend",
+      "example_symbols": [
+        "000333.sz"
+      ]
+    }
+  ],
+  "warnings": [
+    {
+      "code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION",
+      "message": "account constraints dominate buy execution",
+      "expected": "executable/raw >= 0.25",
+      "actual": 0.17164179104477612
+    }
+  ],
+  "violations": [],
+  "source_files": [
+    "reports/backtest/account_profiles/executable_raw_experiments_500k/capital_500k_maxpos20_only/capital_500k_maxpos20_only_signal_funnel.csv",
+    "reports/backtest/account_profiles/executable_raw_experiments_500k/capital_500k_maxpos20_only/capital_500k_maxpos20_only_blocked_signals.csv",
+    "reports/backtest/account_profiles/executable_raw_experiments_500k/capital_500k_maxpos20_only/capital_500k_maxpos20_only_trades_detailed.csv"
+  ]
+}

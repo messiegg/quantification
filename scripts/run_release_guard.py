@@ -716,27 +716,46 @@ def build_release_guard_report(
         csv_path = resolve_path(output_csv)
         md_path = resolve_path(output_md)
         csv_path.parent.mkdir(parents=True, exist_ok=True)
-        frame.to_csv(csv_path, index=False, quoting=csv.QUOTE_MINIMAL)
-        overall = "FAIL" if (frame["status"] == "FAIL").any() else "WARN" if (frame["status"] == "WARN").any() else "PASS"
-        lines = [
-            "# release guard report",
-            "",
-            f"- overall_status: {overall}",
-            f"- as_of_date: {as_of_date}",
-            f"- mode: {'ci' if ci else 'local'}",
-            f"- strict: {str(strict).lower()}",
-            f"- fail_count: {int((frame['status'] == 'FAIL').sum())}",
-            f"- warn_count: {int((frame['status'] == 'WARN').sum())}",
-            "",
-            "## checks",
-            "",
-        ]
-        for row in frame.to_dict(orient="records"):
-            lines.append(
-                f"- {row['status']} | {row['check_id']} | {row['check_name']} | actual={row['actual']} | evidence={row['evidence']} | {row['recommendation']}"
-            )
-        md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
-        _write_release_manifest(frame, as_of_date, audit_payloads)
+
+        def _write_outputs() -> None:
+            frame.to_csv(csv_path, index=False, quoting=csv.QUOTE_MINIMAL)
+            overall = "FAIL" if (frame["status"] == "FAIL").any() else "WARN" if (frame["status"] == "WARN").any() else "PASS"
+            lines = [
+                "# release guard report",
+                "",
+                f"- overall_status: {overall}",
+                f"- as_of_date: {as_of_date}",
+                f"- mode: {'ci' if ci else 'local'}",
+                f"- strict: {str(strict).lower()}",
+                f"- fail_count: {int((frame['status'] == 'FAIL').sum())}",
+                f"- warn_count: {int((frame['status'] == 'WARN').sum())}",
+                "",
+                "## checks",
+                "",
+            ]
+            for row in frame.to_dict(orient="records"):
+                lines.append(
+                    f"- {row['status']} | {row['check_id']} | {row['check_name']} | actual={row['actual']} | evidence={row['evidence']} | {row['recommendation']}"
+                )
+            md_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+            _write_release_manifest(frame, as_of_date, audit_payloads)
+
+        _write_outputs()
+        final_rc_frame = verify_release_candidate(mode="hash-only", write_report=write_report)
+        final_rc_status, final_rc_actual = _summarize_frame(final_rc_frame)
+        rc_mask = frame["check_id"] == "RG-005"
+        if not rc_mask.empty and set(frame.loc[rc_mask, "status"].astype(str).str.upper()) != {final_rc_status}:
+            frame.loc[rc_mask, "status"] = final_rc_status
+            frame.loc[rc_mask, "actual"] = final_rc_actual
+            _write_outputs()
+        final_status_consistency = build_release_status_consistency_report(write_report=write_report)
+        final_status_consistency_status = str(final_status_consistency.get("status", "FAIL")).upper()
+        status_mask = frame["check_id"] == "RG-STATUS-001"
+        if not status_mask.empty and set(frame.loc[status_mask, "status"].astype(str).str.upper()) != {final_status_consistency_status}:
+            audit_payloads["release_status_consistency"] = final_status_consistency
+            frame.loc[status_mask, "status"] = final_status_consistency_status
+            frame.loc[status_mask, "actual"] = final_status_consistency.get("expected_current_release_status", "missing")
+            _write_outputs()
     return frame
 
 

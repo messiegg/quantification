@@ -132,6 +132,88 @@ def _control_flag(strategy_cfg: dict, name: str) -> bool:
     return bool((strategy_cfg.get("control_overrides", {}) or {}).get(name, False))
 
 
+def _cfg_type_name(expected_type: type | tuple[type, ...]) -> str:
+    if isinstance(expected_type, tuple):
+        return " or ".join(item.__name__ for item in expected_type)
+    return expected_type.__name__
+
+
+def _required_cfg(mapping: dict, path: str, expected_type: type | tuple[type, ...] | None = None) -> object:
+    current: object = mapping
+    for part in path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            raise ValueError(f"missing required config: {path}")
+        current = current[part]
+    if expected_type is not None and not isinstance(current, expected_type):
+        raise ValueError(f"invalid config type at {path}: expected {_cfg_type_name(expected_type)}")
+    return current
+
+
+def _optional_cfg(mapping: dict, path: str, default: object = None) -> object:
+    current: object = mapping
+    for part in path.split("."):
+        if not isinstance(current, dict) or part not in current:
+            return default
+        current = current[part]
+    return current
+
+
+def _rule_items(rule_cfg: dict) -> dict:
+    return {key: value for key, value in rule_cfg.items() if key not in {"_context", "_level_name", "_config_path"}}
+
+
+def _passes_momentum_rule(record: dict, rule_cfg: dict) -> bool:
+    if not isinstance(rule_cfg, dict):
+        raise ValueError("momentum rule must be a mapping")
+    context = str(rule_cfg.get("_context", "unknown bucket/level"))
+    rules = _rule_items(rule_cfg)
+    if not rules:
+        return True
+    results: list[bool] = []
+    for operator, value in rules.items():
+        if operator == "any":
+            if not isinstance(value, list):
+                raise ValueError(f"momentum any must be a list in {context}")
+            results.append(any(_passes_momentum_rule(record, {**item, "_context": context}) for item in value if isinstance(item, dict)))
+        elif operator == "all":
+            if not isinstance(value, list):
+                raise ValueError(f"momentum all must be a list in {context}")
+            results.append(all(_passes_momentum_rule(record, {**item, "_context": context}) for item in value if isinstance(item, dict)))
+        elif operator == "close_gte_ma":
+            ma_value = _safe_float(record.get(str(value)))
+            results.append(_safe_float(record.get("close")) >= ma_value)
+        elif operator == "ma20_slope_10d_gte":
+            results.append(_safe_float(record.get("ma20_slope_10d"), default=-10**9) >= float(value))
+        elif operator == "ma20_slope_10d_gt":
+            results.append(_safe_float(record.get("ma20_slope_10d"), default=-10**9) > float(value))
+        else:
+            raise ValueError(f"unknown momentum operator {operator} in {context}")
+    return all(results)
+
+
+def _passes_elapsed_fallback(record: dict, fallback_cfg: dict | None) -> bool:
+    if not isinstance(fallback_cfg, dict) or not fallback_cfg:
+        return False
+    for operator, value in fallback_cfg.items():
+        if operator == "days_since_last_buy_min":
+            if _safe_int(record.get("days_since_last_buy")) < int(value):
+                return False
+        elif operator == "close_to_ma120_max":
+            ma120 = _safe_float(record.get("ma120"))
+            if ma120 <= 0 or _safe_float(record.get("close")) / ma120 > float(value):
+                return False
+        elif operator == "ma20_slope_10d_gte":
+            if _safe_float(record.get("ma20_slope_10d"), default=-10**9) < float(value):
+                return False
+        else:
+            raise ValueError(f"unknown elapsed_fallback operator {operator}")
+    return True
+
+
+def _resolve_min_holding_days(strategy_cfg: dict, path: str) -> int:
+    return int(float(_required_cfg(strategy_cfg, path, (int, float))))
+
+
 def _is_risk_guard_strategy(strategy_cfg: dict) -> bool:
     return _profile_name(strategy_cfg) == "combined_v2_1_risk_guard" or _control_flag(strategy_cfg, "risk_guard")
 
@@ -371,9 +453,101 @@ class SignalEngine:
             return float(self._bucket_cfg(bucket).get("max_single_name_weight", self.max_single_stock_weight))
         return self.max_single_stock_weight
 
+    def _passes_v2_thresholds(self, record: dict, bucket: str, level_cfg: dict, target_tranches: int) -> bool:
+        level_path = str(level_cfg.get("_config_path", f"buckets.{bucket}.buy_levels.{level_cfg.get('_level_name', 'UNKNOWN')}"))
+        level_name = str(level_cfg.get("_level_name", "UNKNOWN"))
+        final_score = _safe_float(record.get("universe_final_score", record.get("final_score")))
+        stock_q = _stock_valuation_quantile(record, bucket)
+        industry_q = _industry_valuation_quantile(record, bucket)
+        current_weight = _safe_float(record.get("current_weight"))
+
+        if final_score < float(_required_cfg(self.strategy_cfg, f"{level_path}.final_score_min", (int, float))):
+            return False
+        if stock_q > float(_required_cfg(self.strategy_cfg, f"{level_path}.stock_q_blended_max", (int, float))):
+            return False
+        if industry_q > float(_required_cfg(self.strategy_cfg, f"{level_path}.industry_q_blended_max", (int, float))):
+            return False
+        close_to_ma120_max = _optional_cfg(self.strategy_cfg, f"{level_path}.close_to_ma120_max")
+        if close_to_ma120_max is not None:
+            ma120 = _safe_float(record.get("ma120"))
+            if ma120 <= 0 or _safe_float(record.get("close")) / ma120 > float(close_to_ma120_max):
+                return False
+        dv_ttm_min = _optional_cfg(self.strategy_cfg, f"{level_path}.dv_ttm_min")
+        if dv_ttm_min is not None and _safe_float(record.get("dv_ttm")) < float(dv_ttm_min):
+            return False
+        latest_net_profit_gt = _optional_cfg(self.strategy_cfg, f"{level_path}.latest_net_profit_gt")
+        if latest_net_profit_gt is not None and _safe_float(record.get("latest_net_profit")) <= float(latest_net_profit_gt):
+            return False
+        if current_weight >= self._weight_for_tranches(target_tranches, bucket):
+            return False
+        if bool(_optional_cfg(self.strategy_cfg, f"{level_path}.fundamental_break_must_be_false", False)) and bool(record.get("fundamental_break")):
+            return False
+
+        momentum_cfg = _optional_cfg(self.strategy_cfg, f"{level_path}.momentum")
+        if momentum_cfg is not None and not _passes_momentum_rule(record, {**momentum_cfg, "_context": f"{bucket}.{level_name}"}):
+            return False
+
+        require_grid_add = bool(_optional_cfg(self.strategy_cfg, f"{level_path}.require_grid_add_ok", False))
+        require_grid_or_elapsed = bool(_optional_cfg(self.strategy_cfg, f"{level_path}.require_grid_or_elapsed", False))
+        if require_grid_add or require_grid_or_elapsed:
+            grid_ok = self._grid_add_ok_v2(record)
+            if require_grid_add and not grid_ok:
+                return False
+            if require_grid_or_elapsed:
+                fallback_cfg = _optional_cfg(self.strategy_cfg, f"{level_path}.elapsed_fallback")
+                if not (grid_ok or _passes_elapsed_fallback(record, fallback_cfg if isinstance(fallback_cfg, dict) else None)):
+                    return False
+        return True
+
+    def _passes_exit_rule(self, record: dict, bucket: str, rule_cfg: dict) -> bool:
+        context = str(rule_cfg.get("_context", f"buckets.{bucket}.exit_rules"))
+
+        def evaluate(node: dict) -> bool:
+            if not isinstance(node, dict):
+                raise ValueError(f"exit rule node must be a mapping in {context}")
+            results: list[bool] = []
+            for operator, value in _rule_items(node).items():
+                if operator == "min_holding_days_config_key":
+                    continue
+                if operator == "any":
+                    if not isinstance(value, list):
+                        raise ValueError(f"exit rule any must be a list in {context}")
+                    results.append(any(evaluate(item) for item in value if isinstance(item, dict)))
+                elif operator == "all":
+                    if not isinstance(value, list):
+                        raise ValueError(f"exit rule all must be a list in {context}")
+                    results.append(all(evaluate(item) for item in value if isinstance(item, dict)))
+                elif operator == "stock_q_blended_gte":
+                    results.append(_stock_valuation_quantile(record, bucket) >= float(value))
+                elif operator == "industry_q_blended_gte":
+                    results.append(_industry_valuation_quantile(record, bucket) >= float(value))
+                elif operator == "close_to_ma120_gte":
+                    ma120 = _safe_float(record.get("ma120"))
+                    results.append(ma120 > 0 and _safe_float(record.get("close")) / ma120 >= float(value))
+                elif operator == "close_gte_ma":
+                    results.append(_safe_float(record.get("close")) >= _safe_float(record.get(str(value))))
+                elif operator == "grid_trim_ok":
+                    results.append(self._grid_trim_ok_v2(record) if bool(value) else not self._grid_trim_ok_v2(record))
+                elif operator == "current_tranches_gt":
+                    results.append(_safe_int(record.get("current_position_tranches")) > int(value))
+                else:
+                    raise ValueError(f"unknown exit rule operator {operator} in {context}")
+            return all(results) if results else True
+
+        return evaluate(rule_cfg)
+
     def _hard_add_ban_v2(self, record: dict) -> bool:
         bucket = str(record.get("bucket"))
-        if _safe_float(record.get("close")) < _safe_float(record.get("ma250")) and _safe_float(record.get("ma120_slope_20d")) < 0:
+        hard_path = "execution.hard_add_ban"
+        if not isinstance(_optional_cfg(self.strategy_cfg, hard_path), dict):
+            hard_path = "execution.grid_execution.hard_add_ban"
+            _required_cfg(self.strategy_cfg, hard_path, dict)
+        close_to_ma250_min = float(_required_cfg(self.strategy_cfg, f"{hard_path}.close_to_ma250_min", (int, float)))
+        ma120_slope_min = float(_required_cfg(self.strategy_cfg, f"{hard_path}.ma120_slope_20d_min", (int, float)))
+        close = _safe_float(record.get("close"))
+        ma250 = _safe_float(record.get("ma250"))
+        close_to_ma250 = close / ma250 if ma250 > 0 else None
+        if close_to_ma250 is not None and close_to_ma250 < close_to_ma250_min and _safe_float(record.get("ma120_slope_20d")) < ma120_slope_min:
             return True
         if bool(record.get("fundamental_break")):
             return True
@@ -421,144 +595,96 @@ class SignalEngine:
 
     def _buy_level_v2(self, record: dict, current_tranches: int) -> tuple[int, str]:
         bucket = str(record.get("bucket"))
-        bucket_cfg = self._bucket_cfg(bucket)
-        final_score = _safe_float(record.get("universe_final_score", record.get("final_score")))
-        stock_q = _stock_valuation_quantile(record, bucket)
-        industry_q = _industry_valuation_quantile(record, bucket)
-        close = _safe_float(record.get("close"))
-        ma120 = _safe_float(record.get("ma120"), default=0.0)
-        close_to_ma120 = close / ma120 if ma120 else float("inf")
-        current_weight = _safe_float(record.get("current_weight"))
         if self._hard_add_ban_v2(record):
             return current_tranches, "hard_add_ban 阻断开仓或加仓。"
 
         if bucket == "defensive_dividend":
-            if (
-                not _control_flag(self.strategy_cfg, "disable_high_dividend_supplement")
-                and _safe_float(record.get("dv_ttm")) >= 0.045
-                and final_score >= 65
-                and stock_q <= 45
-                and close_to_ma120 <= 1.03
-                and current_tranches == 0
-            ):
-                return 1, "高股息补充触发 BUY_1。"
-            if current_tranches == 0:
-                passed = bool(
-                    final_score >= 55
-                    and stock_q <= 40
-                    and industry_q <= 55
-                    and close_to_ma120 <= 1.00
-                    and _safe_float(record.get("dv_ttm")) >= 0.025
-                    and _safe_float(record.get("latest_net_profit")) > 0
-                    and current_weight < self._weight_for_tranches(1, bucket)
-                )
-                return (1, "满足 defensive BUY_1。") if passed else (0, "未满足 defensive BUY_1。")
-            if current_tranches == 1:
-                elapsed_ok = _safe_int(record.get("days_since_last_buy")) >= 20 and close_to_ma120 <= 1.00
-                passed = bool(
-                    final_score >= 60
-                    and stock_q <= 30
-                    and industry_q <= 45
-                    and close_to_ma120 <= 0.96
-                    and current_weight < self._weight_for_tranches(2, bucket)
-                    and (self._grid_add_ok_v2(record) or elapsed_ok)
-                )
-                return (2, "满足 defensive BUY_2。") if passed else (1, "未满足 defensive BUY_2 或网格加仓条件。")
-            if current_tranches == 2:
-                passed = bool(
-                    final_score >= 65
-                    and stock_q <= 20
-                    and industry_q <= 35
-                    and close_to_ma120 <= 0.92
-                    and current_weight < self._weight_for_tranches(3, bucket)
-                    and self._grid_add_ok_v2(record)
-                    and not bool(record.get("fundamental_break"))
-                )
-                return (3, "满足 defensive BUY_3。") if passed else (2, "未满足 defensive BUY_3 或网格加仓条件。")
-            return current_tranches, "已达到 defensive 最大分批。"
+            supplement_path = "buckets.defensive_dividend.high_dividend_supplement"
+            supplement_cfg = _optional_cfg(self.strategy_cfg, supplement_path, {})
+            if isinstance(supplement_cfg, dict) and bool(supplement_cfg.get("enabled", False)):
+                disabled_flag = str(_required_cfg(self.strategy_cfg, f"{supplement_path}.disabled_by_control_flag", str))
+                only_current = int(_required_cfg(self.strategy_cfg, f"{supplement_path}.only_current_tranches", int))
+                target_tranches = int(_required_cfg(self.strategy_cfg, f"{supplement_path}.target_tranches", int))
+                ma120 = _safe_float(record.get("ma120"))
+                close_to_ma120 = _safe_float(record.get("close")) / ma120 if ma120 > 0 else float("inf")
+                if (
+                    not _control_flag(self.strategy_cfg, disabled_flag)
+                    and current_tranches == only_current
+                    and _safe_float(record.get("dv_ttm")) >= float(_required_cfg(self.strategy_cfg, f"{supplement_path}.dv_ttm_min", (int, float)))
+                    and _safe_float(record.get("universe_final_score", record.get("final_score"))) >= float(_required_cfg(self.strategy_cfg, f"{supplement_path}.final_score_min", (int, float)))
+                    and _stock_valuation_quantile(record, bucket) <= float(_required_cfg(self.strategy_cfg, f"{supplement_path}.stock_q_blended_max", (int, float)))
+                    and close_to_ma120 <= float(_required_cfg(self.strategy_cfg, f"{supplement_path}.close_to_ma120_max", (int, float)))
+                ):
+                    return target_tranches, "高股息补充触发 BUY_1。"
 
-        pb_q = _safe_float(record.get("stock_pb_q_blended", stock_q), default=stock_q)
-        industry_pb_q = _safe_float(record.get("industry_pb_q_blended", industry_q), default=industry_q)
-        ma20 = _safe_float(record.get("ma20"))
-        ma60 = _safe_float(record.get("ma60"))
-        ma20_slope = _safe_float(record.get("ma20_slope_10d"), default=-1.0)
-        if bool(record.get("cycle_peak_trap")):
+        if bucket == "cyclical_rotation" and bool(record.get("cycle_peak_trap")):
             return current_tranches, "cycle_peak_trap 阻断周期股开仓或加仓。"
-        if current_tranches == 0:
-            passed = bool(
-                final_score >= 55
-                and pb_q <= 35
-                and industry_pb_q <= 45
-                and (close >= ma20 or ma20_slope >= 0)
-                and close_to_ma120 <= 1.08
-                and current_weight < self._weight_for_tranches(1, bucket)
-            )
-            return (1, "满足 cyclical BUY_1。") if passed else (0, "未满足 cyclical BUY_1。")
-        if current_tranches == 1:
-            elapsed_ok = _safe_int(record.get("days_since_last_buy")) >= 20 and ma20_slope >= 0
-            passed = bool(
-                final_score >= 60
-                and pb_q <= 25
-                and industry_pb_q <= 35
-                and (close >= ma60 or (close >= ma20 and ma20_slope > 0))
-                and current_weight < self._weight_for_tranches(2, bucket)
-                and (self._grid_add_ok_v2(record) or elapsed_ok)
-            )
-            return (2, "满足 cyclical BUY_2。") if passed else (1, "未满足 cyclical BUY_2 或网格加仓条件。")
-        if current_tranches == 2:
-            passed = bool(
-                final_score >= 65
-                and pb_q <= 15
-                and industry_pb_q <= 25
-                and close >= ma60
-                and ma20_slope >= 0
-                and current_weight < self._weight_for_tranches(3, bucket)
-                and self._grid_add_ok_v2(record)
-            )
-            return (3, "满足 cyclical BUY_3。") if passed else (2, "未满足 cyclical BUY_3 或网格加仓条件。")
-        return current_tranches, "已达到 cyclical 最大分批。"
+
+        level_by_tranches = {0: ("BUY_1", 1), 1: ("BUY_2", 2), 2: ("BUY_3", 3)}
+        if current_tranches not in level_by_tranches:
+            return current_tranches, f"已达到 {bucket} 最大分批。"
+        level_name, target_tranches = level_by_tranches[current_tranches]
+        level_path = f"buckets.{bucket}.buy_levels.{level_name}"
+        level_cfg = dict(_required_cfg(self.strategy_cfg, level_path, dict))
+        level_cfg["_config_path"] = level_path
+        level_cfg["_level_name"] = level_name
+        passed = self._passes_v2_thresholds(record, bucket, level_cfg, target_tranches)
+        if passed:
+            return target_tranches, f"满足 {bucket.split('_')[0]} {level_name}。"
+        suffix = " 或网格加仓条件" if current_tranches > 0 else ""
+        return current_tranches, f"未满足 {bucket.split('_')[0]} {level_name}{suffix}。"
 
     def _sell_target_v2(self, record: dict, current_tranches: int) -> tuple[int, str, str]:
         bucket = str(record.get("bucket"))
-        stock_q = _stock_valuation_quantile(record, bucket)
-        industry_q = _industry_valuation_quantile(record, bucket)
         close = _safe_float(record.get("close"))
-        ma20 = _safe_float(record.get("ma20"))
         ma60 = _safe_float(record.get("ma60"))
-        ma120 = _safe_float(record.get("ma120"))
-        ma250 = _safe_float(record.get("ma250"))
-        ma120_slope = _safe_float(record.get("ma120_slope_20d"))
         holding_days = _safe_int(record.get("holding_days"))
         unrealized_pnl_pct = _safe_float(record.get("unrealized_pnl_pct"))
-        min_trim_days = int(self.strategy_cfg["execution"].get("min_holding_days_for_soft_trim", 40))
-        min_exit_days = int(self.strategy_cfg["execution"].get("min_holding_days_for_soft_exit", 60))
 
         if bool(record.get("fundamental_break")):
             return 0, "fundamental_break，强制清仓。", "fundamental_break"
-        if not _control_flag(self.strategy_cfg, "disable_trend_stop") and close < ma250 and ma120_slope < 0 and unrealized_pnl_pct <= -0.12:
-            return 0, "长期趋势破坏且亏损超过阈值，强制清仓。", "trend_stop"
+        trend_path = "execution.trend_stop"
+        trend_cfg = _optional_cfg(self.strategy_cfg, trend_path, {})
+        if isinstance(trend_cfg, dict) and trend_cfg:
+            disabled_flag = str(_required_cfg(self.strategy_cfg, f"{trend_path}.disabled_by_control_flag", str))
+            close_ma_field = str(_required_cfg(self.strategy_cfg, f"{trend_path}.close_lt_ma", str))
+            slope_limit = float(_required_cfg(self.strategy_cfg, f"{trend_path}.ma120_slope_20d_lt", (int, float)))
+            pnl_limit = float(_required_cfg(self.strategy_cfg, f"{trend_path}.unrealized_pnl_pct_lte", (int, float)))
+            if (
+                not _control_flag(self.strategy_cfg, disabled_flag)
+                and close < _safe_float(record.get(close_ma_field))
+                and _safe_float(record.get("ma120_slope_20d")) < slope_limit
+                and unrealized_pnl_pct <= pnl_limit
+            ):
+                return 0, "长期趋势破坏且亏损超过阈值，强制清仓。", "trend_stop"
         if bucket == "cyclical_rotation" and bool(record.get("cycle_peak_trap")) and close < ma60 and _safe_float(record.get("ma20_slope_10d")) < 0:
             return 0, "cycle_peak_trap 叠加趋势转弱，清仓。", "cycle_peak_trap_trend_break"
 
-        if bucket == "defensive_dividend":
-            if holding_days >= min_exit_days and (
-                (stock_q >= 90 and ma120 and close >= 1.10 * ma120)
-                or (industry_q >= 90 and stock_q >= 80)
-            ):
+        exit_rules_path = f"buckets.{bucket}.exit_rules"
+        exit_rules = _required_cfg(self.strategy_cfg, exit_rules_path, dict)
+        valuation_rule_path = f"{exit_rules_path}.valuation_reversion_exit"
+        valuation_rule = dict(_required_cfg(self.strategy_cfg, valuation_rule_path, dict))
+        valuation_rule["_context"] = valuation_rule_path
+        min_exit_days = _resolve_min_holding_days(
+            self.strategy_cfg,
+            str(_required_cfg(self.strategy_cfg, f"{valuation_rule_path}.min_holding_days_config_key", str)),
+        )
+        if holding_days >= min_exit_days and self._passes_exit_rule(record, bucket, valuation_rule):
+            if bucket == "defensive_dividend":
                 return 0, "防御股估值明显回归，清仓。", "valuation_reversion_exit"
-            if holding_days >= min_trim_days and current_tranches > 1 and (
-                (stock_q >= 65 and ma120 and close >= 1.05 * ma120)
-                or self._grid_trim_ok_v2(record)
-            ):
+            return 0, "周期股估值回归，清仓。", "valuation_reversion_exit"
+
+        soft_rule_path = f"{exit_rules_path}.soft_trim"
+        soft_rule = dict(_required_cfg(self.strategy_cfg, soft_rule_path, dict))
+        soft_rule["_context"] = soft_rule_path
+        min_trim_days = _resolve_min_holding_days(
+            self.strategy_cfg,
+            str(_required_cfg(self.strategy_cfg, f"{soft_rule_path}.min_holding_days_config_key", str)),
+        )
+        if holding_days >= min_trim_days and self._passes_exit_rule(record, bucket, soft_rule):
+            if bucket == "defensive_dividend":
                 return max(1, current_tranches - 1), "防御股估值回升或网格止盈，减一档。", "soft_trim"
-        else:
-            if holding_days >= min_exit_days and (stock_q >= 85 or industry_q >= 90):
-                return 0, "周期股估值回归，清仓。", "valuation_reversion_exit"
-            if holding_days >= min_trim_days and current_tranches > 1 and (
-                (stock_q >= 60 and close >= ma20)
-                or self._grid_trim_ok_v2(record)
-            ):
-                return max(1, current_tranches - 1), "周期股估值回升或网格止盈，减一档。", "soft_trim"
+            return max(1, current_tranches - 1), "周期股估值回升或网格止盈，减一档。", "soft_trim"
         return current_tranches, "继续持有。", ""
 
     def _apply_v2_buy_guards(
@@ -708,7 +834,7 @@ class SignalEngine:
 
         if target_tranches > current_tranches:
             level_name = f"BUY_{target_tranches}"
-            record["entry_signal_score"] = compute_entry_signal_score(record, self._bucket_cfg(bucket), "BUY_1") if "buy_levels" in self._bucket_cfg(bucket) else 0.0
+            record["entry_signal_score"] = compute_entry_signal_score(record, self._bucket_cfg(bucket), level_name) if "buy_levels" in self._bucket_cfg(bucket) else 0.0
             record["signal_level"] = level_name
         elif target_tranches < current_tranches:
             record["signal_level"] = "SELL_ALL" if target_tranches == 0 else "SELL_HALF"

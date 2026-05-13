@@ -1,7 +1,49 @@
 {
   "run_id": "combined_v2_rc_2023-04-03_2026-04-03_next_bar",
-  "created_at": "2026-05-05T08:57:40.644926+00:00",
-  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
+  "status": "WARN",
+  "expected_current_release_status": "WARN",
+  "expected_status_reasons": [
+    {
+      "code": "UNIVERSE_BELOW_TARGET",
+      "selected_count": 30,
+      "target_size": 36
+    },
+    {
+      "code": "ACCOUNT_CONSTRAINTS_DOMINATE_BUY_EXECUTION",
+      "actual": 0.03656597774244833
+    },
+    {
+      "code": "RETAIL_50K_EXECUTION_RATIO_BELOW_25",
+      "actual": 0.010480349344978166
+    },
+    {
+      "code": "CORE_SENSITIVITY_NON_BINDING",
+      "parameters": [
+        "defensive_valuation_threshold",
+        "grid_step",
+        "min_holding_days",
+        "universe_size"
+      ]
+    },
+    {
+      "code": "MODULE_MAY_BE_DRAG",
+      "modules": [
+        "no_high_dividend_supplement",
+        "no_trend_stop",
+        "no_market_state_filter"
+      ]
+    },
+    {
+      "code": "EVIDENCE_CHAIN_WARN",
+      "actual": "WARN"
+    },
+    {
+      "code": "OBSERVATION_READINESS_NOT_READY",
+      "actual": "NOT_READY"
+    }
+  ],
+  "created_at": "2026-05-07T07:47:05.338721+00:00",
+  "git_commit": "fcbad4f7fd70542596dcb7537dba4e7ea41a84c9",
   "python_version": "3.14.3",
   "start_date": "2023-04-03",
   "end_date": "2026-04-03",
@@ -18,7 +60,7 @@
   "lot_size": 100,
   "min_trade_amount": 1500.0,
   "initial_capital": 50000.0,
-  "final_nav": 243928.8809062001,
+  "final_nav": 53663.281034600004,
   "annual_return": 0.024846220411411934,
   "cumulative_return": 0.07326562069200016,
   "max_drawdown": -0.08876605706976393,
@@ -26,16 +68,16 @@
   "total_trades": 41,
   "buy_trades": 23,
   "sell_trades": 18,
-  "avg_daily_exposure": 0.4697743770034566,
-  "max_daily_exposure": 0.7569459961603964,
-  "avg_positions": 12.287878787878787,
+  "avg_daily_exposure": 0.4458773619428774,
+  "max_daily_exposure": 0.550110755601559,
+  "avg_positions": 7.027548209366391,
   "max_positions": 8,
-  "realized_pnl": 38533.829894000024,
-  "unrealized_pnl": 5395.0510122000705,
-  "total_fees": 166.57459004999993,
-  "total_tax": 132.92600375,
+  "realized_pnl": 40.71383640000539,
+  "unrealized_pnl": 3622.5671982000063,
+  "total_fees": 30.632988149999996,
+  "total_tax": 22.03447725,
   "benchmark_annual_return": 0.0288843553937312,
-  "excess_annual_return": 0.0424676693749945,
+  "excess_annual_return": -0.0040381349823193,
   "control_metrics_snapshot": [
     {
       "control_id": "combined_v2_next_bar",
@@ -55,6 +97,8 @@
       "avg_positions": 12.287878787878787,
       "max_positions": 20,
       "turnover": 2.7762431675,
+      "raw_signal_count": NaN,
+      "executable_signal_count": NaN,
       "total_fees": 166.57459004999993,
       "total_tax": 132.92600375,
       "total_slippage": 277.61849999997116,
@@ -66,10 +110,23 @@
       "cyclical_pnl": 16550.04218120001
     }
   ],
+  "hash_scope": {
+    "code_scope_version": "combined_v2_rc_code_scope_v1",
+    "description": "combined_v2 RC code hash covers strategy/backtest/release verification code that can change current default release behavior, metrics, account diagnostics, or RC validation. Research-only account execution experiments, README/docs, and generated executable/raw research matrices are excluded from the RC code hash and must not be used to change release PASS/WARN status.",
+    "code_manifest_path": "reports/backtest/release/combined_v2_rc_code_manifest.json",
+    "key_output_source": "scripts.rc_hash_scope.KEY_OUTPUT_HASH_FILES",
+    "research_only_excluded": [
+      "README.md",
+      "docs/**",
+      "scripts/run_account_execution_improvement_experiments.py",
+      "reports/backtest/account_profiles/executable_raw_experiments/**",
+      "reports/backtest/account_profiles/executable_raw_improvement_*"
+    ]
+  },
   "key_output_file_hashes": [
     {
       "path": "config/strategy_v2.yml",
-      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
+      "sha256": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b",
       "exists": true
     },
     {
@@ -109,82 +166,82 @@
     },
     {
       "path": "reports/backtest/audit/lookahead_audit.csv",
-      "sha256": "e445f1c0ee4db5f9964d83928900424f3a9719b20874ccc9a61fbdc67c240c1c",
+      "sha256": "4984aa99257da132f0fd2b622faa3bb976b8ad91a6b1878f94858dca27d1f8a6",
       "exists": true
     },
     {
       "path": "reports/backtest/audit/integrity_audit.csv",
-      "sha256": "f38ab2c649db9d43726528a52f172e5bc380b539982b01c62163c244000072d3",
+      "sha256": "4df2259561eaaa487c1ee8037e4803d819ad3173f007ea74ae55efae3b66ea17",
       "exists": true
     },
     {
       "path": "reports/audit/config_consistency.json",
-      "sha256": "88dafdb7e4d8de930bdf2cdcec4437fa4f0ab3c63369d28c8651601c89fde403",
+      "sha256": "0106bea7084d0f25deaf00b8d93bc1d4221bed236667ed82c22eaa3a5c51eae3",
       "exists": true
     },
     {
       "path": "reports/audit/universe_integrity.json",
-      "sha256": "112a43c946641cf3818e4fc0d557c3093c32f13657dbc26e69d74facf2a9077e",
+      "sha256": "99fdeff376ffb75c475ec5401c10f892a7735346268373c05eca70fb2fba9290",
       "exists": true
     },
     {
       "path": "reports/audit/data_freshness.json",
-      "sha256": "ac0ddc080361b6efa10dbad1ad900a4be3954fbd9ef03d4bede5acd9d027efd7",
+      "sha256": "a6f695ae50d2e34e1e276bc94af4f53b5487a9f2e340a4b6d314c9a010fa7edb",
       "exists": true
     },
     {
       "path": "reports/observation/2026-05-04/evidence_chain.json",
-      "sha256": "149777b662b806dbb44ace8f92823bcfa99356eaaa6c3df2fbb57be3d249b07a",
+      "sha256": "f4e93116388473864f5024bf8fdf7213a6112c1718b027312e4f418823044aca",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_report.json",
-      "sha256": "5b76e2629c83b8a39cca895104e6d702bc51d00d9f31694bb02cb873e46ea150",
+      "sha256": "3b42cd511bf36149f3b2300b3dfb69e8d9e24202909386c83a8df923adcaea63",
       "exists": true
     },
     {
       "path": "reports/backtest/account_constraints_report.json",
-      "sha256": "8e6920c39d6ddf63467890a26c24ae00fa5932db728f6972b27447599ceda3e8",
+      "sha256": "6675c7ecffb99a3989c6d887053b56f592b52f495a89eaac755d5614dc47312a",
       "exists": true
     },
     {
       "path": "reports/backtest/account_suitability_report.json",
-      "sha256": "4c85a0f6da6f334456aa1c2ec89c52ff8d9e9e50674719146bd6f03154a60e1f",
+      "sha256": "459209785ba31c664fdd4d96f36ccdb7837fa8b2507e47fdda5cac0347e8b444",
       "exists": true
     },
     {
       "path": "reports/backtest/account_profiles/account_profile_comparison.json",
-      "sha256": "e81c5fac9fcf4f64b2659aeb6f5a3f78d23d8bf3a63c0cee5cbf9173b25d55ad",
+      "sha256": "628f52665ec092bc3b15bc6c5a840ffce205bb658e6408982aadf4a99cd4c664",
       "exists": true
     },
     {
       "path": "reports/backtest/combined_v2_retail_50k_metrics.csv",
-      "sha256": "b4ccd522090029b00aabf60a3b0c18913ad9ea64e3f987099740d66d313ca330",
+      "sha256": "e0bc24922d92f449256c0ed3660a65bf0ec1f38ff0362ec80f318790353ad2c6",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/baseline_comparison.json",
-      "sha256": "4083d52627be6e68fe5516c3c2a973d2e7fc9e0fc19ace95c915a6981b4952d9",
+      "sha256": "6631e90bbd549967ca254a334bc563e184b0af7072c270c480236d6f2850a3c6",
       "exists": true
     },
     {
       "path": "reports/backtest/controls/module_contribution_report.json",
-      "sha256": "203fe63a2cb4e834b60c52b751a6f78bf7c0d9063616a3e30f81c7f1729ddbfb",
+      "sha256": "014f9e8ccd503027cd9fbe56a705eebc9987ba731f6f955bf683690a7b492565",
       "exists": true
     },
     {
       "path": "reports/backtest/robustness/sensitivity_trigger_coverage.json",
-      "sha256": "b109d54e5eefd179e1eb0d6d1fcd69f0c77294249963e4e76dada1d2b56dbb28",
+      "sha256": "82fc4e834cebcd2f6dcf95be691b0b6b758816c8278c5affbf44e158fa7decd7",
       "exists": true
     },
     {
       "path": "reports/audit/universe_shortfall.json",
-      "sha256": "46226e278cb3a4d0f5bd482c8b865a907b1b6b05fd3e87f89d24b25a6da88c4c",
+      "sha256": "0cb8017e95adf16afafcf5c990325708353530d6905dd9b7a0423b014709e875",
       "exists": true
     },
     {
       "path": "reports/observation/readiness_report.json",
-      "sha256": "e031c9df7052e30d1d99ceaea8cb9354ee5e400225d44050f77ea13a9a9bce56",
+      "sha256": "f05b26496c34b4360262648fce41350afad9b2698dbafc9f5f7de93554a990bd",
       "exists": true
     },
     {
@@ -193,11 +250,10 @@
       "exists": true
     }
   ],
-  "status": "WARN",
   "branch": "codex/cleanup-stale-artifacts",
-  "generated_at": "2026-05-06T07:49:51.887765+00:00",
-  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
-  "data_hash": "c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1",
+  "generated_at": "2026-05-08T01:30:47.401399+00:00",
+  "config_hash": "6817ac43cf178fea81d0976750c1269eba0c1b2f4a2e0e6c4f4e7c1f16eaf1d5",
+  "data_hash": "36f265e73c770f7dc3926badd568064427be23d9269b26654f216fd92707bf4c",
   "requested_date": "2026-05-04",
   "target_trade_date": "2026-04-30",
   "target_trading_date": "2026-04-30",
@@ -211,6 +267,28 @@
   "broker_integration_enabled": false,
   "llm_decision_allowed": false,
   "release_scope": "small_capital_manual_strict_review_observation_candidate",
+  "account_profile": "retail_50k_lot_aware",
+  "lot_aware_sizing_enabled": true,
+  "equal_weight_target_universe_size": 8,
+  "round_lot": 100,
+  "raw_buy_signal_count": 629,
+  "unique_raw_buy_intent_count": 159,
+  "executable_buy_count": 23,
+  "executable_raw_buy_ratio": 0.03656597774244833,
+  "executable_account_feasible_buy_ratio": 0.0539906103286385,
+  "lot_size_zero_block_count": 0,
+  "price_too_high_for_account_lot_count": 30,
+  "repeated_blocked_buy_signal_count": 470,
+  "pending_buy_intent_count": 47,
+  "min_trade_value": 1500.0,
+  "portfolio_max_positions": 8,
+  "portfolio_equal_weight_target_positions": 8,
+  "universe_target_size": 36,
+  "universe_selected_count": 30,
+  "account_profile_comparison_status": "WARN",
+  "turnover": 2.04219921,
+  "transaction_cost_total": 103.71896539999412,
+  "transaction_cost_pct": 0.0020743793079998,
   "audit_statuses": {
     "config_consistency": "PASS",
     "universe_integrity": "WARN",
@@ -232,8 +310,8 @@
       "check_id": "MODE-001",
       "check_name": "release guard mode",
       "status": "PASS",
-      "expected": "ci hash-only checks",
-      "actual": "ci hash-only checks",
+      "expected": "local release checks",
+      "actual": "local release checks",
       "evidence": "scripts/run_release_guard.py",
       "recommendation": "CI 模式不重跑完整回测，不写行情数据，不生成真实订单。"
     },
@@ -402,9 +480,9 @@
     {
       "check_id": "RG-005",
       "check_name": "combined_v2 RC hash-only verification",
-      "status": "WARN",
+      "status": "PASS",
       "expected": "no FAIL",
-      "actual": "PASS=22 WARN=10 FAIL=0",
+      "actual": "PASS=32 WARN=0 FAIL=0",
       "evidence": "scripts/verify_combined_v2_rc.py --mode hash-only",
       "recommendation": "CI 只验证 manifest/hash/已提交小型报告，不重跑完整回测。"
     },
@@ -466,8 +544,8 @@
       "check_id": "CFG-HASH-strategy_v2",
       "check_name": "config/strategy_v2.yml hash matches RC manifest",
       "status": "PASS",
-      "expected": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
-      "actual": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9",
+      "expected": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b",
+      "actual": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b",
       "evidence": "config/strategy_v2.yml",
       "recommendation": "配置 hash 漂移意味着 RC 口径不再冻结，必须停止发布。"
     },
@@ -550,27 +628,5 @@
     "observation_readiness_status": "NOT_READY",
     "minimum_backtest_years_warning": "sample is about three years; keep as manual observation candidate only",
     "auto_trading_approved": false
-  },
-  "account_profile": "retail_50k_lot_aware",
-  "min_trade_value": 1500.0,
-  "portfolio_max_positions": 8,
-  "portfolio_equal_weight_target_positions": 8,
-  "universe_target_size": 36,
-  "universe_selected_count": 30,
-  "account_profile_comparison_status": "WARN",
-  "turnover": 2.04219921,
-  "transaction_cost_total": 103.71896539999412,
-  "transaction_cost_pct": 0.0020743793079998,
-  "lot_aware_sizing_enabled": true,
-  "equal_weight_target_universe_size": 8,
-  "round_lot": 100,
-  "raw_buy_signal_count": 629,
-  "unique_raw_buy_intent_count": 159,
-  "executable_buy_count": 23,
-  "executable_raw_buy_ratio": 0.03656597774244833,
-  "executable_account_feasible_buy_ratio": 0.0539906103286385,
-  "lot_size_zero_block_count": 0,
-  "price_too_high_for_account_lot_count": 30,
-  "repeated_blocked_buy_signal_count": 470,
-  "pending_buy_intent_count": 47
+  }
 }

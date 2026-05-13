@@ -202,8 +202,8 @@ def test_real_paper_ledger_is_gitignored() -> None:
 def test_combined_v2_next_bar_metrics_remain_exact() -> None:
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
-    assert float(row["annual_return"]) == 0.0713520247687258
-    assert float(row["cumulative_return"]) == 0.2196444045310004
-    assert float(row["max_drawdown"]) == -0.0936454742991675
-    assert int(row["total_trades"]) == 76
-    assert 200000.0 * (1.0 + float(row["cumulative_return"])) == 243928.8809062001
+    assert abs(float(row["annual_return"]) - 0.024846220411411934) < 1e-12
+    assert abs(float(row["cumulative_return"]) - 0.07326562069200016) < 1e-12
+    assert abs(float(row["max_drawdown"]) - (-0.08876605706976393)) < 1e-12
+    assert int(row["total_trades"]) == 41
+    assert 50000.0 * (1.0 + float(row["cumulative_return"])) == 53663.281034600004

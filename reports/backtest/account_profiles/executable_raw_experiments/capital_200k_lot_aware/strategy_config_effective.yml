@@ -1,0 +1,223 @@
+strategy_name: qvta_combined_v2
+profile: combined_v2
+valuation:
+  windows_years:
+    q_5y: 5
+    q_10y: 10
+  blended_weights:
+    q_5y: 0.6
+    q_10y: 0.4
+  trading_days_per_year: 252
+market_regime:
+  benchmark_index: '000300'
+  moving_averages:
+    ma60: 60
+    ma200: 200
+  max_total_position:
+    risk_on: 0.95
+    neutral: 0.7
+    risk_off: 0.4
+  target_exposure_floor:
+    risk_on: 0.5
+    neutral: 0.25
+    risk_off: 0.0
+  block_new_in_risk_off: false
+  risk_off_opening_rules:
+    allow_new_buckets:
+    - defensive_dividend
+    - cyclical_rotation
+    defensive_dividend_max_stock_q_blended: 45
+execution:
+  trade_at: next_day_open
+  fee_rate: 0.0003
+  stamp_tax_rate: 0.0005
+  slippage_rate: 0.0005
+  default_tranches: 3
+  equal_weight_target_universe_size: 8
+  max_positions: 8
+  max_new_positions_per_day: 1
+  max_adds_per_day: 2
+  lot_aware_sizing: true
+  pending_add_state: true
+  duplicate_blocked_signal_suppression: true
+  min_holding_days_for_soft_trim: 40
+  min_holding_days_for_soft_exit: 60
+  hard_add_ban:
+    close_to_ma250_min: 1.0
+    ma120_slope_20d_min: 0
+  trend_stop:
+    disabled_by_control_flag: disable_trend_stop
+    close_lt_ma: ma250
+    ma120_slope_20d_lt: 0
+    unrealized_pnl_pct_lte: -0.12
+  grid_execution:
+    enabled: true
+    atr_multiplier: 1.2
+    min_step: 0.035
+    max_step: 0.08
+    reduce_extra_min_stock_q_blended: 55
+    hard_add_ban:
+      close_to_ma250_min: 1.0
+      ma120_slope_20d_min: 0
+financial_effective_date:
+  use_announcement_date: true
+  fallback_if_missing: report_date_plus_days
+  fallback_days: 30
+fundamental_break:
+  non_financial:
+    latest_net_profit_max: 0
+    roe_min: 3
+    cfo_ttm_non_positive_periods: 2
+  financial:
+    latest_net_profit_max: 0
+    roe_min: 3
+    require_is_st_false: true
+buckets:
+  defensive_dividend:
+    allowed_industries:
+    - 银行
+    - 非银金融
+    - 通信
+    - 公用事业
+    - 石油石化
+    - 交通运输
+    - 家用电器
+    tranche_weights:
+      1: 0.04
+      2: 0.08
+      3: 0.12
+    max_single_name_weight: 0.12
+    buy_levels:
+      BUY_1:
+        final_score_min: 55
+        stock_q_blended_max: 40
+        industry_q_blended_max: 55
+        close_to_ma120_max: 1.0
+        dv_ttm_min: 0.025
+        latest_net_profit_gt: 0
+      BUY_2:
+        final_score_min: 60
+        stock_q_blended_max: 30
+        industry_q_blended_max: 45
+        close_to_ma120_max: 0.96
+        require_grid_or_elapsed: true
+        elapsed_fallback:
+          days_since_last_buy_min: 20
+          close_to_ma120_max: 1.0
+      BUY_3:
+        final_score_min: 65
+        stock_q_blended_max: 20
+        industry_q_blended_max: 35
+        close_to_ma120_max: 0.92
+        require_grid_add_ok: true
+        fundamental_break_must_be_false: true
+    high_dividend_supplement:
+      enabled: true
+      disabled_by_control_flag: disable_high_dividend_supplement
+      only_current_tranches: 0
+      target_tranches: 1
+      dv_ttm_min: 0.045
+      final_score_min: 65
+      stock_q_blended_max: 45
+      close_to_ma120_max: 1.03
+    exit_rules:
+      valuation_reversion_exit:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_exit
+        any:
+        - all:
+          - stock_q_blended_gte: 90
+          - close_to_ma120_gte: 1.1
+        - all:
+          - industry_q_blended_gte: 90
+          - stock_q_blended_gte: 80
+      soft_trim:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_trim
+        current_tranches_gt: 1
+        any:
+        - all:
+          - stock_q_blended_gte: 65
+          - close_to_ma120_gte: 1.05
+        - grid_trim_ok: true
+    reduce:
+      stock_q_blended_min: 65
+      close_to_ma120_min: 1.05
+    sell_all:
+      stock_q_blended_min: 90
+      industry_q_blended_min: 90
+      fundamental_break_required: true
+  cyclical_rotation:
+    allowed_industries:
+    - 煤炭
+    - 有色金属
+    - 钢铁
+    - 石油石化
+    - 建筑材料
+    - 基础化工
+    - 交通运输
+    primary_metric: pb
+    secondary_metric: pe_ttm
+    tranche_weights:
+      1: 0.03
+      2: 0.06
+      3: 0.09
+    max_single_name_weight: 0.09
+    cycle_trap_filter:
+      pe_q_blended_max_primary: 20
+      roe_pct_in_last_12_quarters_min_primary: 80
+      lookback_quarters: 12
+    buy_levels:
+      BUY_1:
+        final_score_min: 55
+        stock_q_blended_max: 35
+        industry_q_blended_max: 45
+        close_to_ma120_max: 1.08
+        momentum:
+          any:
+          - close_gte_ma: ma20
+          - ma20_slope_10d_gte: 0
+      BUY_2:
+        final_score_min: 60
+        stock_q_blended_max: 25
+        industry_q_blended_max: 35
+        momentum:
+          any:
+          - close_gte_ma: ma60
+          - all:
+            - close_gte_ma: ma20
+            - ma20_slope_10d_gt: 0
+        require_grid_or_elapsed: true
+        elapsed_fallback:
+          days_since_last_buy_min: 20
+          ma20_slope_10d_gte: 0
+      BUY_3:
+        final_score_min: 65
+        stock_q_blended_max: 15
+        industry_q_blended_max: 25
+        momentum:
+          all:
+          - close_gte_ma: ma60
+          - ma20_slope_10d_gte: 0
+        require_grid_add_ok: true
+    exit_rules:
+      valuation_reversion_exit:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_exit
+        any:
+        - stock_q_blended_gte: 85
+        - industry_q_blended_gte: 90
+      soft_trim:
+        min_holding_days_config_key: execution.min_holding_days_for_soft_trim
+        current_tranches_gt: 1
+        any:
+        - all:
+          - stock_q_blended_gte: 60
+          - close_gte_ma: ma20
+        - grid_trim_ok: true
+    reduce:
+      stock_q_blended_min: 60
+      close_gte_ma20: true
+    sell_all:
+      stock_q_blended_min: 85
+      industry_q_blended_min: 90
+      fundamental_break_required: true
+research_only: true
+profile_name: capital_200k_lot_aware

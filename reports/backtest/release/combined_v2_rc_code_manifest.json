@@ -1,19 +1,53 @@
 {
-  "created_at": "2026-05-04T08:09:42.076163+00:00",
+  "created_at": "2026-05-13T02:47:54.335323+00:00",
+  "scope_version": "combined_v2_rc_code_scope_v1",
+  "description": "combined_v2 RC code hash covers strategy/backtest/release verification code that can change current default release behavior, metrics, account diagnostics, or RC validation. Research-only account execution experiments, the combined_v2_50k_compact profile, README/docs, and generated executable/raw or compact research matrices are excluded from the RC code hash and must not be used to change release PASS/WARN status.",
+  "included_files": [
+    "src/strategy/signals.py",
+    "src/strategy/backtest_engine.py",
+    "src/strategy/universe.py",
+    "src/strategy/grid.py",
+    "src/strategy/valuation_resolution.py",
+    "src/strategy/backtest_reports.py",
+    "scripts/backtest.py",
+    "scripts/run_backtest_compare.py",
+    "scripts/run_backtest_execution_compare.py",
+    "scripts/run_backtest_attribution.py",
+    "scripts/audit_backtest_lookahead.py",
+    "scripts/audit_backtest_integrity.py",
+    "scripts/build_account_constraints_report.py",
+    "scripts/build_account_suitability_report.py",
+    "scripts/run_account_profile_backtests.py",
+    "scripts/rc_hash_scope.py",
+    "scripts/build_combined_v2_release_candidate.py",
+    "scripts/check_release_status_consistency.py",
+    "scripts/run_release_guard.py",
+    "scripts/verify_combined_v2_rc.py"
+  ],
+  "research_only_excluded": [
+    "README.md",
+    "docs/**",
+    "config/strategy_v2_50k_compact.yml",
+    "scripts/run_50k_compact_experiments.py",
+    "scripts/run_account_execution_improvement_experiments.py",
+    "reports/backtest/50k_compact/**",
+    "reports/backtest/account_profiles/executable_raw_experiments/**",
+    "reports/backtest/account_profiles/executable_raw_improvement_*"
+  ],
   "files": [
     {
       "path": "src/strategy/signals.py",
-      "sha256": "6b8f66c97c1eb8ad8335415cc18279ee7d3131728c3cc4fbf4da45cf88e6ef1d",
+      "sha256": "99a361903de9e8c869785eee739deda7e677fbcfd576df17ffbda09c8d94f195",
       "exists": true
     },
     {
       "path": "src/strategy/backtest_engine.py",
-      "sha256": "7ff240ad537ab4643dd90cc52d2e7e351980718a6112a3d4b872ab59489b633b",
+      "sha256": "fe4e5c228ee898bfe65adf2b81f406dcdf1ac44352470ae6ef400f9a5f0587a4",
       "exists": true
     },
     {
       "path": "src/strategy/universe.py",
-      "sha256": "b007dcc2a29c2aea7b3ed132090b4c47f9911d7b4b46c75038e1a8b538d8394a",
+      "sha256": "0da42552b9d61df8c428561c326ab30655ff06785f8b6570ef42038637cc791f",
       "exists": true
     },
     {
@@ -28,7 +62,7 @@
     },
     {
       "path": "src/strategy/backtest_reports.py",
-      "sha256": "fe5c74773a76a99fd13862945c3cdc929a71ca4563cb0bd9b6dd4540c8ca484c",
+      "sha256": "7af7897e4ba0d02a00b877f651a094661fd92812bcea12d5ce305a60c0452561",
       "exists": true
     },
     {
@@ -58,7 +92,47 @@
     },
     {
       "path": "scripts/audit_backtest_integrity.py",
-      "sha256": "a391c263a40da4433555da3f02676f6b936eeed805b2f75894dc27e3067f85cf",
+      "sha256": "4ba88b30587a60ca96881082d4cbca080bcb79623d3846108a37e00e8285c30f",
+      "exists": true
+    },
+    {
+      "path": "scripts/build_account_constraints_report.py",
+      "sha256": "95fca8a33dd44b9ab4afffe0f8f4a94fe9873348c3a4b02f8783ef1caf43cb5c",
+      "exists": true
+    },
+    {
+      "path": "scripts/build_account_suitability_report.py",
+      "sha256": "5e20665a7b1d7664b6a3ffb179929219a392465aecc70a68e930ed310a96aa40",
+      "exists": true
+    },
+    {
+      "path": "scripts/run_account_profile_backtests.py",
+      "sha256": "59c1a30f665779876a218baeb8e29145a92aa82d7f797a421322a5abbb9f4ae0",
+      "exists": true
+    },
+    {
+      "path": "scripts/rc_hash_scope.py",
+      "sha256": "b9726415ca03cffa94c518d54932fe4118fdacf96a8a12b0f6fcfb29c23a24e4",
+      "exists": true
+    },
+    {
+      "path": "scripts/build_combined_v2_release_candidate.py",
+      "sha256": "9419b5aa85481c0c806bf3cf2660d9b394e79d451dd1c9d34ae834580b9ef892",
+      "exists": true
+    },
+    {
+      "path": "scripts/check_release_status_consistency.py",
+      "sha256": "16b78e6df21c24b47d3e81b2c8dbe856d24f910fe0bb03d4e06ac1e3c52180ad",
+      "exists": true
+    },
+    {
+      "path": "scripts/run_release_guard.py",
+      "sha256": "d85b62bebc9fb1ed669ecdcbcf161553d99e90e7c16272cfee57c7510a1f6306",
+      "exists": true
+    },
+    {
+      "path": "scripts/verify_combined_v2_rc.py",
+      "sha256": "0cca9e188ef5e0c7650e8f9a7dac5f88341676d628b12726acd45572dd260fcb",
       "exists": true
     }
   ]

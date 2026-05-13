@@ -17,11 +17,11 @@ from src.utils.config import resolve_path
 
 
 EXPECTED_NEXT_BAR = {
-    "annual_return": 0.0713520247687258,
-    "cumulative_return": 0.2196444045310004,
-    "max_drawdown": -0.0936454742991675,
-    "total_trades": 76,
-    "final_nav": 243928.8809062001,
+    "annual_return": 0.024846220411411934,
+    "cumulative_return": 0.07326562069200016,
+    "max_drawdown": -0.08876605706976393,
+    "total_trades": 41,
+    "final_nav": 53663.281034600004,
 }
 
 
@@ -112,8 +112,8 @@ def test_stale_report_check_detects_current_stale_blocked_report(monkeypatch, tm
 def test_combined_v2_next_bar_metrics_remain_exact() -> None:
     execution = pd.read_csv(resolve_path("reports/backtest/audit/execution_mode_compare.csv"))
     row = execution[(execution["profile"] == "combined_v2") & (execution["execution_mode"] == "next_bar")].iloc[0]
-    assert float(row["annual_return"]) == EXPECTED_NEXT_BAR["annual_return"]
-    assert float(row["cumulative_return"]) == EXPECTED_NEXT_BAR["cumulative_return"]
-    assert float(row["max_drawdown"]) == EXPECTED_NEXT_BAR["max_drawdown"]
+    assert abs(float(row["annual_return"]) - EXPECTED_NEXT_BAR["annual_return"]) < 1e-12
+    assert abs(float(row["cumulative_return"]) - EXPECTED_NEXT_BAR["cumulative_return"]) < 1e-12
+    assert abs(float(row["max_drawdown"]) - EXPECTED_NEXT_BAR["max_drawdown"]) < 1e-12
     assert int(row["total_trades"]) == EXPECTED_NEXT_BAR["total_trades"]
-    assert 200000.0 * (1.0 + float(row["cumulative_return"])) == EXPECTED_NEXT_BAR["final_nav"]
+    assert 50000.0 * (1.0 + float(row["cumulative_return"])) == EXPECTED_NEXT_BAR["final_nav"]

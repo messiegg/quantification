@@ -1,29 +1,29 @@
 # combined_v2 总审计结论
 
-- 最终评级: PASS
-- 评级含义: LEGACY_SUPERSEDED: 9.14% / 83 笔属于 pre-PIT 旧记录；当前审计只复现 PIT next_bar 严格主口径。
+- 最终评级: FAIL
+- 评级含义: 旧 9.14% / 83 笔为 LEGACY_SUPERSEDED 口径；当前审计不再要求复现 legacy 指标。
 
 ## 1. baseline vs combined_v2 主结果
 
-- baseline next_bar: 年化 0.10%，累计 0.30%，最大回撤 -1.66%，成交 7。
-- combined_v2 PIT next_bar: 年化 7.14%，累计 21.96%，最大回撤 -9.36%，成交 76。
+- baseline next_bar: 年化 -0.08%，累计 -0.22%，最大回撤 -0.30%，成交 2。
+- combined_v2 PIT next_bar: 年化 2.48%，累计 7.33%，最大回撤 -8.88%，成交 41。
 - legacy pre-PIT / old same_close: 9.14% 年化、83 笔，已标记为 INT-012-LEGACY WARN，仅保留作历史记录。
 
 ## 2. same_close vs next_bar
 
-- same_close: 年化 6.68%，累计 20.50%，最大回撤 -9.37%。
-- next_bar: 年化 7.14%，累计 21.96%，最大回撤 -9.36%。
-- next_bar 相对 same_close 年化变化 -6.84%。
+- same_close: 年化 2.19%，累计 6.46%，最大回撤 -8.92%。
+- next_bar: 年化 2.48%，累计 7.33%，最大回撤 -8.88%。
+- next_bar 相对 same_close 年化变化 -13.35%。
 
 ## 3. 审计状态
 
-- integrity: PASS。
-- lookahead: PASS；确认违规 0 条。
+- integrity: FAIL。
+- lookahead audit status: WARN；确认违规 0 条。
 - universe PIT: 月度文件 38 个，future-data 文件 0 个。
 - execution mode: next_bar 为当前严格主口径。
-- report consistency: PASS。
-- cost stress high_cost: 年化 6.92%。
-- sensitivity: 年化接近 0 的变体 0/14，跑输 baseline 的变体 0/14。
+- report consistency: WARN。
+- cost stress high_cost: 年化 1.46%。
+- sensitivity: 年化接近 0 的变体 0/6，跑输 baseline 的变体 0/6。
 
 ## 4. 收益归因修复
 
@@ -32,14 +32,14 @@
 - signal attribution: 已按 entry_signal / exit_signal / entry_exit_pair 归因。
 - regime attribution: 已新增 daily MTM 口径，并与 trade realization 口径分开。
 - bucket / industry attribution: 已统一 total_pnl 口径。
-- markdown / CSV consistency: PASS。
-- 最大单股贡献 16.01%，最大行业贡献 25.95%。
+- markdown / CSV consistency: WARN。
+- 最大单股贡献 81.06%，最大行业贡献 75.42%。
 
 ## 5. control baselines
 
 - v2 vs universe equal weight: 7.14% vs -1.33%。
 - v2 vs top score monthly: 7.14% vs 3.33%。
-- random placebo percentile: 96.0%。
+- random placebo percentile: 28.0%。
 - defensive_only 年化 5.82%；cyclical_only 年化 2.81%。
 - no_high_dividend_supplement 年化 8.11%。
 - no_grid 年化 5.80%。
@@ -48,12 +48,17 @@
 
 ## 6. v2_1_risk_guard
 
-- 年化 5.60%，最大回撤 -8.88%，成交 64。
+- 年化 1.99%，最大回撤 -4.27%，成交 21。
 - v2_1 不覆盖 combined_v2；如果不明显优于 v2，不推荐替换。
 
 ## 7. 最大风险点
 
-- 未触发硬性阻断项或候选降级项。
+- integrity_audit 存在非 legacy FAIL。
+- combined_v2 随机 placebo 年化分位只有 28.0%。
+- 最大单股贡献 81.06% 超过 50%。
+- 最大行业贡献 75.42% 超过 70%。
+- lookahead 审计仍有非确认前视的 WARN，例如字段缺失或报告口径提示。
+- report_consistency_check 存在 WARN。
 
 ## 8. 下一步建议
 

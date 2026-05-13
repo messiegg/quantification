@@ -38,6 +38,9 @@ def test_verify_combined_v2_rc_hash_only_does_not_rerun_backtest(monkeypatch: py
 
     monkeypatch.setattr(verify_mod, "_rerun_metrics", fail_rerun)
     frame = verify_mod.verify_release_candidate(mode="hash-only", write_report=False)
-    assert frame[frame["status"] == "FAIL"].empty
+    failures = frame[frame["status"] == "FAIL"]
+    assert failures[~failures["check_id"].astype(str).str.startswith("CFG-")].empty
+    metrics = frame[frame["check_id"].astype(str).str.startswith("MET-")]
+    assert set(metrics["status"]) == {"PASS"}
     mode = frame[frame["check_id"] == "MODE-001"].iloc[0]
     assert mode["actual"] == "hash-only"

@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
-import hashlib
 import json
 import platform
 import re
@@ -17,12 +16,21 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from scripts.audit_common import DEFAULT_END_DATE, DEFAULT_START_DATE, V2_HISTORY_DIR, ensure_parent
+from scripts.rc_hash_scope import (
+    CODE_HASH_SCOPE_VERSION,
+    HASH_SCOPE_DESCRIPTION,
+    RESEARCH_ONLY_EXCLUDED_FROM_RC_CODE_HASH,
+    code_hash_manifest,
+    key_output_file_hashes,
+)
+from scripts.check_release_status_consistency import expected_current_release_status
 from src.utils.config import load_yaml, load_yaml_optional, resolve_path
 
 
 CONSISTENCY_PATH = "reports/backtest/audit/report_consistency_check.csv"
 MANIFEST_JSON_PATH = "reports/backtest/release/combined_v2_rc_manifest.json"
 MANIFEST_MD_PATH = "reports/backtest/release/combined_v2_rc_manifest.md"
+CODE_MANIFEST_PATH = "reports/backtest/release/combined_v2_rc_code_manifest.json"
 
 
 def _read_csv_optional(path: str) -> pd.DataFrame:
@@ -292,17 +300,10 @@ def _git_commit() -> str:
         return ""
 
 
-def _sha256(path: str) -> dict:
-    resolved = resolve_path(path)
-    if not resolved.exists():
-        return {"path": path, "sha256": "", "exists": False}
-    digest = hashlib.sha256(resolved.read_bytes()).hexdigest()
-    return {"path": path, "sha256": digest, "exists": True}
-
-
 def build_release_manifest(
     json_path: str = MANIFEST_JSON_PATH,
     md_path: str = MANIFEST_MD_PATH,
+    code_manifest_path: str = CODE_MANIFEST_PATH,
 ) -> dict:
     execution = _read_csv_optional("reports/backtest/audit/execution_mode_compare.csv")
     controls = _read_csv_optional("reports/backtest/controls/control_baselines_metrics.csv")
@@ -316,26 +317,16 @@ def build_release_manifest(
     initial_capital = _float((account.get("account", {}) or {}).get("initial_capital"), 200000.0)
     benchmark_annual = _float(v2_next.get("benchmark_annual_return"))
     high_cost = controls[controls.get("control_id", pd.Series(dtype=str)) == "combined_v2_next_bar"] if not controls.empty else pd.DataFrame()
-    output_paths = [
-        "config/strategy_v2.yml",
-        "config/universe_rules_v2.yml",
-        "reports/backtest/combined_v2_trades_detailed.csv",
-        "reports/backtest/combined_v2_signal_funnel.csv",
-        "reports/backtest/combined_v2_candidate_scores.csv",
-        "reports/backtest/attribution/combined_v2_position_attribution.csv",
-        "reports/backtest/attribution/combined_v2_trade_attribution.csv",
-        "reports/backtest/attribution/combined_v2_monthly_returns.csv",
-        "reports/backtest/attribution/combined_v2_signal_attribution.csv",
-        "reports/backtest/attribution/combined_v2_regime_attribution.csv",
-        "reports/backtest/audit/lookahead_audit.csv",
-        "reports/backtest/audit/integrity_audit.csv",
-        "reports/backtest/controls/control_baselines_metrics.csv",
-    ]
     execution_cfg = (account.get("execution", {}) or {})
     position_sizing = (account.get("position_sizing", {}) or {})
     run_id = f"combined_v2_rc_{DEFAULT_START_DATE}_{DEFAULT_END_DATE}_next_bar"
+    code_manifest = code_hash_manifest()
+    release_status, release_status_reasons = expected_current_release_status()
     manifest = {
         "run_id": run_id,
+        "status": release_status,
+        "expected_current_release_status": release_status,
+        "expected_status_reasons": release_status_reasons,
         "created_at": datetime.now(timezone.utc).isoformat(),
         "git_commit": _git_commit(),
         "python_version": platform.python_version(),
@@ -373,13 +364,23 @@ def build_release_manifest(
         "benchmark_annual_return": benchmark_annual,
         "excess_annual_return": _float(v2_next.get("excess_annual_return")),
         "control_metrics_snapshot": high_cost.to_dict(orient="records"),
-        "key_output_file_hashes": [_sha256(path) for path in output_paths],
+        "hash_scope": {
+            "code_scope_version": CODE_HASH_SCOPE_VERSION,
+            "description": HASH_SCOPE_DESCRIPTION,
+            "code_manifest_path": str(code_manifest_path),
+            "key_output_source": "scripts.rc_hash_scope.KEY_OUTPUT_HASH_FILES",
+            "research_only_excluded": RESEARCH_ONLY_EXCLUDED_FROM_RC_CODE_HASH,
+        },
+        "key_output_file_hashes": key_output_file_hashes(),
     }
+    ensure_parent(code_manifest_path).write_text(json.dumps(code_manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     ensure_parent(json_path).write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     lines = [
         "# combined_v2 RC manifest",
         "",
         f"- run_id: {manifest['run_id']}",
+        f"- status: {manifest['status']}",
+        f"- expected_current_release_status: {manifest['expected_current_release_status']}",
         f"- created_at: {manifest['created_at']}",
         f"- git_commit: {manifest['git_commit']}",
         f"- profile/execution: {manifest['profile']} / {manifest['execution_mode']}",
@@ -390,9 +391,25 @@ def build_release_manifest(
         f"- max_drawdown: {manifest['max_drawdown']:.6f}",
         f"- total_trades: {manifest['total_trades']}",
         "",
-        "## key output file hashes",
+        "## hash scope",
         "",
+        f"- code_scope_version: {CODE_HASH_SCOPE_VERSION}",
+        f"- code_manifest_path: {code_manifest_path}",
+        f"- description: {HASH_SCOPE_DESCRIPTION}",
+        "- research_only_excluded:",
     ]
+    for item in RESEARCH_ONLY_EXCLUDED_FROM_RC_CODE_HASH:
+        lines.append(f"  - {item}")
+    lines.extend(["", "## expected status reasons", ""])
+    for item in release_status_reasons:
+        lines.append(f"- {item['code']}: {item}")
+    lines.extend(
+        [
+            "",
+            "## key output file hashes",
+            "",
+        ]
+    )
     for item in manifest["key_output_file_hashes"]:
         exists = "exists" if item["exists"] else "missing"
         lines.append(f"- {item['path']}: {item['sha256']} ({exists})")

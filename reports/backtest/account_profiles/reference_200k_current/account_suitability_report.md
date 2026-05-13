@@ -1,7 +1,7 @@
 # account suitability report
 
 - status: WARN
-- generated_at: 2026-05-06T03:52:24.123957+00:00
+- generated_at: 2026-05-07T07:15:15.118689+00:00
 
 ## runtime profile
 
@@ -21,21 +21,31 @@
 - min_trade_amount: 5000.0
 - raw_buy_signal_count: 370
 - unique_raw_buy_intent_count: 370
+- repeat_raw_buy_intent_count: 0
+- repeat_raw_buy_intent_ratio: 0.0
 - repeated_blocked_buy_signal_count: 0
 - account_feasible_buy_signal_count: 116
 - executable_buy_count: 43
+- executable_new_position_buy_count: 39
+- executable_add_buy_count: 4
 - executable_raw_buy_ratio: 0.11621621621621622
+- executable_unique_raw_intent_ratio: 0.11621621621621622
 - executable_account_feasible_buy_ratio: 0.3706896551724138
 - user_visible_buy_recommendation_count: 43
 - user_visible_blocked_buy_count: 327
 - pending_buy_intent_count: 0
+- full_portfolio_raw_buy_intent_count: 5
+- full_portfolio_raw_buy_intent_ratio: 0.013513513513513514
+- new_position_raw_intent_count: 300
+- add_position_raw_intent_count: 70
 - estimated_capital_required_to_reach_executable_raw_25: unknown
 - estimated_capital_required_to_reach_executable_raw_50: unknown
 
 ## base blocker ratios
 
 - min_trade_amount_block_ratio: 0.5945945945945946
-- cash_block_ratio: 0.23783783783783785
+- cash_block_ratio: 0.23783783783783785 (direct CASH_INSUFFICIENT only)
+- cash_liquidity_block_ratio: 0.23783783783783785 (cash + one-lot cash blockers)
 - exposure_block_ratio: 0.1837837837837838
 - max_positions_block_ratio: 0.013513513513513514
 - lot_size_block_ratio: 0.010810810810810811

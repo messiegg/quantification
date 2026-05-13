@@ -299,15 +299,34 @@ control baseline 固定三年窗口、next_bar、同一账户成本，不覆盖�
 
 `PASS_CANDIDATE` 只代表小资金、手动、严格复核观察/试运行候选；它不是自动实盘策略批准。仓库仍禁止接券商、禁止自动下单、禁止让 LLM 决定买卖。若 config consistency、universe integrity、data freshness、lookahead、sensitivity、evidence chain、baseline comparison 或 tests 任一核心审计 FAIL，release guard 必须输出 `FAIL`。
 
+`config/strategy_v2.yml` 是 combined_v2 买入、加仓、减仓和退出阈值的唯一事实源；`signals.py` 不再保留 v2 BUY/SELL 阈值的隐式硬编码。当前 release/default account 口径仍是 50k lot-aware，account suitability `WARN` 代表真实账户执行率不足，不能被文案改写成 PASS。若 `config/strategy_v2.yml` 发生变化，旧 RC hash 立即失效，必须重新生成 release candidate，不能沿用旧 manifest 伪装冻结。
+
+RC freeze 顺序固定为：先完成代码、配置、测试、文档和 research-only 诊断；再运行 full release matrix；再执行 `scripts/build_combined_v2_release_candidate.py` 生成 manifest 与 code manifest；最后运行 `scripts/verify_combined_v2_rc.py --mode hash-only`。RC 生成后，任何纳入 `scripts/rc_hash_scope.py` 的代码、配置或关键报告变更都会使 RC 失效，需要重新跑 full matrix 并重建 RC。README、docs、`scripts/run_account_execution_improvement_experiments.py` 和 `reports/backtest/account_profiles/executable_raw_*` 是 research-only 诊断/说明，不纳入 combined_v2 RC code hash，也不得用于改变 release PASS/WARN 状态。
+
 当前 `WARN` 不是硬阻断，但仍不能写成 `PASS_CANDIDATE`：effective universe 当前 30 只，高于 `floor_size=24` 但低于 `target_size=36`；`actual_50k_lot_aware` raw buy 629、unique raw buy intent 159、repeated blocked buy 470、account-feasible buy 426、executable buy 23，executable/raw 约 3.66%，仍低于 25% 门槛；sensitivity 仍有核心参数在 CI 窗口 NON_BINDING；baseline 消融里仍有模块需要人工解释风险收益权衡；观察期 readiness 尚未满足 60 个交易日人工复核日志要求。新增报告入口：
 
 - `reports/audit/universe_shortfall.md`
 - `reports/backtest/account_suitability_report.md`
 - `reports/backtest/account_profiles/lot_affordability_report.md`
 - `reports/backtest/account_profiles/account_profile_comparison.md`
+- `reports/backtest/account_profiles/executable_raw_improvement_report.md`
 - `reports/backtest/robustness/sensitivity_trigger_coverage.md`
 - `reports/backtest/controls/module_contribution_report.md`
 - `reports/observation/readiness_report.md`
+
+`scripts/run_account_execution_improvement_experiments.py` 只用于 research-only 的 executable/raw 改善矩阵，输出不会替换默认 release profile。它覆盖资金规模、最大持仓容量、最小成交额、日内节流、lot-aware/pending、单票容量、目标分层和取消整手的理论上限；取消整手和 200k 资金规模结果只能作为研究对照，不能作为 50k 默认 release 口径。
+
+### 50k compact research profile
+
+`combined_v2_50k_compact` 是因为真实资金规模只有 50k 而新增的独立 research-only 变体，用来验证当前策略族是否存在更适合 50k、整手约束和少持仓数的可执行版本。配置入口是 `config/strategy_v2_50k_compact.yml`，实验入口是 `scripts/run_50k_compact_experiments.py`，报告输出到 `reports/backtest/50k_compact/`。
+
+这个 profile 固定 `capital=50000`、`round_lot=100`，只实验 `max_positions <= 8`、少目标股票数、现金预留和 1/2 档目标仓位；如果账户约束使买入不可执行，信号进入 watch-only reason，不输出 `NEW_BUY` 或 `ADD`。`strategy_eligible_count`、`account_actionable_buy_count`、`watch_only_count` 和 `executable_buy_count` 分开报告，避免把满仓后的重复信号误当成可执行买入分母。
+
+200k research profile 只用于解释资金规模瓶颈，不是可操作方案；`combined_v2_50k_compact` 也不会替换当前默认 release profile。当前默认 release 仍是 50k lot-aware `WARN`，compact 实验通过不等于可以自动实盘；所有真实交易都必须人工独立决策，不能由仓库脚本或 LLM 决定。
+
+当前冻结的 50k paper trading / observation 候选是 `mp6_tr1_tu8_cr15_add0`：`max_positions=6`、`max_tranches=1`、`target_universe_size=8`、`cash_reserve_ratio=15%`、`max_adds_per_day=0`。它只用于 50k 观察期验证，不等于 release PASS，不等于实盘批准；真实交易必须由人工独立判断。200k research profile 不适用于用户当前 50k 资金规模，也不得作为该候选的决策依据。
+
+当前版本只能用于 observation / paper trading。每日观察前必须运行 `scripts/check_observation_readiness.py`，它只读取现有 RC manifest、RC verify 和 release guard 报告，输出 `reports/observation/observation_readiness_check.{json,md,csv}`。`READY_FOR_OBSERVATION` 只表示现有报告足以进入人工观察/纸面交易记录，不等于 release PASS，不等于实盘批准；当前 release guard `WARN` 是预期状态。日常流程见 `docs/observation_runbook.md`，记录模板见 `reports/observation/templates/daily_observation_template.md`。任何真实交易都必须由人工独立决策，不能由仓库脚本或 LLM 决定。
 
 2026-05-04 当前 observation 示例状态：
 

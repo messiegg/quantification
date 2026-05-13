@@ -5,7 +5,7 @@ import copy
 import pandas as pd
 
 from src.strategy.grid import compute_grid_step
-from src.strategy.signals import SignalEngine
+from src.strategy.signals import SignalEngine, compute_entry_signal_score
 from src.strategy.universe import build_candidate_pool
 from src.utils.config import load_yaml
 
@@ -219,6 +219,115 @@ def test_v2_buy_levels_map_to_bucket_tranche_weights(configs: dict) -> None:
     buy3 = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row3)
     assert buy3["action_enum"] == "BUY_3"
     assert buy3["desired_target_weight"] == 0.12
+
+
+def test_v2_entry_signal_score_uses_actual_buy_level(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row()
+    row.update(
+        {
+            "current_position_tranches": 1,
+            "current_weight": 0.04,
+            "current_shares": 800,
+            "holding_state": "ACTIVE",
+            "close": 9.0,
+            "ma120": 10.5,
+            "stock_q_blended": 20.0,
+            "industry_q_blended": 25.0,
+            "dv_ttm": 0.03,
+            "last_fill_price": 10.0,
+            "days_since_last_buy": 30,
+        }
+    )
+    decision = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    bucket_cfg = strategy_cfg["buckets"]["defensive_dividend"]
+    buy1_score = round(compute_entry_signal_score(row, bucket_cfg, "BUY_1"), 4)
+    buy2_score = round(compute_entry_signal_score(row, bucket_cfg, "BUY_2"), 4)
+    assert buy2_score != buy1_score
+    assert decision["signal_level"] == "BUY_2"
+    assert decision["entry_signal_score"] == buy2_score
+
+
+def test_v2_defensive_buy1_threshold_comes_from_config(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row()
+    row["dv_ttm"] = 0.03
+    buy_cfg = strategy_cfg["buckets"]["defensive_dividend"]["buy_levels"]["BUY_1"]
+    buy_cfg["final_score_min"] = 999
+    blocked = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert blocked["action_enum"] != "BUY_1"
+    buy_cfg["final_score_min"] = 55
+    restored = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert restored["action_enum"] == "BUY_1"
+
+
+def test_v2_defensive_buy2_elapsed_fallback_comes_from_config(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row()
+    row.update(
+        {
+            "current_position_tranches": 1,
+            "current_weight": 0.04,
+            "current_shares": 800,
+            "holding_state": "ACTIVE",
+            "close": 10.0,
+            "ma120": 10.5,
+            "stock_q_blended": 20.0,
+            "industry_q_blended": 25.0,
+            "last_fill_price": 10.0,
+            "days_since_last_buy": 30,
+        }
+    )
+    assert _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)["action_enum"] == "BUY_2"
+    fallback = strategy_cfg["buckets"]["defensive_dividend"]["buy_levels"]["BUY_2"]["elapsed_fallback"]
+    fallback["days_since_last_buy_min"] = 999
+    assert _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)["action_enum"] != "BUY_2"
+
+
+def test_v2_cyclical_buy1_momentum_comes_from_config(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row("cyclical_rotation")
+    row.update({"close": 10.0, "ma20": 11.0, "ma120": 10.0, "ma20_slope_10d": 0.01})
+    assert _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)["action_enum"] == "BUY_1"
+    strategy_cfg["buckets"]["cyclical_rotation"]["buy_levels"]["BUY_1"]["momentum"] = {"close_gte_ma": "ma20"}
+    assert _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)["action_enum"] != "BUY_1"
+
+
+def test_v2_hard_add_ban_threshold_comes_from_config(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row()
+    row.update({"close": 10.0, "ma250": 12.0, "ma120_slope_20d": -0.01, "dv_ttm": 0.03})
+    blocked = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert blocked["blocked_reason"] == "HARD_ADD_BAN"
+    strategy_cfg["execution"]["hard_add_ban"]["close_to_ma250_min"] = 0.5
+    restored = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert restored.get("blocked_reason") != "HARD_ADD_BAN"
+
+
+def test_v2_defensive_soft_trim_threshold_comes_from_config(configs: dict) -> None:
+    strategy_cfg, universe_rules_cfg, account_cfg = _v2_configs(configs)
+    row = _row()
+    row.update(
+        {
+            "current_position_tranches": 2,
+            "current_weight": 0.08,
+            "current_shares": 1600,
+            "holding_state": "ACTIVE",
+            "holding_days": 80,
+            "close": 10.6,
+            "ma120": 10.0,
+            "stock_q_blended": 70.0,
+            "stock_pb_q_blended": 70.0,
+            "industry_q_blended": 25.0,
+            "last_fill_price": 11.0,
+        }
+    )
+    reduced = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert reduced["action_enum"] == "REDUCE"
+    soft_trim = strategy_cfg["buckets"]["defensive_dividend"]["exit_rules"]["soft_trim"]
+    soft_trim["any"][0]["all"][0]["stock_q_blended_gte"] = 999
+    held = _generate_one(strategy_cfg, universe_rules_cfg, account_cfg, row)
+    assert held["action_enum"] != "REDUCE"
 
 
 def test_v2_market_regime_exposure_cap_blocks_buy(configs: dict) -> None:

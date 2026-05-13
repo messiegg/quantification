@@ -1,17 +1,17 @@
 check_id,check_name,status,profile,evidence,affected_file,recommendation
-INT-001,账户与执行成本一致,PASS,both,"initial_capital=200000, fee=0.0003, tax=0.0005, slippage_bps=5, lot=100, min_trade=5000",config/account.yml,继续统一读取 account 配置。
+INT-001,账户与执行成本一致,PASS,both,"initial_capital=50000, fee=0.0003, tax=0.0005, slippage_bps=5, lot=100, min_trade=1500",config/account.yml,继续统一读取 account 配置。
 INT-002,baseline 与 combined_v2 日期一致,PASS,both,"features_start=2023-04-03, features_end=2026-04-03",data/features/daily_features,保持固定三年窗口，不读取 2026-04-03 之后数据。
 INT-003,交易日历与 benchmark 一致,PASS,both,"feature_days=727, benchmark_days=727",data/raw/benchmark_daily.parquet,若失败，先修复 benchmark 与特征日期对齐。
 INT-004,compare 账户状态互不污染,PASS,both,compare script constructs separate baseline_engine and v2_engine instances,scripts/run_backtest_compare.py,baseline/v2 必须保持独立 BacktestEngine 实例。
 INT-005,diagnostics 不改变策略行为,PASS,both,writing diagnostics left trades and metrics unchanged,src/strategy/backtest_reports.py,诊断输出只能读 result，不得回写信号、订单、现金或持仓。
 INT-006,strategy_config 与 universe_config 未串线,PASS,both,baseline uses config/strategy.yml + config/universe_rules.yml; v2 uses config/strategy_v2.yml + config/universe_rules_v2.yml,scripts/run_backtest_compare.py,保持命令行参数分离。
 INT-007,historical_universe_dir 按 profile 读取,PASS,both,baseline=data/curated/universe_history; combined_v2=reports/backtest/combined_v2_universe_history,scripts/run_backtest_compare.py,不要把 v2 历史股票池传给 baseline。
-INT-008-baseline,最终权益等于现金加持仓市值,PASS,baseline,"final_equity=200595.82, nav_last=200595.82",src/strategy/backtest_engine.py,若失败，先修复持仓估值或现金流水。
-INT-009-baseline,逐笔交易 cash_after 可复算,PASS,baseline,"violations=0, trades=7",reports/backtest/*_trades_detailed.csv,逐笔核对 amount/fee/tax/slippage 后再继续解释收益。
+INT-008-baseline,最终权益等于现金加持仓市值,PASS,baseline,"final_equity=49888.98, nav_last=49888.98",src/strategy/backtest_engine.py,若失败，先修复持仓估值或现金流水。
+INT-009-baseline,逐笔交易 cash_after 可复算,PASS,baseline,"violations=0, trades=2",reports/backtest/*_trades_detailed.csv,逐笔核对 amount/fee/tax/slippage 后再继续解释收益。
 INT-010-baseline,交易订单满足整手、最小成交额、现金和仓位约束,PASS,baseline,"{'lot': 0, 'min_amount': 0, 'cash': 0, 'single': 0, 'exposure': 0}",src/strategy/backtest_engine.py,若失败，优先修复成交日重算约束。
-INT-008-combined_v2,最终权益等于现金加持仓市值,PASS,combined_v2,"final_equity=243928.88, nav_last=243928.88",src/strategy/backtest_engine.py,若失败，先修复持仓估值或现金流水。
-INT-009-combined_v2,逐笔交易 cash_after 可复算,PASS,combined_v2,"violations=0, trades=76",reports/backtest/*_trades_detailed.csv,逐笔核对 amount/fee/tax/slippage 后再继续解释收益。
+INT-008-combined_v2,最终权益等于现金加持仓市值,PASS,combined_v2,"final_equity=53663.28, nav_last=53663.28",src/strategy/backtest_engine.py,若失败，先修复持仓估值或现金流水。
+INT-009-combined_v2,逐笔交易 cash_after 可复算,PASS,combined_v2,"violations=0, trades=41",reports/backtest/*_trades_detailed.csv,逐笔核对 amount/fee/tax/slippage 后再继续解释收益。
 INT-010-combined_v2,交易订单满足整手、最小成交额、现金和仓位约束,PASS,combined_v2,"{'lot': 0, 'min_amount': 0, 'cash': 0, 'single': 0, 'exposure': 0}",src/strategy/backtest_engine.py,若失败，优先修复成交日重算约束。
-INT-011,baseline 结果可复现,PASS,baseline,"annual_return=0.10%, total_trades=7",reports/backtest/baseline_diagnostic_report.md,若失败，确认历史股票池和执行口径是否被改变。
+INT-011,baseline 结果可复现,FAIL,baseline,"annual_return=-0.08%, total_trades=2",reports/backtest/baseline_diagnostic_report.md,若失败，确认历史股票池和执行口径是否被改变。
 INT-012-LEGACY,legacy pre-PIT 结果已废弃,WARN,combined_v2,"legacy same_close / pre-PIT result was 9.14% / 83 trades, now superseded by PIT-corrected result 7.14% / 76 trades",reports/backtest/compare_combined_vs_v2_metrics.csv,保留旧结果作审计记录；不得再把 9.14%/83 笔作为当前主策略必须复现的 PASS/FAIL 标准。
-INT-013-CURRENT-PIT-STRICT,combined_v2 当前 PIT 严格主口径可复现,PASS,combined_v2,"profile=combined_v2, execution_mode=next_bar, annual_return=7.14%, cumulative_return=21.96%, max_drawdown=-9.36%, total_trades=76",reports/backtest/combined_v2_diagnostic_report.md,当前主口径固定为 PIT 修正后的 combined_v2 next_bar；若失败，检查历史股票池、执行价或信号逻辑是否漂移。
+INT-013-CURRENT-PIT-STRICT,combined_v2 当前 PIT 严格主口径可复现,FAIL,combined_v2,"profile=combined_v2, execution_mode=next_bar, annual_return=2.48%, cumulative_return=7.33%, max_drawdown=-8.88%, total_trades=41",reports/backtest/combined_v2_diagnostic_report.md,当前主口径固定为 PIT 修正后的 combined_v2 next_bar；若失败，检查历史股票池、执行价或信号逻辑是否漂移。

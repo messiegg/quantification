@@ -1,13 +1,13 @@
 {
-  "generated_at": "2026-05-06T07:49:51.197979+00:00",
-  "git_commit": "c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad",
+  "generated_at": "2026-05-08T01:30:46.633551+00:00",
+  "git_commit": "fcbad4f7fd70542596dcb7537dba4e7ea41a84c9",
   "branch": "codex/cleanup-stale-artifacts",
-  "config_hash": "77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7",
+  "config_hash": "6817ac43cf178fea81d0976750c1269eba0c1b2f4a2e0e6c4f4e7c1f16eaf1d5",
   "config_files": [
     {
       "path": "config/strategy_v2.yml",
       "exists": true,
-      "sha256": "eec5115615258c7c9f1e189d1da1a013dd86d9156d86f7f6dc5aa9f7858920f9"
+      "sha256": "2b7e55141e2629ffe9a1385794eeaa026bbb50757d8de43d9f12e46b97257f3b"
     },
     {
       "path": "config/account.yml",
@@ -40,7 +40,7 @@
       "sha256": "d3cd1f8ab42f5cc939b809ea9091af5c8ade3e2e8827c5a5235b779a3866d8ce"
     }
   ],
-  "data_hash": "c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1",
+  "data_hash": "36f265e73c770f7dc3926badd568064427be23d9269b26654f216fd92707bf4c",
   "requested_date": "",
   "target_trade_date": "",
   "manual_review_required": true,
@@ -89,11 +89,11 @@
       "variant_id": "universe_large",
       "base_value": "configured_base",
       "variant_value": "target_size=48, floor_size=36, ceiling_size=60",
-      "variant_config_hash": "d1db600fb207bdf3cd1e935d522d6e7dea63108accb86151d2d5230d2a453c6a",
+      "variant_config_hash": "f6fd92b56d197023908d8d78df6e6cb7fde038abd167bed226fccc64772b50f5",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 335,
+          "line": 417,
           "text": "self.universe_rules_cfg.get(\"target_universe_size\", strategy_cfg[\"execution\"].get(\"equal_weight_target_universe_size\", 16))"
         },
         {
@@ -115,6 +115,16 @@
           "path": "scripts/audit_universe_integrity.py",
           "line": 609,
           "text": "target_size = int(rules.get(\"target_size\", rules.get(\"target_universe_size\", 0)) or 0)"
+        },
+        {
+          "path": "scripts/run_50k_compact_experiments.py",
+          "line": 65,
+          "text": "target_universe_size: int"
+        },
+        {
+          "path": "scripts/run_account_execution_improvement_experiments.py",
+          "line": 154,
+          "text": "strategy_execution_overrides={\"max_positions\": 12, \"equal_weight_target_universe_size\": 12},"
         },
         {
           "path": "scripts/report_metadata.py",
@@ -167,6 +177,11 @@
           "text": "target_universe_size: 16"
         },
         {
+          "path": "config/strategy_v2_50k_compact.yml",
+          "line": 25,
+          "text": "target_universe_size: [8, 10, 12]"
+        },
+        {
           "path": "config/strategy_v2_1_risk_guard.yml",
           "line": 42,
           "text": "equal_weight_target_universe_size: 36"
@@ -175,16 +190,6 @@
           "path": "config/strategy_profiles/retail_50k_lot_aware_execution.yml",
           "line": 12,
           "text": "equal_weight_target_universe_size: 8"
-        },
-        {
-          "path": "config/strategy_profiles/retail_50k_execution.yml",
-          "line": 11,
-          "text": "equal_weight_target_universe_size: 12"
-        },
-        {
-          "path": "config/strategy_profiles/reference_200k_execution.yml",
-          "line": 11,
-          "text": "equal_weight_target_universe_size: 36"
         }
       ],
       "rule_name": "universe_size",
@@ -205,7 +210,7 @@
       "variant_id": "defensive_valuation_strict",
       "base_value": "configured_base",
       "variant_value": "defensive stock/industry thresholds -5",
-      "variant_config_hash": "26d90f18af30803aca72e6baa62c2205fa4e6740ac45406e5924830cb9910f14",
+      "variant_config_hash": "1e8a6cd0133619b01bcc36718b52f4b5897498123b39b6d4329501a5e8a8c4fa",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
@@ -246,6 +251,11 @@
           "path": "scripts/run_backtest_controls.py",
           "line": 384,
           "text": "row[\"defensive_pnl\"] = _bucket_total_pnl(\"defensive_dividend\", detailed, final)"
+        },
+        {
+          "path": "scripts/run_50k_compact_experiments.py",
+          "line": 179,
+          "text": "dividend = _safe_float(decision.get(\"dv_ttm\")) if str(decision.get(\"bucket\")) == \"defensive_dividend\" else 0.0"
         },
         {
           "path": "scripts/backtest.py",
@@ -316,12 +326,12 @@
       "variant_id": "holding_shorter",
       "base_value": "configured_base",
       "variant_value": "soft_trim=30, soft_exit=45",
-      "variant_config_hash": "0193f56ab925ee0bf55f3abbf722be44dbe3aafb6392c07fad00d838503d4184",
+      "variant_config_hash": "5ea66aef15a3c6563f96032c6055b1fa4ccb28571cccf9eb163f37d78b0279e4",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 533,
-          "text": "min_trim_days = int(self.strategy_cfg[\"execution\"].get(\"min_holding_days_for_soft_trim\", 40))"
+          "line": 213,
+          "text": "def _resolve_min_holding_days(strategy_cfg: dict, path: str) -> int:"
         },
         {
           "path": "scripts/run_backtest_sensitivity.py",
@@ -357,12 +367,12 @@
       "variant_id": "grid_tighter",
       "base_value": "configured_base",
       "variant_value": "clip(1.0*ATR20/close,0.03,0.07)",
-      "variant_config_hash": "2dddb9accef2e73fe7bb2c04e860bd498d93377a84f327ff59a36a0bb23f26d3",
+      "variant_config_hash": "efe4d4eeb508983f19aa935c9cbc07708ef8a8db3c38a0e830b3f605e5325efd",
       "code_read_locations": [
         {
           "path": "src/strategy/signals.py",
-          "line": 397,
-          "text": "grid_cfg = self.strategy_cfg[\"execution\"][\"grid_execution\"]"
+          "line": 543,
+          "text": "hard_path = \"execution.grid_execution.hard_add_ban\""
         },
         {
           "path": "src/strategy/grid.py",
@@ -381,7 +391,7 @@
         },
         {
           "path": "config/strategy_v2.yml",
-          "line": 48,
+          "line": 56,
           "text": "grid_execution:"
         },
         {
@@ -391,7 +401,7 @@
         },
         {
           "path": "config/strategy_v2_1_risk_guard.yml",
-          "line": 48,
+          "line": 56,
           "text": "grid_execution:"
         }
       ],

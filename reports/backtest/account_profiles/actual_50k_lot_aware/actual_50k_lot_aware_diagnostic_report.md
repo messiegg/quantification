@@ -2,9 +2,9 @@
 
 ## 元数据
 
-- git_commit: c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad
-- config_hash: 77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7
-- data_hash: 5be25d49c66a833d206e1423f0bbf17d92552dcab1fa38a6081dd70f41caf79a
+- git_commit: fcbad4f7fd70542596dcb7537dba4e7ea41a84c9
+- config_hash: 6817ac43cf178fea81d0976750c1269eba0c1b2f4a2e0e6c4f4e7c1f16eaf1d5
+- data_hash: ea7c14af5f4b454e5e18df55b7c8851fcaa28170542dccc4a7d598f0b7426c7e
 - manual_review_required: true
 - auto_trading_approved: false
 

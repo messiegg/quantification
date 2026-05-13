@@ -1,0 +1,51 @@
+profile_name: combined_v2_50k_compact
+research_only: true
+base_strategy_config: config/strategy_v2.yml
+base_account_profile: retail_50k_lot_aware
+release_profile_replacement: false
+
+safety:
+  long_only: true
+  manual_execution_only: true
+  auto_trading_approved: false
+  broker_integration_enabled: false
+  llm_decision_allowed: false
+  writes_real_trades: false
+
+account:
+  capital: 50000
+  round_lot: 100
+
+experiment_grid:
+  max_positions: [4, 5, 6, 8]
+  cash_reserve_ratio: [0.10, 0.15, 0.20]
+  max_new_positions_per_day: [1]
+  max_adds_per_day: [0, 1]
+  max_tranches: [1, 2]
+  target_universe_size: [8, 10, 12]
+
+compact_rules:
+  max_positions_upper_bound: 8
+  target_position_budget: capital_times_investable_ratio_div_max_positions
+  account_infeasible_action: HOLD
+  watch_reason_codes:
+    account_infeasible: WATCH_ONLY_ACCOUNT_INFEASIBLE
+    portfolio_full: WATCH_ONLY_PORTFOLIO_FULL
+    cash_reserved: WATCH_ONLY_CASH_RESERVED
+    lot_too_expensive: WATCH_ONLY_LOT_TOO_EXPENSIVE
+    daily_new_limit: WATCH_ONLY_DAILY_NEW_LIMIT
+    daily_add_limit: WATCH_ONLY_DAILY_ADD_LIMIT
+    compact_rank_out: WATCH_ONLY_COMPACT_RANK_OUT
+    max_tranches: WATCH_ONLY_MAX_TRANCHES
+    industry_concentration: WATCH_ONLY_INDUSTRY_CONCENTRATION
+  ranking:
+    industry_max_positions: 2
+    lot_fit_bonus: true
+    separate_new_and_add: true
+
+evaluation:
+  executable_account_actionable_min: 0.80
+  max_exposure_max: 0.85
+  max_positions_max: 8
+  max_drawdown_not_significantly_worse_than_default_tolerance: 0.02
+  default_50k_max_drawdown_reference: -0.08876605706976393

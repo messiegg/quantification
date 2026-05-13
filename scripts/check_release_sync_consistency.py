@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from scripts.verify_combined_v2_rc import EXPECTED_METRICS, EXPECTED_TOTAL_TRADES
+from scripts.verify_combined_v2_rc import EXPECTED_METRICS, MANIFEST_PATH
 from src.utils.config import resolve_path
 
 
@@ -309,9 +309,20 @@ def _sync_counts(frame: pd.DataFrame) -> dict:
 
 def _rc_verify_summary() -> tuple[str, dict[str, float | int]]:
     status = _status_from_csv("reports/backtest/release/combined_v2_rc_verify.csv")
-    metrics = {name: value for name, (value, _tolerance) in EXPECTED_METRICS.items()}
-    metrics["total_trades"] = EXPECTED_TOTAL_TRADES
-    metrics["final_nav"] = 243928.8809062001
+    manifest_path = resolve_path(MANIFEST_PATH)
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        metrics = {
+            "annual_return": float(manifest.get("annual_return", 0.0)),
+            "cumulative_return": float(manifest.get("cumulative_return", 0.0)),
+            "max_drawdown": float(manifest.get("max_drawdown", 0.0)),
+            "total_trades": int(float(manifest.get("total_trades", 0) or 0)),
+            "final_nav": float(manifest.get("initial_capital", 0.0)) * (1.0 + float(manifest.get("cumulative_return", 0.0))),
+        }
+    else:
+        metrics = {name: value for name, (value, _tolerance) in EXPECTED_METRICS.items()}
+        metrics["total_trades"] = 0
+        metrics["final_nav"] = 243928.8809062001
     return status, metrics
 
 

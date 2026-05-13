@@ -4,9 +4,9 @@
 - report_date: 2026-05-04
 - requested_date: 2026-05-04
 - target_trade_date: 2026-04-30
-- git_commit: c368f718e365edd1ce6ad8f2bd9bb6bc8a074cad
-- config_hash: 77fab057ca5cee090e85267b1dc7d0bf4e489f66913f3cc2ace187529a0373f7
-- data_hash: c6a0a1d723bdacc2afc0d397ee004a858ddb729d4c7e0f1cdc0ee4b33a1444c1
+- git_commit: fcbad4f7fd70542596dcb7537dba4e7ea41a84c9
+- config_hash: 6817ac43cf178fea81d0976750c1269eba0c1b2f4a2e0e6c4f4e7c1f16eaf1d5
+- data_hash: 36f265e73c770f7dc3926badd568064427be23d9269b26654f216fd92707bf4c
 - universe_status: WARN
 - data_freshness_status: PASS
 - action_count: 0

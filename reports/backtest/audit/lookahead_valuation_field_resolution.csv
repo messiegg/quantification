@@ -1342,7 +1342,7 @@ date,ts_code,bucket,stock_valuation_quantile,stock_valuation_quantile_source_fie
 2025-11-03,600999.sh,defensive_dividend,53.84126984126984,stock_pb_q_blended,pb,68.01587301587301,industry_pb_q_blended,pb,2025-11-03,2025-11-03,PASS,
 2025-11-03,601555.sh,defensive_dividend,74.76190476190476,stock_pb_q_blended,pb,68.01587301587301,industry_pb_q_blended,pb,2025-11-03,2025-11-03,PASS,
 2025-11-03,002736.sz,defensive_dividend,72.15873015873015,stock_pb_q_blended,pb,68.01587301587301,industry_pb_q_blended,pb,2025-11-03,2025-11-03,PASS,
-2025-11-03,600958.sh,defensive_dividend,70.79037800687286,stock_pb_q_blended,pb,68.01587301587301,industry_pb_q_blended,pb,2025-11-03,2025-11-03,PASS,
+2025-11-03,600958.sh,defensive_dividend,70.79037800687286,stock_pb_q_blended,pb,68.01587301587301,industry_pb_q_blended,pb,2025-11-03,2025-11-03,WARN,stock_source_history_missing
 2025-12-01,600018.sh,cyclical_rotation,5.26984126984127,stock_pb_q_blended,pb,73.15873015873015,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
 2025-12-01,600009.sh,cyclical_rotation,6.222222222222221,stock_pb_q_blended,pb,73.15873015873015,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
 2025-12-01,601021.sh,cyclical_rotation,20.084033613445378,stock_pb_q_blended,pb,73.15873015873015,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
@@ -1408,7 +1408,7 @@ date,ts_code,bucket,stock_valuation_quantile,stock_valuation_quantile_source_fie
 2025-12-01,600999.sh,defensive_dividend,46.55555555555556,stock_pb_q_blended,pb,60.39682539682539,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
 2025-12-01,601555.sh,defensive_dividend,66.4920634920635,stock_pb_q_blended,pb,60.39682539682539,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
 2025-12-01,002736.sz,defensive_dividend,66.39682539682539,stock_pb_q_blended,pb,60.39682539682539,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
-2025-12-01,600958.sh,defensive_dividend,58.86824324324324,stock_pb_q_blended,pb,60.39682539682539,industry_pb_q_blended,pb,2025-12-01,2025-12-01,PASS,
+2025-12-01,600958.sh,defensive_dividend,58.86824324324324,stock_pb_q_blended,pb,60.39682539682539,industry_pb_q_blended,pb,2025-12-01,2025-12-01,WARN,stock_source_history_missing
 2026-01-05,600018.sh,cyclical_rotation,3.380952380952381,stock_pb_q_blended,pb,77.17460317460316,industry_pb_q_blended,pb,2026-01-05,2026-01-05,PASS,
 2026-01-05,600009.sh,cyclical_rotation,12.126984126984127,stock_pb_q_blended,pb,77.17460317460316,industry_pb_q_blended,pb,2026-01-05,2026-01-05,PASS,
 2026-01-05,600233.sh,cyclical_rotation,26.936507936507937,stock_pb_q_blended,pb,77.17460317460316,industry_pb_q_blended,pb,2026-01-05,2026-01-05,PASS,

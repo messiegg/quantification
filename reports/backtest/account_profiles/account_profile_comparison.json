@@ -71,7 +71,7 @@
         }
       ],
       "research_only": true,
-      "config_hash": "5a6e403de57303aee21ef4fdb8ab4ac5bcecf780fd2d3b09433cd1abd993063c",
+      "config_hash": "0dc47d2346c40767cfb6610f69d51bde111eb4b214547f91159310e41e2449d5",
       "adopted_as_default": false,
       "adoption_reason": ""
     },
@@ -128,7 +128,7 @@
         }
       ],
       "research_only": true,
-      "config_hash": "040520fac3908a8fcb6eeb9a9d02a14ef67aaea20b19d43fef94fc8d80d6c2d4",
+      "config_hash": "69eb5dd8ddddd47037a645f8aaa6668bf1809aea02188a4fb8424943411a072b",
       "adopted_as_default": false,
       "adoption_reason": ""
     },
@@ -185,7 +185,7 @@
         }
       ],
       "research_only": false,
-      "config_hash": "6d4cee7eaee9b07571cbe07f2d5768a40d24fee1bdd246149d74ff029c37c51c",
+      "config_hash": "52d7dadb5b19b183483159140e3bac260705bd7969802e15c1e419d9749ebdc8",
       "adopted_as_default": false,
       "adoption_reason": ""
     },
@@ -242,7 +242,7 @@
         }
       ],
       "research_only": true,
-      "config_hash": "b973a1f6eb00a6d26bde522c69683c33657de67ca5eb69310b7a443774e3d6d2",
+      "config_hash": "d078b269bb5facf5b3e8e74516b023e21fdd25e96adecd6f038235d9023305c6",
       "adopted_as_default": true,
       "adoption_reason": "actual_50k_lot_aware 满足本轮全部切默认条件。"
     }

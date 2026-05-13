@@ -1,0 +1,132 @@
+{
+  "generated_at": "2026-05-13T02:47:49.646948+00:00",
+  "git_commit": "fcbad4f7fd70542596dcb7537dba4e7ea41a84c9",
+  "branch": "codex/cleanup-stale-artifacts",
+  "status": "READY_FOR_OBSERVATION",
+  "ready_for_observation": true,
+  "release_pass_approved": false,
+  "manifest_path": "reports/backtest/release/combined_v2_rc_manifest.json",
+  "verify_csv_path": "reports/backtest/release/combined_v2_rc_verify.csv",
+  "release_guard_csv_path": "reports/backtest/release/release_guard_report.csv",
+  "manifest_status": "WARN",
+  "default_account_profile": "retail_50k_lot_aware",
+  "rc_verify_status": "PASS",
+  "rc_verify_fail_count": 0,
+  "release_guard_status": "WARN",
+  "release_guard_fail_count": 0,
+  "code_hash_drift": false,
+  "config_hash_drift": false,
+  "checks": [
+    {
+      "check_id": "OBS-FILE-MANIFEST",
+      "status": "PASS",
+      "expected": "manifest exists",
+      "actual": "/Users/meseg/shu/stocks/quantile/reports/backtest/release/combined_v2_rc_manifest.json",
+      "blocking": true,
+      "recommendation": "缺少 RC manifest 时暂停 observation。"
+    },
+    {
+      "check_id": "OBS-FILE-VERIFY",
+      "status": "PASS",
+      "expected": "verify csv exists",
+      "actual": "/Users/meseg/shu/stocks/quantile/reports/backtest/release/combined_v2_rc_verify.csv",
+      "blocking": true,
+      "recommendation": "缺少 RC verify 输出时暂停 observation。"
+    },
+    {
+      "check_id": "OBS-FILE-GUARD",
+      "status": "PASS",
+      "expected": "release guard csv exists",
+      "actual": "/Users/meseg/shu/stocks/quantile/reports/backtest/release/release_guard_report.csv",
+      "blocking": true,
+      "recommendation": "缺少 release guard 输出时暂停 observation。"
+    },
+    {
+      "check_id": "OBS-MANIFEST-STATUS",
+      "status": "PASS",
+      "expected": [
+        "PASS_CANDIDATE",
+        "WARN"
+      ],
+      "actual": "WARN",
+      "blocking": true,
+      "recommendation": "manifest status 只能是 WARN 或 PASS_CANDIDATE；未知状态暂停 observation。"
+    },
+    {
+      "check_id": "OBS-DEFAULT-ACCOUNT",
+      "status": "PASS",
+      "expected": [
+        "actual_50k_lot_aware",
+        "retail_50k_lot_aware"
+      ],
+      "actual": "retail_50k_lot_aware",
+      "blocking": true,
+      "recommendation": "默认 release/account profile 必须保持 50k lot-aware。"
+    },
+    {
+      "check_id": "OBS-RC-VERIFY-PASS",
+      "status": "PASS",
+      "expected": "PASS",
+      "actual": "PASS",
+      "blocking": true,
+      "recommendation": "RC verify 必须整体 PASS；WARN/FAIL 都需要先解释或重建 RC。"
+    },
+    {
+      "check_id": "OBS-RC-VERIFY-NO-FAIL",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "blocking": true,
+      "recommendation": "verify FAIL > 0 时暂停 observation。"
+    },
+    {
+      "check_id": "OBS-RELEASE-GUARD-NO-FAIL",
+      "status": "PASS",
+      "expected": 0,
+      "actual": 0,
+      "blocking": true,
+      "recommendation": "release guard FAIL > 0 时暂停 observation；WARN 可保留但必须解释。"
+    },
+    {
+      "check_id": "OBS-CODE-HASH-DRIFT",
+      "status": "PASS",
+      "expected": "no code drift",
+      "actual": "none",
+      "blocking": true,
+      "recommendation": "存在 CODE drift 时暂停 observation，先重建 RC。"
+    },
+    {
+      "check_id": "OBS-CONFIG-HASH-DRIFT",
+      "status": "PASS",
+      "expected": "no config drift",
+      "actual": "none",
+      "blocking": true,
+      "recommendation": "存在 CONFIG drift 时暂停 observation，先重建 RC。"
+    },
+    {
+      "check_id": "OBS-SAFETY-BOUNDARY",
+      "status": "PASS",
+      "expected": "manual-only; no broker; no LLM decisions",
+      "actual": {
+        "auto_trading_approved": false,
+        "broker_integration_enabled": false,
+        "llm_decision_allowed": false
+      },
+      "blocking": true,
+      "recommendation": "observation smoke check 不能被解释为自动交易批准。"
+    }
+  ],
+  "not_ready_reasons": [],
+  "manual_review_required": true,
+  "paper_trading_only": true,
+  "reads_real_account": false,
+  "generates_real_orders": false,
+  "auto_trading_approved": false,
+  "broker_integration_enabled": false,
+  "llm_decision_allowed": false,
+  "read_only_inputs": [
+    "reports/backtest/release/combined_v2_rc_manifest.json",
+    "reports/backtest/release/combined_v2_rc_verify.csv",
+    "reports/backtest/release/release_guard_report.csv"
+  ]
+}
