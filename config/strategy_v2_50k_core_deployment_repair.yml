@@ -1,0 +1,176 @@
+base_strategy_config: config/strategy_v2.yml
+base_50k_core_config: config/strategy_v2_50k_core.yml
+base_account_profile: retail_50k_lot_aware
+
+safety:
+  research_only: true
+  long_only: true
+  manual_execution_only: true
+  auto_trading_approved: false
+  broker_integration_enabled: false
+  llm_decision_allowed: false
+  writes_real_trades: false
+  release_profile_replacement: false
+
+deployment_repair:
+  enabled: true
+  max_variants: 24
+  hard_conditions_unchanged: true
+  source_diagnostics:
+    use_phase3_traces: true
+    trace_dir: reports/backtest/50k_core/traces
+
+  keep_cyclical_watch_only:
+    enabled: true
+    reason: phase2_and_phase3_show_cyclical_executable_negative_pnl_and_deeper_drawdown
+
+  quality_defensive_fill:
+    enabled_grid: [false, true]
+    only_when:
+      market_regime_in: [risk_on]
+      cash_ratio_gt: 0.30
+      no_executable_stock_buy: true
+    candidate_source:
+      use_effective_universe_only: true
+      include_current_holdings: false
+      exclude_cyclical_rotation: true
+    required:
+      quality_pass: true
+      fundamental_break: false
+      data_stale: false
+      core_fields_complete: true
+      lot_fit_status_in: [OK, ACCEPTABLE]
+      structural_lot_block: false
+    thresholds_grid:
+      strict:
+        final_score_min: 65
+        stock_q_blended_max: 45
+        industry_q_blended_max: 60
+        dv_ttm_min: 0.020
+        close_to_ma120_max: 1.08
+        ma20_slope_10d_min: -0.005
+      balanced:
+        final_score_min: 60
+        stock_q_blended_max: 55
+        industry_q_blended_max: 70
+        dv_ttm_min: 0.015
+        close_to_ma120_max: 1.12
+        ma20_slope_10d_min: -0.010
+    max_fill_positions_per_month_grid: [1]
+    max_total_fill_positions_grid: [1, 2]
+    action_label: BUY_DEFENSIVE_FILL
+    watch_reason_when_blocked: WATCH_ONLY_DEFENSIVE_FILL_BLOCKED
+
+  winner_add:
+    enabled_grid: [false, true]
+    only_when:
+      market_regime_in: [risk_on]
+      cash_ratio_gt: 0.30
+      positions_count_gte: 3
+    required:
+      current_position: true
+      unrealized_pnl_pct_gte: 0.03
+      close_gte_ma60: true
+      ma20_slope_10d_gte: 0
+      fundamental_break: false
+      thesis_still_valid: true
+      structural_lot_block: false
+    forbidden:
+      average_down: true
+      add_to_loser: true
+      add_when_close_below_ma120_and_ma120_slope_negative: true
+    sizing:
+      max_extra_lots_per_symbol: 1
+      max_adds_per_month_grid: [1]
+      max_single_stock_weight_grid: [0.16, 0.18]
+    action_label: BUY_WINNER_ADD
+    watch_reason_when_blocked: WATCH_ONLY_WINNER_ADD_BLOCKED
+
+  financial_group_cap:
+    enabled_grid: [false, true]
+    group_definitions:
+      financial:
+        industries: [银行, 非银金融]
+      defensive_utility:
+        industries: [公用事业]
+    constraints:
+      financial_max_positions_grid: [1, 2]
+      financial_max_weight_grid: [0.30, 0.35]
+      utility_max_positions_grid: [1]
+      utility_max_weight_grid: [0.20, 0.25]
+    enforcement:
+      block_new_if_cap_exceeded: true
+      do_not_force_sell_existing: true
+      apply_to_quality_defensive_fill: true
+      apply_to_regular_buy: true
+    watch_reason_when_blocked: WATCH_ONLY_GROUP_CONCENTRATION
+
+  market_regime_block_review:
+    enabled_grid: [false, true]
+    diagnostic_only: false
+    only_when:
+      market_regime_in: [neutral, risk_on]
+      cash_ratio_gt: 0.30
+      candidate_is_quality_defensive_fill: true
+    rule:
+      allow_quality_defensive_fill_in_neutral_if:
+        final_score_min: 68
+        stock_q_blended_max: 40
+        close_gte_ma60: true
+        fundamental_break: false
+        lot_fit_status_in: [OK]
+      do_not_allow_in_risk_off: true
+    action_label: BUY_REGIME_REVIEW_FILL
+    watch_reason_when_blocked: WATCH_ONLY_REGIME_REVIEW_BLOCKED
+
+  cash_sleeve_research:
+    enabled_grid: [false, true]
+    research_only: true
+    require_existing_market_data: true
+    do_not_fabricate_prices: true
+    candidate_instruments:
+      - '510300'
+      - '510050'
+      - '510880'
+      - '511880'
+    if_data_missing:
+      skip_cash_sleeve_trades: true
+      output_feasibility_only: true
+      do_not_fail_experiment: true
+    activation:
+      market_regime_in: [risk_on]
+      cash_ratio_gt: 0.35
+      no_executable_stock_buy: true
+      no_quality_defensive_fill: true
+      no_winner_add: true
+    sizing:
+      max_weight_risk_on_grid: [0.15, 0.25]
+      max_weight_neutral: 0.00
+      max_weight_risk_off: 0.00
+      round_lot: 100
+    action_label: BUY_CASH_SLEEVE_RESEARCH
+    diagnostic_label: CASH_SLEEVE_RESEARCH_ONLY
+
+evaluation:
+  hard_conditions:
+    annual_return_min_absolute: 0.05
+    sharpe_min: 0.75
+    max_drawdown_floor: -0.12
+    total_trades_min: 20
+    total_trades_max: 60
+    executable_account_actionable_min: 0.80
+    avg_cash_ratio_max_in_risk_on: 0.35
+    largest_single_stock_pnl_contribution_max: 0.45
+    largest_industry_pnl_contribution_max: 0.55
+    realized_pnl_must_be_materially_positive: true
+    cyclical_bucket_pnl_must_be_non_negative_unless_cyclical_disabled: true
+  additional_watch_metrics:
+    - no_raw_signal_risk_on_days
+    - cyclical_disabled_or_blocked_days
+    - quality_defensive_fill_candidates
+    - quality_defensive_fill_executed
+    - winner_add_candidates
+    - winner_add_executed
+    - financial_group_cap_blocks
+    - market_regime_review_fills
+    - cash_sleeve_feasibility

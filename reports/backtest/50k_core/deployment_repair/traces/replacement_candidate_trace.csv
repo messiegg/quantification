@@ -1,0 +1,2 @@
+date,sell_symbol,buy_symbol,sell_industry,buy_industry,weakest_holding_score,candidate_score,score_gap,sell_reason,buy_reason,realized_pnl_from_sell,estimated_cost,portfolio_positions_before,portfolio_positions_after,variant
+2024-10-30,000651.sz,600803.sh,家用电器,公用事业,0.0,75.8575,75.8575,"VALUATION_NOT_CHEAP,THESIS_NOT_VALID",EXPECTED_EDGE_SCORE_GAP_AND_LOT_FIT,2750.8016408,7.2051,6,5,repair_best_baseline

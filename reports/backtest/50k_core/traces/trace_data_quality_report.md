@@ -1,0 +1,25 @@
+# trace data quality report
+
+- research_only: true
+- auto_trading_approved: false
+- broker_integration_enabled: false
+- llm_decision_allowed: false
+- writes_real_trades: false
+- release_profile_replacement: false
+- critical_missing_count: 0
+
+## limitations
+
+- lot_level_cost_basis: unavailable; using FIFO_APPROX_AVG_COST
+- fee_allocation: allocated directly by trade symbol, not broker lot ledger
+- thesis_still_valid: heuristic from available fundamental fields
+- exit_rule_origin: selected action from signal engine plus trace heuristics
+
+## table coverage
+
+- daily_portfolio_ledger: rows=726 missing_columns=[]
+- daily_position_pnl: rows=3542 missing_columns=[]
+- trade_ledger: rows=10 missing_columns=[]
+- signal_execution_trace: rows=18555 missing_columns=[]
+- exit_rule_trace: rows=3535 missing_columns=[]
+- replacement_candidate_trace: rows=2 missing_columns=[]

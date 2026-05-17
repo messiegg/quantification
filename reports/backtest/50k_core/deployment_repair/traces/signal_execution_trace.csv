@@ -1,0 +1,14 @@
+date,variant,symbol,bucket,industry,overlay_action,execution_status,reason_code,future_return_used,trace_quality_flag
+2023-04-04,quality_strict_winner_sw18,600018.sh,defensive_dividend,交通运输,BUY_DEFENSIVE_FILL,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2023-04-18,quality_strict_winner_sw18,600018.sh,defensive_dividend,交通运输,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2023-07-28,quality_strict_winner_sw18,601318.sh,defensive_dividend,非银金融,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2023-08-01,quality_strict_winner_sw18,601318.sh,defensive_dividend,非银金融,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-03-20,quality_strict_winner_sw18,601318.sh,defensive_dividend,非银金融,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-04-01,quality_strict_winner_sw18,601318.sh,defensive_dividend,非银金融,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-05-12,quality_strict_winner_sw18,601318.sh,defensive_dividend,非银金融,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-06-03,quality_strict_winner_sw18,000333.sz,defensive_dividend,家用电器,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-07-01,quality_strict_winner_sw18,600018.sh,defensive_dividend,交通运输,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-08-04,quality_strict_winner_sw18,600018.sh,defensive_dividend,交通运输,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-09-01,quality_strict_winner_sw18,000333.sz,defensive_dividend,家用电器,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-10-27,quality_strict_winner_sw18,600018.sh,defensive_dividend,交通运输,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY
+2025-11-03,quality_strict_winner_sw18,000333.sz,defensive_dividend,家用电器,BUY_WINNER_ADD,SELECTED,,False,DEPLOYMENT_REPAIR_RESEARCH_ONLY

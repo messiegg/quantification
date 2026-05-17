@@ -1,0 +1,15 @@
+{
+  "research_only": true,
+  "release_profile_replacement": false,
+  "variant_count": 23,
+  "hard_condition_pass_count": 0,
+  "risk_flags": [
+    "GROUP_CAP_RETURN_TRADEOFF",
+    "QUALITY_FILL_OVERTRADING_OR_LOW_EDGE"
+  ],
+  "notes": [
+    "hard conditions are unchanged",
+    "cyclical bucket remains watch-only",
+    "cash sleeve is separated from stock sleeve attribution"
+  ]
+}

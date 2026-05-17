@@ -1,0 +1,95 @@
+profile_name: combined_v2_50k_core
+research_only: true
+base_strategy_config: config/strategy_v2.yml
+base_account_profile: retail_50k_lot_aware
+release_profile_replacement: false
+
+safety:
+  long_only: true
+  manual_execution_only: true
+  auto_trading_approved: false
+  broker_integration_enabled: false
+  llm_decision_allowed: false
+  writes_real_trades: false
+
+account:
+  capital: 50000
+  round_lot: 100
+  min_trade_value: 1500
+
+portfolio:
+  max_positions_grid: [5, 6]
+  cash_reserve_ratio_grid: [0.10, 0.15]
+  max_single_stock_weight_grid: [0.14, 0.16, 0.18]
+  max_tranches_grid: [1]
+  max_new_positions_per_day_grid: [1]
+  max_adds_per_day_grid: [0]
+  target_universe_size_grid: [8, 10, 12]
+  industry_max_positions_grid: [1, 2]
+
+lot_fit:
+  enabled: true
+  lot_notional_max_ratio_to_target_budget_grid: [0.80, 0.90, 1.00]
+  penalty_if_lot_notional_gt_budget: true
+  structural_block_if_one_lot_gt_single_name_cap: true
+
+bucket_policy:
+  defensive_dividend_as_core: true
+  defensive_core_min_positions_grid: [3, 4]
+  cyclical_max_positions_grid: [0, 1, 2]
+  cyclical_only_risk_on: true
+  cyclical_requires_positive_trend: true
+  cyclical_watch_only_when_not_risk_on: true
+
+replacement:
+  enabled: true
+  advisory_only_for_live: true
+  backtest_switch_plan_enabled: true
+  score_gap_threshold_grid: [8, 10, 12]
+  max_replacements_per_month_grid: [1, 2]
+  min_holding_days_before_replacement: 40
+  do_not_replace_if_fundamental_thesis_intact_and_rs_positive: true
+
+risk_exposure:
+  risk_on_target_exposure_grid: [0.75, 0.85]
+  neutral_target_exposure_grid: [0.45, 0.60]
+  risk_off_target_exposure_grid: [0.00, 0.25]
+
+cash_sleeve:
+  enabled: false
+  research_only: true
+  allowed_instruments: []
+  max_weight_risk_on: 0.30
+  max_weight_neutral: 0.15
+  max_weight_risk_off: 0.00
+  activate_when_cash_ratio_gt: 0.30
+  require_no_executable_stock_buy: true
+
+module_controls:
+  high_dividend_supplement: current
+  trend_stop: current
+  replacement: enabled
+  cyclical_overlay: enabled
+  variants:
+    - current
+    - disable_high_dividend_supplement
+    - disable_trend_stop
+    - disable_both
+    - replacement_enabled
+    - replacement_disabled
+    - cyclical_disabled
+    - cyclical_enabled
+
+evaluation:
+  annual_return_min_absolute: 0.05
+  sharpe_min: 0.75
+  max_drawdown_floor: -0.12
+  total_trades_min: 20
+  total_trades_max: 60
+  executable_account_actionable_min: 0.80
+  avg_cash_ratio_max_in_risk_on: 0.35
+  largest_single_stock_pnl_contribution_max: 0.45
+  largest_industry_pnl_contribution_max: 0.55
+  neighboring_pass_count_min_excluding_best: 3
+  cyclical_bucket_pnl_must_be_non_negative_unless_cyclical_disabled: true
+  realized_pnl_must_be_materially_positive: true

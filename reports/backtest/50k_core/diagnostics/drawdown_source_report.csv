@@ -1,0 +1,2 @@
+drawdown_id,start_date,trough_date,recovery_date,max_drawdown,regime_at_start,regime_at_trough,exposure_at_start,exposure_at_trough,cash_ratio_at_start,cash_ratio_at_trough,top_loss_symbols,top_loss_industries,bucket_loss_breakdown,exit_signals_triggered,replacement_signals_triggered,missed_exit_candidates
+1,2025-03-17,2025-03-25,2025-03-31,-0.1603906044740383,risk_on,risk_on,0.5117094686128978,0.4184313158129687,0.4882905313871022,0.5815686841870313,{},,,missing_trade_detail,0,requires_daily_position_pnl

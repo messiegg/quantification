@@ -1,0 +1,11 @@
+{
+  "research_only": true,
+  "auto_trading_approved": false,
+  "release_profile_replacement": false,
+  "hard_condition_pass_count": 0,
+  "repair_variant_count": 17,
+  "notes": [
+    "future_return diagnostics are not used in repair execution",
+    "repair overlays do not change default release profile"
+  ]
+}

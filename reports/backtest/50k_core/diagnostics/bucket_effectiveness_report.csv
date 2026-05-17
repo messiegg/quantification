@@ -1,0 +1,3 @@
+bucket,pnl,trades,win_rate,drawdown_contribution,avg_holding_days,realized_unrealized
+defensive_dividend,15473.951687599998,,,,,realized=9130.36; unrealized=6343.60
+cyclical_rotation,0.0,,,,,realized=9130.36; unrealized=6343.60

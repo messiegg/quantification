@@ -70,9 +70,19 @@ RESEARCH_ONLY_EXCLUDED_FROM_RC_CODE_HASH = [
     "README.md",
     "docs/**",
     "config/strategy_v2_50k_compact.yml",
+    "config/strategy_v2_50k_core.yml",
+    "config/strategy_v2_50k_core_deployment_repair.yml",
+    "src/strategy/deployment_repair.py",
     "scripts/run_50k_compact_experiments.py",
+    "scripts/diagnose_50k_core_failures.py",
+    "scripts/diagnose_50k_core_traces.py",
+    "scripts/generate_50k_core_traces.py",
+    "scripts/run_50k_core_experiments.py",
+    "scripts/run_50k_core_deployment_repair.py",
+    "scripts/run_50k_core_repair_experiments.py",
     "scripts/run_account_execution_improvement_experiments.py",
     "reports/backtest/50k_compact/**",
+    "reports/backtest/50k_core/**",
     "reports/backtest/account_profiles/executable_raw_experiments/**",
     "reports/backtest/account_profiles/executable_raw_improvement_*",
 ]
@@ -80,9 +90,10 @@ RESEARCH_ONLY_EXCLUDED_FROM_RC_CODE_HASH = [
 HASH_SCOPE_DESCRIPTION = (
     "combined_v2 RC code hash covers strategy/backtest/release verification code that can change "
     "current default release behavior, metrics, account diagnostics, or RC validation. Research-only "
-    "account execution experiments, the combined_v2_50k_compact profile, README/docs, and generated "
-    "executable/raw or compact research matrices are excluded from the RC code hash and must not be "
-    "used to change release PASS/WARN status."
+    "account execution experiments, the combined_v2_50k_compact and combined_v2_50k_core profiles, "
+    "50k core deployment-repair overlays, "
+    "README/docs, and generated executable/raw, compact, core diagnostics, or core repair research "
+    "matrices are excluded from the RC code hash and must not be used to change release PASS/WARN status."
 )
 
 

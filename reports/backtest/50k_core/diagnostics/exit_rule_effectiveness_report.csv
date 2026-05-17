@@ -1,0 +1,2 @@
+variant,trend_stop_disabled,max_drawdown,drawdown_start,drawdown_trough,missing_exit_signal_detail,interpretation
+mp5_tr1_tu8_cr10_sw18_ind2_def3_cy0_lot100_gap8_rpm1_ro85_ne60_rf25_rep1_cyc1_disable_both,True,-0.1603906044740383,2025-03-17,2025-03-25,True,需要 partial de-risk 研究；当前 stage1 不能证明 exit signal 日内是否滞后。

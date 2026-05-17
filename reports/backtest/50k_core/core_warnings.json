@@ -1,0 +1,26 @@
+{
+  "status": "NO_50K_CORE_CANDIDATE",
+  "failure_distribution": {
+    "sharpe": 17,
+    "max_drawdown": 8,
+    "total_trades": 11,
+    "avg_cash_ratio_in_risk_on": 14,
+    "largest_industry_pnl_contribution": 2,
+    "annual_return": 15,
+    "cyclical_rotation_pnl": 5,
+    "largest_single_stock_pnl_contribution": 2
+  },
+  "cash_sleeve": "disabled; research interface only; no ETF data or fabricated ETF result used",
+  "watch_only_reasons": {
+    "WATCH_ONLY_DAILY_NEW_LIMIT": 29,
+    "WATCH_ONLY_INDUSTRY_CONCENTRATION": 516,
+    "WATCH_ONLY_CYCLICAL_DISABLED": 1969,
+    "WATCH_ONLY_DAILY_ADD_LIMIT": 23,
+    "WATCH_ONLY_PORTFOLIO_FULL": 733,
+    "WATCH_ONLY_CYCLICAL_NOT_RISK_ON": 358,
+    "WATCH_ONLY_CYCLICAL_TREND_NOT_CONFIRMED": 247,
+    "WATCH_ONLY_CYCLICAL_LIMIT": 191,
+    "WATCH_ONLY_DEFENSIVE_CORE_SHORTFALL": 52
+  },
+  "auto_trading_approved": false
+}

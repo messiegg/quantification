@@ -1,0 +1,42 @@
+profile_name: combined_v2_50k_core
+variant: mp5_tr1_tu8_cr10_sw18_ind2_def3_cy0_lot100_gap8_rpm1_ro85_ne60_rf25_rep1_cyc1_disable_both_monthly_review
+research_only: true
+auto_trading_approved: false
+broker_integration_enabled: false
+llm_decision_allowed: false
+writes_real_trades: false
+release_profile_replacement: false
+execution_mode: next_bar
+costing_method: FIFO_APPROX_AVG_COST
+params:
+  max_positions: 5
+  max_tranches: 1
+  target_universe_size: 8
+  cash_reserve_ratio: 0.1
+  max_single_stock_weight: 0.18
+  max_new_positions_per_day: 1
+  max_adds_per_day: 0
+  industry_max_positions: 2
+  defensive_core_min_positions: 3
+  cyclical_max_positions: 0
+  lot_notional_max_ratio_to_target_budget: 1.0
+  score_gap_threshold: 8
+  max_replacements_per_month: 1
+  risk_on_target_exposure: 0.85
+  neutral_target_exposure: 0.6
+  risk_off_target_exposure: 0.25
+  module_control: disable_both
+  replacement_enabled: true
+  cyclical_overlay_enabled: true
+  capital: 50000.0
+  round_lot: 100
+  min_trade_value: 1500.0
+  commission_rate: 0.0003
+  stamp_duty_rate_sell: 0.0005
+  slippage_bps: 5.0
+  min_holding_days_before_replacement: 40
+  monthly_rebalance_review_enabled: true
+  target_cash_ratio: 0.35
+  partial_derisk_enabled: false
+  single_lot_hold_with_risk_flag: false
+  repair_label: monthly_review

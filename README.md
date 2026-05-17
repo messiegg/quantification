@@ -79,6 +79,79 @@
   - 不输出精确 `target_order_value`
   - 报告显式提示“仅有方向性建议，未完成金额约束”
 
+### combined_v2_50k_core research profile
+
+`combined_v2_50k_core` 是独立的 50k 小资金 research-only profile，不替换当前 `combined_v2` release 默认口径。它固定保持 long-only、manual execution only、`auto_trading_approved=false`、`broker_integration_enabled=false`、`llm_decision_allowed=false`、`writes_real_trades=false`。
+
+核心约束：
+
+- 资金 50,000 元，A 股 100 股整手，`min_trade_value=1500`。
+- 组合网格只研究 5/6 只持仓、单档建仓、不加仓、每天最多 1 个新仓。
+- 新增 50k 专用 expected-edge 排序，显式输出估值深度、质量、股息/股东回报、趋势确认、相对强度、lot-fit、行业集中和弱持仓惩罚。
+- 周期股只作为 risk-on opportunity sleeve；当周期上限为 0、非 risk-on、趋势未确认或 defensive core 不足时，只输出 watch-only。
+- replacement / switch plan 只在回测里模拟先卖后买，live/manual 输出仍是 advisory only，不生成真实交易。
+- `cash_sleeve` 只是未来研究接口，默认 disabled；当前没有 ETF 数据时不得伪造现金替代收益。
+
+运行入口：
+
+```bash
+./.venv/bin/python scripts/run_50k_core_experiments.py
+```
+
+本地调试可用 `--max-variants N` 限制变体数；报告必须记录实际运行规模，不能把抽样当作全量矩阵。输出目录固定为 `reports/backtest/50k_core/`，包括：
+
+- `core_experiment_metrics.csv`
+- `core_experiment_report.md`
+- `core_best_candidate.yml`
+- `core_observation_candidate.md`
+- `core_neighborhood_robustness.md`
+- `core_execution_funnel.csv`
+- `core_attribution_summary.csv`
+- `core_replacement_report.csv`
+- `core_effective_config.yml`
+- `core_warnings.json`
+- `core_module_contribution_report.md`
+
+第二阶段诊断与机制修复入口：
+
+```bash
+./.venv/bin/python scripts/diagnose_50k_core_failures.py
+./.venv/bin/python scripts/run_50k_core_repair_experiments.py
+```
+
+`diagnose_50k_core_failures.py` 只读取已落盘的 50k core research 报告，输出硬条件失败 Pareto、top variant deep dive、risk-on cash drag、交易密度、回撤来源、replacement、bucket/module 解释和修复建议。若缺少逐日持仓 PnL 或逐笔交易明细，报告必须显式写出缺失字段警告，不能伪造归因。
+
+`run_50k_core_repair_experiments.py` 最多运行 24 个第二阶段 repair 变体，只测试 monthly review、replacement 参数、partial de-risk、cyclical sleeve 和模块 overlay。repair 仍使用原硬条件，不放宽安全阈值；输出目录固定为 `reports/backtest/50k_core/repair/`。所有 repair 输出均保持 `research_only=true`、`auto_trading_approved=false`、`broker_integration_enabled=false`、`llm_decision_allowed=false`、`writes_real_trades=false`，且不得替换 release profile。
+
+第三阶段 trace 审计入口：
+
+```bash
+./.venv/bin/python scripts/generate_50k_core_traces.py --source repair --allow-missing
+./.venv/bin/python scripts/diagnose_50k_core_traces.py
+```
+
+`generate_50k_core_traces.py` 只对指定 50k core research variant 生成逐日组合账本、逐日持仓 PnL、逐笔交易账本、signal-to-execution trace、exit rule trace、replacement candidate trace、回撤归因、risk-on cash 和 no-trade interval trace。输出目录固定为 `reports/backtest/50k_core/traces/`。如果现有回测引擎无法提供精确 lot-level 成本或 broker-grade 费用分摊，trace 必须保留缺失说明并写入 `trace_missing_fields.json`，不得静默填 0 或伪造股票级归因。
+
+`diagnose_50k_core_traces.py` 只读取 trace 文件并重写审计报告，不执行参数搜索，不生成真实交易，不把 diagnostic future return 接入策略决策。所有 trace 输出仍保持 `research_only=true`、`auto_trading_approved=false`、`broker_integration_enabled=false`、`llm_decision_allowed=false`、`writes_real_trades=false`，且不得替换 release profile。
+
+第四阶段小规模 deployment repair 入口：
+
+```bash
+./.venv/bin/python scripts/run_50k_core_deployment_repair.py
+```
+
+`run_50k_core_deployment_repair.py` 只基于第三阶段 trace 结论做最多 24 个分层 research-only 机制修复变体，不跑全量 62,213 矩阵，不放宽原硬条件，不继续 replacement 阈值微调，不把 cyclical bucket 放回 executable sleeve，也不替换默认 release profile。新增配置固定为 `config/strategy_v2_50k_core_deployment_repair.yml`，继承 `config/strategy_v2.yml`、`config/strategy_v2_50k_core.yml` 与 `retail_50k_lot_aware`，并强制保持 `research_only=true`、`manual_execution_only=true`、`auto_trading_approved=false`、`broker_integration_enabled=false`、`llm_decision_allowed=false`、`writes_real_trades=false`、`release_profile_replacement=false`。
+
+第四阶段只测试以下 trace-driven overlays：
+
+- `quality_defensive_fill`：risk-on、高现金、无股票可执行买入时，从 effective universe 内寻找非周期高质量防御候选。
+- `winner_add`：只对已有盈利持仓加 1 手，禁止 average down，并受单票权重、月度次数和 group cap 约束。
+- `financial_group_cap`：银行+非银金融合并限额，公用事业单独限额，只阻断新增，不强制卖出现有持仓。
+- `market_regime_block_review`：不取消 market regime block，只允许 neutral/risk_on 下严格复核的 quality defensive fill。
+- `cash_sleeve_research`：只在仓库已有 510300/510050/510880/511880 真实行情时研究；无数据时只输出 feasibility，不伪造 ETF 收益，不用指数替代 ETF。
+
+输出目录固定为 `reports/backtest/50k_core/deployment_repair/`，包括 metrics、主报告、best/observation note、相对 repair best 对比、trace summary、cash-sleeve feasibility、group/quality/winner 明细、warnings、effective config，以及最多 4 个变体的 deployment repair trace。即使某个 cash sleeve overlay 改善总收益，也必须在报告中将 stock sleeve 与 cash sleeve 分开归因；若只有 cash sleeve 通过，不能标记为 stock-only pass。
+
 ## 日度动作
 
 固定动作枚举：
